@@ -1,0 +1,377 @@
+import Foundation
+import CoreImage
+import MonetShotKit
+
+// Tests as a plain program: `swift run MonetShotChecks`. Exits non-zero on
+// any failure. Each check gets a fresh temp directory; nothing touches the
+// real config or logs (MONETSHOT_HOME is set before anything logs).
+setenv("MONETSHOT_HOME", FileManager.default.temporaryDirectory.appendingPathComponent("monetshot-checks-\(getpid())").path, 1)
+
+nonisolated(unsafe) var failures = 0
+nonisolated(unsafe) var passed = 0
+
+func expect(_ condition: Bool, _ what: String, file: String = #fileID, line: Int = #line) {
+    if condition { passed += 1 } else { failures += 1; print("FAIL \(file):\(line) \(what)") }
+}
+
+func check(_ name: String, _ body: (URL) async throws -> Void) async {
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    do { try await body(dir) } catch { failures += 1; print("FAIL \(name): threw \(error)") }
+}
+
+await check("config round-trips") { dir in
+    let store = Store(dir: dir)
+    var c = Config()
+    c.refreshSeconds = 120
+    store.save(c)
+    expect(store.loadConfig() == c, "saved config loads back")
+}
+
+await check("missing keys fall back to defaults") { dir in
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    try Data(#"{"enabled": false}"#.utf8).write(to: dir.appendingPathComponent("config.json"))
+    let c = Store(dir: dir).loadConfig()
+    expect(c.enabled == false, "explicit key kept")
+    expect(c.refreshSeconds == Config().refreshSeconds, "missing key defaulted")
+}
+
+await check("damaged config is moved aside, not lost") { dir in
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    try Data("not json".utf8).write(to: dir.appendingPathComponent("config.json"))
+    expect(Store(dir: dir).loadConfig() == Config(), "defaults used")
+    let names = try FileManager.default.contentsOfDirectory(atPath: dir.path)
+    expect(names.contains { $0.hasPrefix("config.json.bad-") }, "bad file kept aside")
+}
+
+await check("files are owner-only") { dir in
+    Store(dir: dir).save(Config())
+    let attrs = try FileManager.default.attributesOfItem(atPath: dir.appendingPathComponent("config.json").path)
+    expect(attrs[.posixPermissions] as? Int == 0o600, "config.json is 0600")
+}
+
+await check("journal round-trips") { dir in
+    var s = RuntimeState()
+    s.changes.append(.init(kind: "example", restoreValue: "0"))
+    Store(dir: dir).save(s)
+    expect(Store(dir: dir).loadState() == s, "state loads back")
+}
+
+await check("shell captures output") { _ in
+    let r = await Shell().run("/bin/echo", ["hi"], timeout: .seconds(5))
+    expect(r.ok && r.stdout == "hi\n", "echo output")
+}
+
+await check("shell times out") { _ in
+    let r = await Shell().run("/bin/sleep", ["5"], timeout: .milliseconds(200))
+    expect(r.timedOut && !r.ok, "sleep killed at timeout")
+}
+
+
+// MARK: - MonetShot logic
+
+func near(_ a: Double, _ b: Double, _ eps: Double = 1e-3) -> Bool { abs(a - b) < eps }
+
+await check("auto zoom groups close clicks and merges near spans") { _ in
+    let clicks = [CursorSample(t: 2, x: 0.3, y: 0.3), CursorSample(t: 3, x: 0.31, y: 0.3),
+                  CursorSample(t: 12, x: 0.8, y: 0.7)]
+    let segs = CameraMath.autoZooms(clicks: clicks, duration: 20)
+    expect(segs.count == 2, "two groups -> two zooms (got \(segs.count))")
+    expect(near(segs[0].start, 2 - CameraMath.leadIn), "zoom starts before first click")
+    expect(near(segs[0].end, 3 + CameraMath.holdAfter), "zoom holds after last click")
+    expect(segs.allSatisfy(\.auto), "auto segments are flagged")
+    let close = CameraMath.autoZooms(clicks: [CursorSample(t: 2, x: 0, y: 0), CursorSample(t: 5.8, x: 0, y: 0)], duration: 20)
+    expect(close.count == 1, "spans with too short a gap merge (got \(close.count))")
+    expect(CameraMath.autoZooms(clicks: [], duration: 10).isEmpty, "no clicks, no zooms")
+}
+
+await check("zoom weight eases in, holds, eases out") { _ in
+    let s = ZoomSegment(start: 1, end: 5, scale: 2)
+    expect(CameraMath.weight(s, at: 0.5) == 0, "before")
+    expect(CameraMath.weight(s, at: 3) == 1, "middle holds")
+    let mid = CameraMath.weight(s, at: 1 + CameraMath.ramp / 2)
+    expect(near(mid, 0.5), "half way up the ramp is 0.5 (smootherstep is symmetric)")
+    expect(CameraMath.weight(s, at: 5) == 0, "after")
+    let short = ZoomSegment(start: 0, end: 0.6, scale: 2)
+    expect(CameraMath.weight(short, at: 0.3) == 1, "a short segment still reaches full zoom at its middle")
+}
+
+await check("camera stays inside the recording") { _ in
+    let track = SmoothTrack(xs: [0.02, 0.02], ys: [0.98, 0.98])
+    let seg = ZoomSegment(start: 0, end: 10, scale: 2)
+    let cam = CameraMath.camera(at: 5, segments: [seg], focus: track)
+    expect(near(cam.scale, 2), "full zoom")
+    let v = cam.viewport
+    expect(v.x >= -1e-9 && v.y >= -1e-9 && v.x + v.w <= 1 + 1e-9 && v.y + v.h <= 1 + 1e-9, "viewport clamped inside")
+    expect(CameraMath.camera(at: 20, segments: [seg], focus: track) == .identity, "outside segments the camera is home")
+    let fixed = ZoomSegment(start: 0, end: 10, scale: 2, focusX: 0.5, focusY: 0.5)
+    let c2 = CameraMath.camera(at: 5, segments: [fixed], focus: track)
+    expect(near(c2.centerX, 0.5) && near(c2.centerY, 0.5), "fixed focus ignores the cursor")
+}
+
+await check("smoothed cursor has no lag at a held position") { _ in
+    let samples = [CursorSample(t: 0, x: 0.1, y: 0.1), CursorSample(t: 1, x: 0.1, y: 0.1),
+                   CursorSample(t: 2, x: 0.9, y: 0.5), CursorSample(t: 4, x: 0.9, y: 0.5)]
+    let track = SmoothTrack.make(from: samples, duration: 4, omega: CameraMath.cursorOmega(smoothing: 0.6))
+    let p = track.position(at: 3)
+    expect(near(p.x, 0.9, 0.01) && near(p.y, 0.5, 0.01), "settled on the held point (got \(p))")
+    let mid = track.position(at: 1.5)
+    expect(mid.x > 0.3 && mid.x < 0.7, "moving through the middle half way (got \(mid.x))")
+    let start = track.position(at: 0)
+    expect(near(start.x, 0.1, 0.02), "starts where the pointer started (got \(start.x))")
+}
+
+await check("segment edits stay in bounds and become hand-made") { _ in
+    let s = ZoomSegment(start: 2, end: 4, scale: 2, auto: true)
+    let moved = SegmentEdits.move(s, by: 10, duration: 6)
+    expect(near(moved.start, 4) && near(moved.end, 6), "move is clamped to the end")
+    expect(!moved.auto, "edited segments are no longer auto")
+    let resized = SegmentEdits.resize(s, leading: true, to: 3.9, duration: 6)
+    expect(near(resized.start, 4 - SegmentEdits.minDuration), "resize keeps a minimum length")
+    expect(SegmentEdits.insert(at: 3, into: [s], duration: 6) == nil, "cannot insert inside a segment")
+    let ins = SegmentEdits.insert(at: 5, into: [s], duration: 6)
+    expect(ins != nil && ins!.start >= 4 && ins!.end <= 6, "insert fits the free space")
+}
+
+await check("re-running auto keeps hand-made zooms") { _ in
+    let manual = ZoomSegment(start: 0, end: 3, scale: 3)
+    let clicks = [CursorSample(t: 1, x: 0.5, y: 0.5), CursorSample(t: 10, x: 0.5, y: 0.5)]
+    let out = SegmentEdits.reAuto([manual], clicks: clicks, duration: 20)
+    expect(out.contains(manual), "manual kept")
+    expect(out.filter(\.auto).count == 1, "the auto zoom overlapping the manual one is dropped")
+}
+
+await check("project round-trips and canvas sizes are even") { dir in
+    let folder = dir.appendingPathComponent("a.reel")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    try Data().write(to: folder.appendingPathComponent("screen.mov"))
+    var p = Project(folder: folder, meta: RecordingMeta(pixelWidth: 2880, pixelHeight: 1800, pointScale: 2, duration: 4, source: "display"),
+                    cursor: CursorTrack(samples: [CursorSample(t: 0, x: 0.5, y: 0.5)]), edit: EditDoc())
+    p.edit.backdrop = .charcoal
+    try p.saveMeta(); try p.saveCursor(); try p.saveEdit()
+    let back = try Project.load(folder)
+    expect(back.edit == p.edit && back.meta == p.meta && back.cursor == p.cursor, "loads back identically")
+    var doc = EditDoc(); doc.outputWidth = 1921; doc.canvasAspect = 0
+    let size = doc.canvasSize(recordingAspect: 16.0 / 10.0)
+    expect(size.height % 2 == 0, "height is even (got \(size.height))")
+    let old = try JSONDecoder.app.decode(EditDoc.self, from: Data(#"{"padding": 0.1}"#.utf8))
+    expect(old.padding == 0.1 && old.backdrop == .paper, "old edit files load with defaults")
+}
+
+await check("renderer frames the recording inside the canvas") { _ in
+    let meta = RecordingMeta(pixelWidth: 2880, pixelHeight: 1800, pointScale: 2, duration: 2, source: "display")
+    let r = Renderer(doc: EditDoc(), meta: meta, cursor: CursorTrack())
+    expect(r.canvas.width == 2560 && r.canvas.height == 1440, "default canvas 2560x1440")
+    let f = r.frameRect()
+    expect(f.minX > 0 && f.minY > 0 && f.maxX < r.canvas.width && f.maxY < r.canvas.height, "frame sits inside the padding")
+    expect(abs(f.width / f.height - 1.6) < 0.01, "frame keeps the recording's aspect")
+    let src = CIImage(color: CIColor(red: 1, green: 0, blue: 0)).cropped(to: CGRect(x: 0, y: 0, width: 2880, height: 1800))
+    let out = r.render(source: src, at: 1)
+    expect(out.extent == CGRect(origin: .zero, size: r.canvas), "output is exactly the canvas")
+}
+
+await check("time map plays clips in order, across takes") { _ in
+    let m = TimeMap(clips: [Clip(start: 1, end: 3, take: 0), Clip(start: 5, end: 9, take: 1), Clip(start: 0, end: 1, take: 0)])
+    expect(near(m.duration, 7), "duration is the clips' total (got \(m.duration))")
+    let a = m.locate(2.5)
+    expect(a.index == 1 && a.take == 1 && near(a.time, 5.5), "output -> clip, take and take time (got \(a))")
+    let b = m.locate(6.5)
+    expect(b.index == 2 && b.take == 0 && near(b.time, 0.5), "clips play in list order, not time order")
+    expect(m.output(take: 1, time: 6) == 3, "take time -> output")
+    expect(m.output(take: 1, time: 2) == nil && !m.keeps(take: 0, time: 4), "footage not in any clip isn't kept")
+    var doc = EditDoc(); doc.cuts = [Cut(start: 3, end: 5)]; doc.trimStart = 1; doc.trimEnd = 9
+    expect(near(TimeMap(doc, duration: 10).duration, 6), "a fresh recording: trim minus pause cuts")
+}
+
+await check("clip edits: split, resize, delete, reorder") { _ in
+    let one = [Clip(start: 0, end: 10)]
+    guard let two = ClipEdits.split(one, atOutput: 4) else { expect(false, "split failed"); return }
+    expect(two == [Clip(start: 0, end: 4), Clip(start: 4, end: 10)], "split in two")
+    expect(ClipEdits.split(two, atOutput: 4.05) == nil, "no split right at an edge")
+    let shrunk = ClipEdits.resize(two, at: 0, leading: false, to: 3, takeDuration: 10)
+    expect(shrunk[0].end == 3, "shrink the first clip's end")
+    let grown = ClipEdits.resize(shrunk, at: 1, leading: true, to: 1, takeDuration: 10)
+    expect(grown[1].start == 1, "an edge can reach back over footage another clip also shows")
+    let clamped = ClipEdits.resize(two, at: 1, leading: false, to: 99, takeDuration: 10)
+    expect(clamped[1].end == 10, "an edge stops at the end of its take")
+    expect(ClipEdits.delete(two, at: 0) == [Clip(start: 4, end: 10)], "delete a clip")
+    expect(ClipEdits.delete(one, at: 0) == one, "the last clip can't be deleted")
+    let three = [Clip(start: 0, end: 2), Clip(start: 0, end: 2, take: 1), Clip(start: 5, end: 6)]
+    expect(ClipEdits.move(three, from: 2, to: 0).first == Clip(start: 5, end: 6), "reorder")
+    expect(ClipEdits.dropIndex(three, dragging: 0, centreAt: 3.5) == 2, "dragged past the last midpoint lands at the end")
+    expect(ClipEdits.dropIndex(three, dragging: 2, centreAt: 0.4) == 0, "dragged to the start lands first")
+    expect(ClipEdits.starts(three) == [0, 2, 4], "output starts")
+}
+
+await check("takes: a second take loads, and zooms stay on their take") { dir in
+    let folder = dir.appendingPathComponent("b.reel")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    try Data().write(to: folder.appendingPathComponent("screen.mov"))
+    var p = Project(folder: folder, meta: RecordingMeta(pixelWidth: 2880, pixelHeight: 1800, pointScale: 2, duration: 4, source: "display"),
+                    cursor: CursorTrack(), edit: EditDoc())
+    try p.saveMeta(); try p.saveCursor(); try p.saveEdit()
+    let tf = p.nextTakeFolder()
+    expect(tf.lastPathComponent == "take-2", "first extra take is take-2")
+    try FileManager.default.createDirectory(at: tf, withIntermediateDirectories: true)
+    try Data().write(to: tf.appendingPathComponent("screen.mp4"))
+    try Take(folder: tf, meta: RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 6, source: "import", video: "screen.mp4"),
+             cursor: CursorTrack()).save()
+    p = try Project.load(folder)
+    expect(p.takes.count == 2 && p.duration(ofTake: 1) == 6 && !p.takes[1].hasCursor, "take 2 loads with its own meta")
+    expect(p.nextTakeFolder().lastPathComponent == "take-3", "then take-3")
+    let segs = [ZoomSegment(start: 0, end: 2, take: 0), ZoomSegment(start: 1, end: 3, take: 1)]
+    let re = SegmentEdits.reAuto(segs, clicks: [CursorSample(t: 2, x: 0.5, y: 0.5)], duration: 6, take: 1)
+    expect(re.contains(segs[0]), "re-running auto on take 2 leaves take 1's zooms alone")
+    let old = try JSONDecoder.app.decode(ZoomSegment.self, from: Data(#"{"id":"\#(UUID().uuidString)","start":1,"end":2,"scale":2,"auto":true}"#.utf8))
+    expect(old.take == 0, "zooms saved before takes existed belong to the first take")
+    let r = Renderer(project: p)
+    let f2 = r.frameRect(take: 1)
+    expect(abs(f2.width / f2.height - 16.0 / 9.0) < 0.01, "each take is framed at its own shape")
+}
+
+await check("music catalogue parses, and unusable tracks are skipped") { _ in
+    let json = #"""
+    [{"title": "Morning", "filename": "Morning Light.mp3", "length": "00:02:34", "instruments": "Piano", "bpm": "92",
+      "description": "Soft and bright.", "feel": "Bright, Calming", "uploaded": "2024-01-02"},
+     {"title": "No file", "filename": null, "length": "00:01:00"},
+     {"title": "Too long", "filename": "Long.mp3", "length": "01:00:00"},
+     {"title": "Older", "filename": "Older.mp3", "length": "00:01:10", "feel": "Bright", "uploaded": "2012-05-05"}]
+    """#
+    let songs = try MusicCatalog.parse(Data(json.utf8))
+    expect(songs.count == 2, "only usable tracks are kept (got \(songs.count))")
+    let t = songs[0]
+    expect(t.title == "Morning" && t.duration == 154 && t.bpm == 92 && t.genres == ["Bright", "Calming"], "fields mapped, newest first")
+    expect(t.audioURL.hasSuffix("Morning%20Light.mp3") && t.needsCredit && t.licenseLabel == "CC BY 4.0", "file URL and licence")
+    expect(t.attribution?.contains("Kevin MacLeod") == true, "credit line ready")
+    var doc = EditDoc(); doc.music = MusicChoice(track: t, file: "music-x.mp3")
+    let back = try JSONDecoder.app.decode(EditDoc.self, from: JSONEncoder.app.encode(doc))
+    expect(back.music == doc.music, "music choice round-trips in edit.json")
+}
+
+await check("cursor styles") { dir in
+    for style in CursorStyle.allCases {
+        guard let art = CursorArt.image(style: style, tint: .sky, label: "Connor", pixelHeight: 66) else {
+            expect(false, "\(style) renders"); continue
+        }
+        expect(art.tip.x > 0 && art.tip.x < CGFloat(art.image.width) && art.tip.y < CGFloat(art.image.height), "\(style) hotspot inside")
+        if style == .tag {
+            let plain = CursorArt.image(style: .soft, tint: .sky, label: "", pixelHeight: 66)!
+            expect(art.image.width > plain.image.width, "name tag widens the art")
+        }
+    }
+    var doc = EditDoc(); doc.cursorStyle = .tag; doc.cursorTint = .mint; doc.cursorLabel = "Connor"
+    let back = try JSONDecoder.app.decode(EditDoc.self, from: JSONEncoder.app.encode(doc))
+    expect(back.cursorStyle == .tag && back.cursorTint == .mint && back.cursorLabel == "Connor", "cursor look round-trips")
+    let old = try JSONDecoder.app.decode(EditDoc.self, from: Data("{}".utf8))
+    expect(old.cursorStyle == .classic, "old edits keep the classic cursor")
+    // MONETSHOT_CURSOR_SHEET=<out.png> writes every style and tint for a look.
+    if let out = ProcessInfo.processInfo.environment["MONETSHOT_CURSOR_SHEET"] {
+        let cell = 150, cols = CursorTint.allCases.count, rows = CursorStyle.allCases.count
+        let ctx = CGContext(data: nil, width: cell * cols, height: cell * rows, bitsPerComponent: 8, bytesPerRow: 0,
+                            space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        ctx.setFillColor(CGColor(srgbRed: 0.93, green: 0.92, blue: 0.9, alpha: 1)); ctx.fill(CGRect(x: 0, y: 0, width: cell * cols, height: cell * rows))
+        for (r, style) in CursorStyle.allCases.enumerated() {
+            for (c, tint) in CursorTint.allCases.enumerated() {
+                let a = CursorArt.image(style: style, tint: tint, label: "Connor", pixelHeight: 66)!
+                let y = cell * (rows - 1 - r) + 30
+                ctx.draw(a.image, in: CGRect(x: cell * c + 30, y: y + 90 - a.image.height, width: a.image.width, height: a.image.height))
+            }
+        }
+        let img = ctx.makeImage()!
+        let dest = CGImageDestinationCreateWithURL(URL(fileURLWithPath: out) as CFURL, "public.png" as CFString, 1, nil)!
+        CGImageDestinationAddImage(dest, img, nil); CGImageDestinationFinalize(dest)
+    }
+}
+
+await check("camera clips") { _ in
+    let a = CameraClip(file: "a.mov", at: 1, duration: 4)
+    let b = CameraClip(file: "b.mov", at: 3, duration: 2)
+    let both = CameraEdits.insert(b, into: [a])
+    expect(both.count == 2 && near(both[0].end, 3) && both[1].file == "b.mov", "recording over a clip trims it (got \(both.map(\.end)))")
+    let over = CameraEdits.insert(CameraClip(file: "c.mov", at: 0.5, duration: 9), into: both)
+    expect(over.count == 1 && over[0].file == "c.mov", "recording over everything replaces it")
+    expect(CameraEdits.presence(a, at: 0.5) == 0 && CameraEdits.presence(a, at: 3) == 1, "present only inside, whole in the middle")
+    expect(CameraEdits.presence(a, at: 1.05) > 0 && CameraEdits.presence(a, at: 1.05) < 0.5, "fades in")
+    let quiet = MusicEnvelope.gain(at: 5, length: 20, fadeIn: true, fadeOut: true, voice: [4...8])
+    let loud = MusicEnvelope.gain(at: 12, length: 20, fadeIn: true, fadeOut: true, voice: [4...8])
+    expect(near(quiet, MusicEnvelope.duckLevel) && near(loud, 1), "music ducks under the voice (\(quiet), \(loud))")
+    expect(MusicEnvelope.gain(at: 0, length: 20, fadeIn: true, fadeOut: true, voice: []) == 0, "fades in from silence")
+    var doc = EditDoc(); doc.cameraClips = [a]; doc.cameraLook.corner = .topLeft
+    let back = try JSONDecoder.app.decode(EditDoc.self, from: JSONEncoder.app.encode(doc))
+    expect(back.cameraClips == [a] && back.cameraLook.corner == .topLeft, "camera round-trips in edit.json")
+    let r = Renderer(doc: doc, meta: RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 10, source: "display"), cursor: CursorTrack())
+    let bubble = r.bubbleRect
+    expect(bubble.minX < r.canvas.width / 4 && bubble.maxY > r.canvas.height * 3 / 4, "top-left bubble sits top-left (CoreImage y-up)")
+}
+
+await check("hiding and cropping: rect maths and edit.json") { _ in
+    let r = NormRect(x: 0.6, y: 0.1, w: 0.3, h: 0.5)
+    expect(r.moved(dx: 0.3, dy: -0.5) == NormRect(x: 0.7, y: 0, w: 0.3, h: 0.5), "a move stops at the frame's edges")
+    let grown = r.resized(handleX: 0, handleY: 1, dx: -0.1, dy: 0.2)
+    expect(near(grown.x, 0.5) && near(grown.maxX, 0.9) && near(grown.y, 0.1) && near(grown.maxY, 0.8), "bottom-left handle moves only its edges")
+    let flat = r.resized(handleX: 1, handleY: 0.5, dx: -0.5, dy: 0.3, minSize: 0.05)
+    expect(near(flat.w, 0.05) && near(flat.h, 0.5), "an edge handle stops at the minimum and leaves the other axis")
+    let p = r.local(0.75, 0.35)
+    expect(near(p.x, 0.5) && near(p.y, 0.5) && near(r.global(p.x, p.y).x, 0.75), "local and global are inverses")
+    var b = BlurRegion(rect: r, style: .pixelate, start: 2)
+    expect(!b.covers(1) && b.covers(2) && b.covers(99), "a blur with only a start runs to the end")
+    b.end = 5
+    expect(!b.covers(5) && b.covers(4.9), "and stops at its end")
+    var doc = EditDoc()
+    doc.blurs = [b]
+    doc.setCrop(NormRect(x: 0, y: 0, w: 0.5, h: 1), take: 0)
+    let back = try JSONDecoder.app.decode(EditDoc.self, from: JSONEncoder.app.encode(doc))
+    expect(back.blurs == [b] && back.crop(take: 0) == NormRect(x: 0, y: 0, w: 0.5, h: 1) && back.crop(take: 1) == .full, "blurs and crops round-trip")
+    doc.setCrop(.full, take: 0)
+    expect(doc.crops.isEmpty, "cropping to the whole frame removes the crop")
+    let old = try JSONDecoder.app.decode(EditDoc.self, from: Data(#"{"padding": 0.1}"#.utf8))
+    expect(old.blurs.isEmpty && old.crops.isEmpty, "older edit.json files load with nothing hidden")
+}
+
+await check("hiding and cropping: what the renderer draws") { _ in
+    // A 400x200 frame, left half white, right half black, with a hard
+    // black/white edge inside the right half at x = 300.
+    let w = 400, h = 200
+    let left = CIImage(color: .white).cropped(to: CGRect(x: 0, y: 0, width: 200, height: h))
+    let stripe = CIImage(color: .white).cropped(to: CGRect(x: 300, y: 0, width: 100, height: h))
+    let frame = stripe.composited(over: left).composited(over: CIImage(color: .black).cropped(to: CGRect(x: 0, y: 0, width: w, height: h)))
+    let ctx = CIContext(options: [.workingColorSpace: NSNull()])
+    func grey(_ img: CIImage, _ x: CGFloat, _ yTop: CGFloat) -> Double {
+        var px = [UInt8](repeating: 0, count: 4)
+        let e = img.extent
+        ctx.render(img, toBitmap: &px, rowBytes: 4, bounds: CGRect(x: e.minX + x, y: e.maxY - yTop - 1, width: 1, height: 1),
+                   format: .RGBA8, colorSpace: nil)
+        return Double(px[0]) / 255
+    }
+    // Hide x 250...350 (the edge at 300) for take time 1...3.
+    let blur = BlurRegion(rect: NormRect(x: 0.625, y: 0, w: 0.25, h: 1), strength: 1, start: 1, end: 3)
+    let on = Renderer.obscure(frame, [blur], at: 2)
+    let off = Renderer.obscure(frame, [blur], at: 4)
+    expect(grey(off, 298, 100) < 0.05 && grey(off, 302, 100) > 0.95, "outside its time the edge stays sharp")
+    let a = grey(on, 298, 100), c = grey(on, 302, 100)
+    expect(abs(a - c) < 0.25, "inside its time the edge is blurred away (\(a) vs \(c))")
+    expect(grey(on, 100, 100) > 0.95 && grey(on, 220, 100) < 0.05, "nothing outside the box changes")
+    let solid = Renderer.obscure(frame, [BlurRegion(rect: blur.rect, style: .solid)], at: 0)
+    expect(grey(solid, 320, 100) < 0.2, "a cover is dark")
+
+    let cropped = Renderer.framed(frame, crop: NormRect(x: 0.5, y: 0, w: 0.5, h: 1))
+    expect(cropped.extent == CGRect(x: 0, y: 0, width: 200, height: 200), "a crop keeps its part, at the origin (\(cropped.extent))")
+    expect(grey(cropped, 50, 100) < 0.05 && grey(cropped, 150, 100) > 0.95, "and it is the right part")
+
+    // Cropping to a square makes the framed recording square, and the cursor follows.
+    var doc = EditDoc()
+    doc.canvasAspect = 1
+    doc.backdrop = .none
+    let meta = RecordingMeta(pixelWidth: w, pixelHeight: h, pointScale: 1, duration: 10, source: "display")
+    let whole = Renderer(doc: doc, meta: meta, cursor: CursorTrack())
+    doc.setCrop(NormRect(x: 0.5, y: 0, w: 0.5, h: 1), take: 0)
+    let square = Renderer(doc: doc, meta: meta, cursor: CursorTrack())
+    let fw = whole.frameRect(), fs = square.frameRect()
+    expect(abs(fw.width / fw.height - 2) < 0.02 && abs(fs.width / fs.height - 1) < 0.02, "framed aspect follows the crop (\(fw.size), \(fs.size))")
+    let out = square.render(source: frame, take: 0, time: 0)
+    expect(grey(out, out.extent.width * 0.25, out.extent.height / 2) < 0.05 && grey(out, out.extent.width * 0.75, out.extent.height / 2) > 0.95,
+           "the render shows only the cropped part, filling the frame")
+}
+
+print(failures == 0 ? "All \(passed) checks passed" : "\(failures) failed, \(passed) passed")
+exit(failures == 0 ? 0 : 1)

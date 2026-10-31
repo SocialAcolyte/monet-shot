@@ -1,0 +1,166 @@
+# MonetShot
+
+A Screen Studio–style recorder that lives in the menu bar. Record a display
+or a window, then zoom in on what matters after the fact: MonetShot logs every
+pointer move and click while it records, zooms on your clicks automatically,
+draws its own smooth cursor, and frames the result on a backdrop. Blur or
+crop away anything private before you share it. The look follows
+[Insomnia](https://github.com/krishhgg/Insomnia).
+
+## Use it
+
+- **Record.** Click the ring in the menu bar and pick a display or window in
+  macOS's own picker. A 3‑2‑1 rolls in the bar, then the ring turns clay and
+  the time ticks. **Press and hold** the small square to stop (a stray click
+  can't end a take). Click during the countdown to cancel.
+- **Clips.** **Double-tap Shift** (or click the pause button in the bar) to
+  pause; do it again to resume. Paused stretches are cut out of the video, so
+  each take plays straight into the next. They show hatched on the timeline;
+  select one and press Delete (or Restore) to put it back.
+- **Home.** Launching MonetShot (or *Open MonetShot* in the ring's right-click
+  menu, ⌘O) shows your recordings as cards, rendered with their backdrop.
+  Click one to edit it; *Import video* turns any video file into a MonetShot
+  edit; right-click a card to show it in Finder or move it to the Trash.
+- **Edit.** The editor opens by itself after a recording. Auto-zooms are already on the
+  timeline, one per cluster of clicks.
+  - Drag a zoom to move it; drag its ends to resize; double-click empty track
+    (or press **Z**) to add one; **Delete** removes the selected one.
+  - Inspector: zoom depth, *Follow cursor* or *Hold still* (then click the
+    preview to choose where it looks), backdrop (four colours, none, or a
+    **picture**: pick one, or drop it on the preview; it is copied into the
+    recording, with optional blur), padding, corners, shadow,
+    cursor size and smoothing, click ripples, output size and aspect.
+  - **Clips.** The timeline is the finished video: its clips end to end,
+    each a filmstrip of its own footage with a handle at each end. Drag a
+    handle to shorten or lengthen the clip; drag a clip's middle to move it
+    elsewhere in the order; **S** (or Split) cuts the clip under the
+    playhead in two; **Delete** removes the selected clip. **⌘Z** / **⇧⌘Z**
+    undo and redo anything.
+  - **Add clip.** *Record a new take* (the editor steps aside, you record,
+    and the take lands at the end with its own auto zooms), or *Add a video
+    or recording…* (any video file, or another MonetShot recording with its
+    zooms). You can also drop videos onto the timeline. Takes can be
+    different sizes; each is framed at its own shape. Zooms belong to the
+    footage they were made on and travel with it.
+  - **Space** plays,
+    **←/→** step a frame (with Shift, a second), **A** re-runs auto-zoom.
+- **Hide & crop.** *Hide* (or **B**) shows the take whole, so you can
+  take out what shouldn't be seen, like a chat, an inbox or a token in a
+  terminal:
+  - *Hide*: drag a box over it. Each box is **Blur**, **Pixelate** or
+    **Cover** (solid), with a strength. It is drawn into the raw frame,
+    so it stays over its content through every zoom. A box hides its
+    part for the whole take; move the playhead and press *Start here* /
+    *End here* to hide it for only part of the take.
+  - *Crop*: drag the edges to keep only part of the screen, for example
+    the browser without the chat beside it. The kept part is framed as if
+    it were the whole recording; the cursor, clicks and zooms follow.
+  - Boxes move by their middle and resize by their handles; **Delete**
+    removes the selected one; **R** switches between Hide and Crop; **Esc**
+    or *Done* goes back to the finished look.
+- **Cursor.** Five looks in the inspector: *Classic*, *White*, *Soft* (a
+  rounded arrow in a colour), *Dot* (a soft bubble, like a touch demo) and
+  *Name tag* (an arrow with your name in a pill). The tinted ones come in
+  six colours, and their click ripples match.
+- **You on camera.** *Camera* (or **C**) brings out the webcam:
+  - *Over the video*: press Space (or Record), 3‑2‑1, and the edit plays
+    from the playhead, muted, while you talk over it. You land in a bubble,
+    exactly where the preview shows you. Record again over a stretch to
+    replace it.
+  - *Just me*: a clip of only you, added at the end and framed like the rest.
+  - Camera clips sit on their own lane under the zooms; right-click one to
+    have it **fill the frame** instead of the bubble, or delete it. The
+    inspector sets circle or rounded, corner, size and mirroring, and ducks
+    the music while you talk.
+  - **While recording the screen:** tick *Record My Camera Too* in the
+    ring's right-click menu. You see yourself in a bubble during the 3‑2‑1;
+    it hides when recording starts (it would be in the capture) and the
+    camera keeps recording alongside, following the take's clips and cuts.
+- **Music.** *Music* (or **M**) opens the browser: Kevin MacLeod's library
+  from [incompetech.com](https://incompetech.com) (about 1,400 tracks, CC BY
+  4.0). Search, or pick a mood (Bright, Calming, Driving, Epic…), or *Use
+  your own* file. Click a row to preview; *Use* downloads it into the recording. In the inspector, slide
+  the bright window along the waveform to choose which part of the song
+  plays, and set volume and fades. CC BY tracks need a credit: *Copy credit*
+  puts it on the clipboard, and every export writes it beside the video as
+  `<name>.credits.txt`.
+- **Export.** *Export MP4* (⌘E) renders the edit next to the recording at up
+  to 4K, 60 fps.
+
+Right-click the ring for recent recordings, *Open Recording…*, and the folder.
+
+## Install
+
+```sh
+scripts/install.sh            # builds, signs ad-hoc, installs to ~/Applications
+open ~/Applications/MonetShot.app
+```
+
+Command Line Tools are enough (no Xcode). `swift run MonetShotChecks` runs the
+tests. From a script:
+
+```sh
+MonetShot --auto   <rec.reel>                 # (re)make auto zooms from the clicks
+MonetShot --frame  <rec.reel> <s> <out.png>   # one finished frame
+MonetShot --render <rec.reel> <out.mp4>       # the full export
+MonetShot --add    <rec.reel> <video|rec.reel>…  # add footage as clips at the end
+```
+
+## What it changes on your Mac
+
+- Writes recordings to `~/Movies/MonetShot/` (one `.reel` folder each: the raw
+  video, the cursor log, and the edit) and exports beside them.
+- A log at `~/Library/Logs/MonetShot/monetshot.log`.
+- The music catalogue is cached for a week in `~/Library/Caches/MonetShot/music/`.
+  MonetShot talks to the network only for the music browser.
+- Nothing else: no login item, no background service, no system settings.
+
+**Permissions.** None for the screen. Camera and Microphone are asked
+for the first time you record yourself (an ad-hoc signed build may ask
+again after a rebuild). The system sharing picker gives MonetShot access
+to just the chosen display or window for that recording, which is also why
+it keeps working after each rebuild of an ad-hoc signed app. Pointer
+positions are polled and clicks come from a mouse event monitor; neither
+needs Accessibility. MonetShot records sound only from the microphone, only
+while recording yourself, and never keystrokes.
+
+## How it works
+
+- `MonetShotKit/Core/CameraMath.swift`: cursor smoothing (a critically damped
+  spring run forwards and backwards, so the cursor glides without lagging
+  behind your clicks), auto-zoom from click clusters, and the camera at any
+  moment (smootherstep in and out, centre clamped inside the recording).
+- `MonetShotKit/Render/Renderer.swift`: one CoreImage pass per frame: hidden
+  boxes blurred into the raw frame, the crop, backdrop with grain, soft shadow, the recording zoomed and rounded, the vector
+  cursor and click ripples. The editor's preview and the export run the same
+  code, so what you see is what you get. `Compositor.swift` feeds it the
+  screen frame and whichever camera frame is there (clips recorded in the
+  editor win over a take's own camera).
+- `MonetShot/Recording/`: `SCContentSharingPicker` + `SCStream` +
+  `SCRecordingOutput` (HEVC, cursor hidden), and the 120 Hz cursor tracker.
+- Pauses: ScreenCaptureKit can't pause a file, so MonetShot keeps capturing and
+  marks the stretch as a cut. `TimeMap` turns trim and cuts into the kept
+  spans; the player and export run an `AVMutableComposition` of just those,
+  and the renderer maps output time back to recording time for the cursor
+  and zooms. Double-tap Shift is read from the modifier state, which needs no
+  permission (key events would).
+- When recording a display, the edit ends just before the pointer went up to
+  the menu bar to stop.
+
+## Known limits
+
+- One display or window per take; a window is assumed not to move while
+  recording. No system audio; the camera brings your voice.
+- Hidden boxes are fixed rectangles: they don't track something that
+  moves or scrolls. Time them with *Start here* / *End here*, or crop it
+  away.
+- Requires macOS 26 and Swift 6.2 (the Command Line Tools are enough).
+
+## Backdrop paintings
+
+MonetShot comes with 20 paintings for the picture backdrop (Monet, Van Gogh, Turner, Sargent, Homer, Hokusai, Klimt, Seurat, Cézanne, Sorolla). All are public domain or CC0 scans from Wikimedia Commons; each one's title, artist, licence and source page are in `Resources/Backdrops/credits.json`.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Music found through the browser is Kevin
+MacLeod's, under CC BY 4.0, and needs crediting where you publish.
