@@ -91,6 +91,20 @@ Right-click the ring for recent recordings, *Open Recording…*, and the folder.
 
 ## Install
 
+With [Homebrew](https://brew.sh) (macOS 26, Apple Silicon):
+
+```sh
+brew tap socialacolyte/tap
+brew trust socialacolyte/tap
+brew install --cask monet-shot
+```
+
+Or download the zip from [Releases](https://github.com/SocialAcolyte/monet-shot/releases). Monet Shot is not
+notarised by Apple yet: the first time you open it, go to System Settings › Privacy & Security and
+click **Open Anyway**.
+
+From source:
+
 ```sh
 scripts/install.sh            # builds, signs ad-hoc, installs to ~/Applications
 open ~/Applications/Monet\ Shot.app
