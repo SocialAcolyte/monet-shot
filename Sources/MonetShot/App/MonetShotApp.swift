@@ -200,7 +200,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {
             Log.error("open \(url.lastPathComponent): \(error)")
             let alert = NSAlert()
-            alert.messageText = "MonetShot couldn't open that recording"
+            alert.messageText = "Monet Shot couldn't open that recording"
             alert.informativeText = "\(error)"
             NSApp.activate()
             alert.runModal()

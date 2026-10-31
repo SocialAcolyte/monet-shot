@@ -1,4 +1,4 @@
-# MonetShot: spec
+# Monet Shot: spec
 
 **Job.** Record the screen and turn it into a polished demo video, with
 zooms decided after recording.

@@ -83,7 +83,7 @@ final class StatusItemController: NSObject {
             cam.state = CameraRecorder.withScreen ? .on : .off
             menu.addItem(cam)
         }
-        menu.addItem(item("Open MonetShot", #selector(home), key: "o"))
+        menu.addItem(item("Open Monet Shot", #selector(home), key: "o"))
         menu.addItem(.separator())
         let recent = library.recent(limit: 6)
         if !recent.isEmpty {
@@ -100,7 +100,7 @@ final class StatusItemController: NSObject {
         menu.addItem(item("Open Recording…", #selector(openOther)))
         menu.addItem(item("Show Recordings in Finder", #selector(reveal)))
         menu.addItem(.separator())
-        menu.addItem(item("Quit MonetShot", #selector(quit), key: "q"))
+        menu.addItem(item("Quit Monet Shot", #selector(quit), key: "q"))
         if let button = item.button {
             menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
         }

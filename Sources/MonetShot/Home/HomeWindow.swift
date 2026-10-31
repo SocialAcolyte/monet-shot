@@ -78,7 +78,7 @@ final class HomeModel {
     func importVideo() {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.movie, .video, .mpeg4Movie, .quickTimeMovie]
-        panel.message = "Choose a video to edit in MonetShot"
+        panel.message = "Choose a video to edit in Monet Shot"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         importing = true
         Task {
@@ -118,7 +118,7 @@ final class HomeWindow: NSObject, NSWindowDelegate {
                           styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                           backing: .buffered, defer: false)
         super.init()
-        window.title = "MonetShot"
+        window.title = "Monet Shot"
         window.titlebarAppearsTransparent = true
         window.appearance = NSAppearance(named: .darkAqua)
         window.backgroundColor = NSColor(red: 0x17 / 255, green: 0x19 / 255, blue: 0x1B / 255, alpha: 1)
@@ -149,7 +149,7 @@ struct HomeView: View {
                 Aperture(recording: false, busy: false)
                     .foregroundStyle(Palette.moonWhite)
                     .frame(width: 24, height: 24)
-                Text("MonetShot").font(.system(size: 28, weight: .bold, design: .rounded))
+                Text("Monet Shot").font(.system(size: 28, weight: .bold, design: .rounded))
                 Spacer()
                 Button(action: model.importVideo) {
                     if model.importing {
@@ -160,7 +160,7 @@ struct HomeView: View {
                 }
                 .buttonStyle(PillButtonStyle())
                 .disabled(model.importing)
-                .help("Edit any video in MonetShot")
+                .help("Edit any video in Monet Shot")
                 Button(action: model.record) { Label("New recording", systemImage: "record.circle") }
                     .buttonStyle(PillButtonStyle(prominent: true))
             }

@@ -53,7 +53,7 @@ struct MusicBrowserView: View {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Music").font(.system(size: 26, weight: .bold, design: .rounded))
-                    Text("Kevin MacLeod's library, free to use with a credit (MonetShot keeps it for you)")
+                    Text("Kevin MacLeod's library, free to use with a credit (Monet Shot keeps it for you)")
                         .font(.system(size: 11.5, design: .rounded))
                         .foregroundStyle(Palette.faint)
                 }

@@ -369,7 +369,7 @@ final class EditorModel {
         panel.canChooseDirectories = true
         panel.treatsFilePackagesAsDirectories = false
         panel.directoryURL = Project.libraryDir
-        panel.message = "Add a video or a MonetShot recording to the end of this one"
+        panel.message = "Add a video or a Monet Shot recording to the end of this one"
         guard panel.runModal() == .OK else { return }
         let urls = panel.urls
         Task { await addFootage(urls) }
@@ -458,8 +458,8 @@ final class EditorModel {
             guard await CameraRecorder.shared.acquire() else {
                 cameraPhase = .off
                 let alert = NSAlert()
-                alert.messageText = "MonetShot can't use the camera"
-                alert.informativeText = "Allow MonetShot in System Settings › Privacy & Security › Camera (and Microphone), then try again."
+                alert.messageText = "Monet Shot can't use the camera"
+                alert.informativeText = "Allow Monet Shot in System Settings › Privacy & Security › Camera (and Microphone), then try again."
                 alert.addButton(withTitle: "Open Settings")
                 alert.addButton(withTitle: "Cancel")
                 if alert.runModal() == .alertFirstButtonReturn,

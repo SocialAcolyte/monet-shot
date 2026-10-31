@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build MonetShot and assemble an ad-hoc signed MonetShot.app.
+# Build Monet Shot and assemble an ad-hoc signed "Monet Shot.app".
 # Usage: scripts/build-app.sh [--output DIR]   (default: dist/)
 # Prints the bundle path last.
 set -euo pipefail
@@ -11,6 +11,7 @@ PLUTIL=/usr/bin/plutil
 XATTR=/usr/bin/xattr
 
 APP_NAME=MonetShot
+DISPLAY_NAME="Monet Shot"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUTPUT="$ROOT/dist"
 while (( $# )); do
@@ -29,7 +30,7 @@ cd "$ROOT"
 BIN="$("$SWIFT" build -c release --show-bin-path)/$APP_NAME"
 [[ -x "$BIN" ]] || { echo "binary not found at $BIN" >&2; exit 1; }
 
-APP="$OUTPUT/$APP_NAME.app"
+APP="$OUTPUT/$DISPLAY_NAME.app"
 step "Assembling $APP"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"

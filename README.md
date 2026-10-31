@@ -1,7 +1,7 @@
-# MonetShot
+# Monet Shot
 
 A Screen Studio–style recorder that lives in the menu bar. Record a display
-or a window, then zoom in on what matters after the fact: MonetShot logs every
+or a window, then zoom in on what matters after the fact: Monet Shot logs every
 pointer move and click while it records, zooms on your clicks automatically,
 draws its own smooth cursor, and frames the result on a backdrop. Blur or
 crop away anything private before you share it. The look follows
@@ -17,9 +17,9 @@ crop away anything private before you share it. The look follows
   pause; do it again to resume. Paused stretches are cut out of the video, so
   each take plays straight into the next. They show hatched on the timeline;
   select one and press Delete (or Restore) to put it back.
-- **Home.** Launching MonetShot (or *Open MonetShot* in the ring's right-click
+- **Home.** Launching Monet Shot (or *Open Monet Shot* in the ring's right-click
   menu, ⌘O) shows your recordings as cards, rendered with their backdrop.
-  Click one to edit it; *Import video* turns any video file into a MonetShot
+  Click one to edit it; *Import video* turns any video file into a Monet Shot
   edit; right-click a card to show it in Finder or move it to the Trash.
 - **Edit.** The editor opens by itself after a recording. Auto-zooms are already on the
   timeline, one per cluster of clicks.
@@ -38,7 +38,7 @@ crop away anything private before you share it. The look follows
     undo and redo anything.
   - **Add clip.** *Record a new take* (the editor steps aside, you record,
     and the take lands at the end with its own auto zooms), or *Add a video
-    or recording…* (any video file, or another MonetShot recording with its
+    or recording…* (any video file, or another Monet Shot recording with its
     zooms). You can also drop videos onto the timeline. Takes can be
     different sizes; each is framed at its own shape. Zooms belong to the
     footage they were made on and travel with it.
@@ -93,11 +93,11 @@ Right-click the ring for recent recordings, *Open Recording…*, and the folder.
 
 ```sh
 scripts/install.sh            # builds, signs ad-hoc, installs to ~/Applications
-open ~/Applications/MonetShot.app
+open ~/Applications/Monet\ Shot.app
 ```
 
 Command Line Tools are enough (no Xcode). `swift run MonetShotChecks` runs the
-tests. From a script:
+tests. From a script (the command is `MonetShot`, one word):
 
 ```sh
 MonetShot --auto   <rec.reel>                 # (re)make auto zooms from the clicks
@@ -112,16 +112,16 @@ MonetShot --add    <rec.reel> <video|rec.reel>…  # add footage as clips at the
   video, the cursor log, and the edit) and exports beside them.
 - A log at `~/Library/Logs/MonetShot/monetshot.log`.
 - The music catalogue is cached for a week in `~/Library/Caches/MonetShot/music/`.
-  MonetShot talks to the network only for the music browser.
+  Monet Shot talks to the network only for the music browser.
 - Nothing else: no login item, no background service, no system settings.
 
 **Permissions.** None for the screen. Camera and Microphone are asked
 for the first time you record yourself (an ad-hoc signed build may ask
-again after a rebuild). The system sharing picker gives MonetShot access
+again after a rebuild). The system sharing picker gives Monet Shot access
 to just the chosen display or window for that recording, which is also why
 it keeps working after each rebuild of an ad-hoc signed app. Pointer
 positions are polled and clicks come from a mouse event monitor; neither
-needs Accessibility. MonetShot records sound only from the microphone, only
+needs Accessibility. Monet Shot records sound only from the microphone, only
 while recording yourself, and never keystrokes.
 
 ## How it works
@@ -138,7 +138,7 @@ while recording yourself, and never keystrokes.
   editor win over a take's own camera).
 - `MonetShot/Recording/`: `SCContentSharingPicker` + `SCStream` +
   `SCRecordingOutput` (HEVC, cursor hidden), and the 120 Hz cursor tracker.
-- Pauses: ScreenCaptureKit can't pause a file, so MonetShot keeps capturing and
+- Pauses: ScreenCaptureKit can't pause a file, so Monet Shot keeps capturing and
   marks the stretch as a cut. `TimeMap` turns trim and cuts into the kept
   spans; the player and export run an `AVMutableComposition` of just those,
   and the renderer maps output time back to recording time for the cursor
@@ -158,7 +158,7 @@ while recording yourself, and never keystrokes.
 
 ## Backdrop paintings
 
-MonetShot comes with 20 paintings for the picture backdrop (Monet, Van Gogh, Turner, Sargent, Homer, Hokusai, Klimt, Seurat, Cézanne, Sorolla). All are public domain or CC0 scans from Wikimedia Commons; each one's title, artist, licence and source page are in `Resources/Backdrops/credits.json`.
+Monet Shot comes with 20 paintings for the picture backdrop (Monet, Van Gogh, Turner, Sargent, Homer, Hokusai, Klimt, Seurat, Cézanne, Sorolla). All are public domain or CC0 scans from Wikimedia Commons; each one's title, artist, licence and source page are in `Resources/Backdrops/credits.json`.
 
 ## License
 
