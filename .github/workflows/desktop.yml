@@ -43,10 +43,19 @@ jobs:
           # Fixtures built from Mac work that isn't committed yet are listed in
           # shared/PENDING and skipped here until that work lands.
           skip=$(grep -v '^#' shared/PENDING | awk 'NF {printf ":(exclude)shared/fixtures/%s ", $1}')
-          git diff --exit-code -- shared/fixtures $skip || {
+          # Data must match exactly; rendered frames within a tolerance,
+          # since CoreImage differs by a hair between macOS versions.
+          git diff --exit-code -- shared/fixtures $skip ':(exclude)shared/fixtures/**/*.png' || {
             echo "::error::shared/fixtures changed when regenerated from the Swift Kit: port the change to desktop/ (or commit the new fixtures with it)"
             exit 1
           }
+          bad=0
+          for f in $(git diff --name-only -- 'shared/fixtures/**/*.png'); do
+            git show "HEAD:$f" > /tmp/committed.png
+            echo -n "$f: "
+            swift shared/tools/pngdiff.swift /tmp/committed.png "$f" || bad=1
+          done
+          [ "$bad" = 0 ] || { echo "::error::a reference frame changed beyond tolerance when regenerated"; exit 1; }
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with: { workspaces: desktop }
