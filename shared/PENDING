@@ -1,0 +1,5 @@
+# Fixtures generated from Mac work that isn't committed yet. CI's freshness
+# check skips these; the Rust tests still check the committed copies. When
+# the work lands, regenerate (shared/tools/fixtures.sh), commit, and remove
+# the line.
+music.json   Connor's music work (Music.swift changes, MusicGrid.swift, Resources/Music), ported 2026-11-01

@@ -7,12 +7,24 @@
 # fine for a separate executable shipped alongside; the installer carries
 # its licence (LICENSE.ffmpeg.txt) and where to get the source.
 #
-#   FFMPEG_ZIP_URL   the release asset (default below)
+#   FFMPEG_ZIP_URL   the release asset. Default: the newest numbered release
+#                    build (ffmpeg-nX.Y-latest-win64-gpl-X.Y.zip) in BtbN's
+#                    "latest" release, looked up each time, because BtbN only
+#                    keeps the last few versions and old names disappear.
 #   FFMPEG_SHA256    its sha256. If unset, the release's checksums.sha256 is
 #                    used and the hash printed, so it can be pinned here.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
-url="${FFMPEG_ZIP_URL:-https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-win64-gpl-7.1.zip}"
+release="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
+if [[ -z "${FFMPEG_ZIP_URL:-}" ]]; then
+  auth=(); [[ -n "${GITHUB_TOKEN:-}" ]] && auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
+  name="$(curl -fsSL "${auth[@]}" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/tags/latest \
+    | grep -oE '"name": *"ffmpeg-n[0-9]+\.[0-9]+-latest-win64-gpl-[0-9]+\.[0-9]+\.zip"' \
+    | sed -E 's/.*"(ffmpeg-[^"]+)"/\1/' | sort -V | tail -1)"
+  [[ -n "$name" ]] || { echo "no win64-gpl release build in BtbN's latest release" >&2; exit 1; }
+  FFMPEG_ZIP_URL="$release/$name"
+fi
+url="$FFMPEG_ZIP_URL"
 want="${FFMPEG_SHA256:-}"
 out="$here/bin"
 work="$(mktemp -d)"

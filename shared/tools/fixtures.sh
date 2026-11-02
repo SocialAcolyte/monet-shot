@@ -8,7 +8,11 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 build=${TMPDIR:-/tmp}/monetshot-fixtures-build
 mkdir -p "$build"
 find "$root/Sources/MonetShotKit" -name '*.swift' > "$build/sources.txt"
-swiftc -O -swift-version 6 -module-name MonetShotFixtures \
+# The music grid lives in Mac work not yet committed; fixtures that need it
+# are listed in shared/PENDING.
+flags=""
+[ -f "$root/Sources/MonetShotKit/Music/MusicGrid.swift" ] && flags="-D MONETSHOT_MUSIC_GRID"
+swiftc -O -swift-version 6 -module-name MonetShotFixtures $flags \
   "$root/shared/tools/fixtures/main.swift" $(cat "$build/sources.txt" | tr '\n' ' ') \
   -o "$build/fixtures"
 "$build/fixtures" "$root"

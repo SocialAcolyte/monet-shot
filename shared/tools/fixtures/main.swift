@@ -410,7 +410,10 @@ do {
     // A synthetic song, made the same way by the Rust test (see music.rs tests):
     // `bpm`, downbeats from `start`, hard on beat one, `quietBars` quiet bars then
     // louder; a deterministic hat between beats.
+    // MusicGrid is in the Mac's music work that isn't committed yet;
+    // fixtures.sh defines MONETSHOT_MUSIC_GRID only when its file is there.
     var grids: [J] = []
+    #if MONETSHOT_MUSIC_GRID
     for (bpm, start, quiet, seconds) in [(108.0, 0.5, 8, 40.0), (92.0, 0.21, 6, 36.0), (128.0, 1.0, 12, 45.0)] {
         let s = synthSong(bpm: bpm, start: start, quietBars: quiet, seconds: seconds)
         let g = MusicGrid.analyze(samples: s, rate: 11_025)
@@ -419,14 +422,17 @@ do {
     }
     grids.append(.o(["bpm": n(100 as Double), "start": n(0 as Double), "quietBars": .i(0), "seconds": n(5 as Double),
                      "grid": MusicGrid.analyze(samples: synthSong(bpm: 100, start: 0, quietBars: 0, seconds: 5), rate: 11_025) == nil ? .null : .s("unexpected")]))
+    #endif
     write("music.json", .o(["stableID": .a(ids), "licenses": .a(labels), "search": .a(searches), "grid": .a(grids)]))
 }
 
+#if MONETSHOT_MUSIC_GRID
 func gridJ(_ g: MusicGrid?) -> J {
     guard let g else { return .null }
     let nearest: [J] = [0.0, 1.3, 7.7, 20].map { t in J.a([J.n(t), J.n(g.nearestBarLine(t))]) }
     return .o(["bar": .n(g.bar), "firstDownbeat": .n(g.firstDownbeat), "lifts": .a(g.lifts.map(J.n)), "nearest": .a(nearest)])
 }
+#endif
 
 func synthSong(bpm: Double, start: Double, quietBars: Int, seconds: Double) -> [Float] {
     let rate = 11_025.0, beat = 60.0 / bpm, count = Int(rate * seconds)
