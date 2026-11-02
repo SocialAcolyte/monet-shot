@@ -1,0 +1,4 @@
+post_install() {
+  echo "Monet Shot: run 'monet-shot-omarchy' as your user to add the bar widget,"
+  echo "window rules and SUPER+ALT+R on Omarchy (it asks before each change)."
+}

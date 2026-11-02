@@ -1,0 +1,22 @@
+// Monet Shot for Omarchy 3's Waybar. install.sh adds this block to
+// ~/.config/waybar/config.jsonc and "custom/monet-shot" to modules-center,
+// beside Omarchy's own screen-recording indicator.
+"custom/monet-shot": {
+  // One JSON line per change; no polling, no signal needed (7-10 are Omarchy's).
+  "exec": "monet-shot status --waybar --follow",
+  "return-type": "json",
+  "format": "{icon} {text}",
+  "format-icons": {
+    "idle": "󰑊",
+    "picking": "󰑊",
+    "countdown": "󰑊",
+    "recording": "󰑊",
+    "paused": "󰏤",
+    "saving": "󰑊",
+    "problem": "󰑊",
+    "off": "󰑊"
+  },
+  "on-click": "monet-shot toggle",
+  "on-click-right": "monet-shot pause",
+  "tooltip": true
+}

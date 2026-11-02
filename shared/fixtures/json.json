@@ -1,0 +1,118 @@
+{
+  "cases" : [
+    {
+      "input" : "{\n  \"backdrop\" : \"image\",\n  \"backdropBlur\" : 0.35,\n  \"backdropImage\" : \"backdrop-monet-water-lilies.jpg\",\n  \"blurs\" : [\n    {\n      \"id\" : \"0D1B2C3A-0000-4000-8000-000000000002\",\n      \"rect\" : {\n        \"h\" : 0.05,\n        \"w\" : 0.3,\n        \"x\" : 0.1,\n        \"y\" : 0.2\n      },\n      \"start\" : 1,\n      \"strength\" : 0.75,\n      \"style\" : \"pixelate\",\n      \"take\" : 0\n    }\n  ],\n  \"cameraClips\" : [\n    {\n      \"at\" : 2,\n      \"duration\" : 3.5,\n      \"file\" : \"camera-1.mov\",\n      \"full\" : true,\n      \"id\" : \"0D1B2C3A-0000-4000-8000-000000000001\"\n    }\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"topLeft\",\n    \"duckMusic\" : false,\n    \"mirror\" : false,\n    \"shape\" : \"rounded\",\n    \"size\" : 0.31,\n    \"visible\" : false\n  },\n  \"canvasAspect\" : 1,\n  \"clickRipple\" : false,\n  \"clips\" : [\n    {\n      \"end\" : 2,\n      \"start\" : 0,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 3,\n      \"start\" : 1,\n      \"take\" : 1\n    }\n  ],\n  \"cornerRadius\" : 0.03,\n  \"crops\" : [\n    {\n      \"rect\" : {\n        \"h\" : 0.941,\n        \"w\" : 1,\n        \"x\" : 0,\n        \"y\" : 0.059\n      },\n      \"take\" : 0\n    }\n  ],\n  \"cursorLabel\" : \"Connor \\\/ \\\"C\\\"\",\n  \"cursorScale\" : 2.25,\n  \"cursorSmoothing\" : 0.1,\n  \"cursorStyle\" : \"tag\",\n  \"cursorTint\" : \"lilac\",\n  \"cursorVisible\" : false,\n  \"cuts\" : [\n    {\n      \"end\" : 4.5,\n      \"start\" : 3\n    }\n  ],\n  \"music\" : {\n    \"fadeIn\" : true,\n    \"fadeOut\" : false,\n    \"file\" : \"music-bnw1z9.m4a\",\n    \"offset\" : 32.87874794997538,\n    \"track\" : {\n      \"about\" : \"Warm synth pads.\",\n      \"album\" : \"Only in the Milky Way\",\n      \"artist\" : \"HoliznaCC0\",\n      \"artworkURL\" : \"https:\\\/\\\/x\\\/a.jpg\",\n      \"attribution\" : \"Night Driving by HoliznaCC0\",\n      \"audioURL\" : \"file:\\\/\\\/\\\/Applications\\\/Monet%20Shot.app\\\/x.m4a\",\n      \"bpm\" : 96,\n      \"duration\" : 131.4,\n      \"genres\" : [\n        \"dreamy\",\n        \"grooving\"\n      ],\n      \"id\" : \"holiznacc0_night-driving\",\n      \"instruments\" : \"synth, piano\",\n      \"license\" : \"by\",\n      \"licenseURL\" : \"https:\\\/\\\/creativecommons.org\\\/licenses\\\/by\\\/4.0\\\/\",\n      \"licenseVersion\" : \"4.0\",\n      \"pageURL\" : \"https:\\\/\\\/freemusicarchive.org\\\/x\\\/\",\n      \"title\" : \"Night Driving\"\n    },\n    \"volume\" : 0.55\n  },\n  \"outputWidth\" : 1920,\n  \"padding\" : 0.1,\n  \"segments\" : [\n    {\n      \"auto\" : false,\n      \"end\" : 3.5,\n      \"focusX\" : 0.3,\n      \"focusY\" : 0.71,\n      \"id\" : \"E66CDC53-D527-48B9-B32E-9E7FD7751E19\",\n      \"scale\" : 2.2,\n      \"start\" : 1.25,\n      \"take\" : 1\n    }\n  ],\n  \"shadow\" : false,\n  \"trimEnd\" : 12.25,\n  \"trimStart\" : 0.5\n}",
+      "note" : "every field set",
+      "output" : "{\n  \"backdrop\" : \"image\",\n  \"backdropBlur\" : 0.35,\n  \"backdropImage\" : \"backdrop-monet-water-lilies.jpg\",\n  \"blurs\" : [\n    {\n      \"id\" : \"0D1B2C3A-0000-4000-8000-000000000002\",\n      \"rect\" : {\n        \"h\" : 0.05,\n        \"w\" : 0.3,\n        \"x\" : 0.1,\n        \"y\" : 0.2\n      },\n      \"start\" : 1,\n      \"strength\" : 0.75,\n      \"style\" : \"pixelate\",\n      \"take\" : 0\n    }\n  ],\n  \"cameraClips\" : [\n    {\n      \"at\" : 2,\n      \"duration\" : 3.5,\n      \"file\" : \"camera-1.mov\",\n      \"full\" : true,\n      \"id\" : \"0D1B2C3A-0000-4000-8000-000000000001\"\n    }\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"topLeft\",\n    \"duckMusic\" : false,\n    \"mirror\" : false,\n    \"shape\" : \"rounded\",\n    \"size\" : 0.31,\n    \"visible\" : false\n  },\n  \"canvasAspect\" : 1,\n  \"clickRipple\" : false,\n  \"clips\" : [\n    {\n      \"end\" : 2,\n      \"start\" : 0,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 3,\n      \"start\" : 1,\n      \"take\" : 1\n    }\n  ],\n  \"cornerRadius\" : 0.03,\n  \"crops\" : [\n    {\n      \"rect\" : {\n        \"h\" : 0.941,\n        \"w\" : 1,\n        \"x\" : 0,\n        \"y\" : 0.059\n      },\n      \"take\" : 0\n    }\n  ],\n  \"cursorLabel\" : \"Connor \\\/ \\\"C\\\"\",\n  \"cursorScale\" : 2.25,\n  \"cursorSmoothing\" : 0.1,\n  \"cursorStyle\" : \"tag\",\n  \"cursorTint\" : \"lilac\",\n  \"cursorVisible\" : false,\n  \"cuts\" : [\n    {\n      \"end\" : 4.5,\n      \"start\" : 3\n    }\n  ],\n  \"music\" : {\n    \"fadeIn\" : true,\n    \"fadeOut\" : false,\n    \"file\" : \"music-bnw1z9.m4a\",\n    \"offset\" : 32.87874794997538,\n    \"track\" : {\n      \"about\" : \"Warm synth pads.\",\n      \"album\" : \"Only in the Milky Way\",\n      \"artist\" : \"HoliznaCC0\",\n      \"artworkURL\" : \"https:\\\/\\\/x\\\/a.jpg\",\n      \"attribution\" : \"Night Driving by HoliznaCC0\",\n      \"audioURL\" : \"file:\\\/\\\/\\\/Applications\\\/Monet%20Shot.app\\\/x.m4a\",\n      \"bpm\" : 96,\n      \"duration\" : 131.4,\n      \"genres\" : [\n        \"dreamy\",\n        \"grooving\"\n      ],\n      \"id\" : \"holiznacc0_night-driving\",\n      \"instruments\" : \"synth, piano\",\n      \"license\" : \"by\",\n      \"licenseURL\" : \"https:\\\/\\\/creativecommons.org\\\/licenses\\\/by\\\/4.0\\\/\",\n      \"licenseVersion\" : \"4.0\",\n      \"pageURL\" : \"https:\\\/\\\/freemusicarchive.org\\\/x\\\/\",\n      \"title\" : \"Night Driving\"\n    },\n    \"volume\" : 0.55\n  },\n  \"outputWidth\" : 1920,\n  \"padding\" : 0.1,\n  \"segments\" : [\n    {\n      \"auto\" : false,\n      \"end\" : 3.5,\n      \"focusX\" : 0.3,\n      \"focusY\" : 0.71,\n      \"id\" : \"E66CDC53-D527-48B9-B32E-9E7FD7751E19\",\n      \"scale\" : 2.2,\n      \"start\" : 1.25,\n      \"take\" : 1\n    }\n  ],\n  \"shadow\" : false,\n  \"trimEnd\" : 12.25,\n  \"trimStart\" : 0.5\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "note" : "defaults",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{}",
+      "note" : "empty",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"padding\": 0.1}",
+      "note" : "old file",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.1,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"segments\":[{\"id\":\"e66cdc53-d527-48b9-b32e-9e7fd7751e19\",\"start\":1,\"end\":2,\"scale\":2,\"auto\":true}]}",
+      "note" : "zoom before takes, lower-case id",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n    {\n      \"auto\" : true,\n      \"end\" : 2,\n      \"id\" : \"E66CDC53-D527-48B9-B32E-9E7FD7751E19\",\n      \"scale\" : 2,\n      \"start\" : 1,\n      \"take\" : 0\n    }\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"segments\":[{\"start\":1,\"end\":2,\"scale\":2}]}",
+      "note" : "zoom without id: whole edit unreadable",
+      "output" : null,
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"clips\":[{\"start\":1,\"end\":2}],\"trimEnd\":null,\"music\":null}",
+      "note" : "clip without take, nulls",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"clips\" : [\n    {\n      \"end\" : 2,\n      \"start\" : 1,\n      \"take\" : 0\n    }\n  ],\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"backdrop\":\"neon\"}",
+      "note" : "unknown backdrop (Mac: unreadable; desktop keeps it)",
+      "output" : null,
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"cameraLook\":{\"size\":0.2}}",
+      "note" : "partial camera look",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.2,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"music\":{\"file\":\"m.m4a\",\"track\":{\"id\":\"x\",\"title\":\"T\",\"artist\":\"A\",\"duration\":3,\"genres\":[],\"license\":\"cc0\",\"audioURL\":\"x\"}}}",
+      "note" : "music without offset\/volume\/fades",
+      "output" : null,
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"blurs\":[{\"id\":\"0D1B2C3A-0000-4000-8000-000000000002\",\"take\":0,\"rect\":{\"x\":0,\"y\":0,\"w\":1,\"h\":1},\"style\":\"solid\",\"strength\":1}]}",
+      "note" : "always-on cover",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n    {\n      \"id\" : \"0D1B2C3A-0000-4000-8000-000000000002\",\n      \"rect\" : {\n        \"h\" : 1,\n        \"w\" : 1,\n        \"x\" : 0,\n        \"y\" : 0\n      },\n      \"strength\" : 1,\n      \"style\" : \"solid\",\n      \"take\" : 0\n    }\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"outputWidth\": 1920.0, \"cursorScale\": 2}",
+      "note" : "number forms",
+      "output" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 2,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 1920,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}",
+      "type" : "edit"
+    },
+    {
+      "input" : "not json",
+      "note" : "garbage",
+      "output" : null,
+      "type" : "edit"
+    },
+    {
+      "input" : "{\"pixelWidth\":3456,\"pixelHeight\":2234,\"pointScale\":2,\"duration\":94.97,\"createdAt\":\"2026-11-02T05:57:48Z\",\"source\":\"display\"}",
+      "note" : "before video\/camera existed",
+      "output" : "{\n  \"cameraOffset\" : 0,\n  \"createdAt\" : \"2026-11-02T05:57:48Z\",\n  \"duration\" : 94.97,\n  \"pixelHeight\" : 2234,\n  \"pixelWidth\" : 3456,\n  \"pointScale\" : 2,\n  \"source\" : \"display\",\n  \"video\" : \"screen.mov\"\n}",
+      "type" : "meta"
+    },
+    {
+      "input" : "{\"pixelWidth\":1920,\"pixelHeight\":1080,\"pointScale\":1.25,\"duration\":1e-05,\"createdAt\":\"2026-11-02T05:57:48Z\",\"source\":\"import\",\"video\":\"screen.mp4\",\"camera\":\"camera.mp4\",\"cameraOffset\":0.125}",
+      "note" : "with camera",
+      "output" : "{\n  \"camera\" : \"camera.mp4\",\n  \"cameraOffset\" : 0.125,\n  \"createdAt\" : \"2026-11-02T05:57:48Z\",\n  \"duration\" : 1e-05,\n  \"pixelHeight\" : 1080,\n  \"pixelWidth\" : 1920,\n  \"pointScale\" : 1.25,\n  \"source\" : \"import\",\n  \"video\" : \"screen.mp4\"\n}",
+      "type" : "meta"
+    },
+    {
+      "input" : "{\"pixelWidth\":1920,\"pixelHeight\":1080,\"pointScale\":1,\"duration\":3,\"createdAt\":\"2026-11-02T05:57:48.123Z\",\"source\":\"display\"}",
+      "note" : "fractional date (Mac refuses)",
+      "output" : "{\n  \"cameraOffset\" : 0,\n  \"createdAt\" : \"2026-11-02T05:57:48Z\",\n  \"duration\" : 3,\n  \"pixelHeight\" : 1080,\n  \"pixelWidth\" : 1920,\n  \"pointScale\" : 1,\n  \"source\" : \"display\",\n  \"video\" : \"screen.mov\"\n}",
+      "type" : "meta"
+    },
+    {
+      "input" : "{\"pixelWidth\":1920,\"pixelHeight\":1080,\"pointScale\":1,\"duration\":3,\"source\":\"display\"}",
+      "note" : "no date",
+      "output" : null,
+      "type" : "meta"
+    },
+    {
+      "input" : "{\"samples\":[{\"t\":0,\"x\":0.5,\"y\":0.25},{\"t\":0.008333333333333333,\"x\":1.0000001,\"y\":-0.02}],\"clicks\":[]}",
+      "note" : "",
+      "output" : "{\n  \"clicks\" : [\n\n  ],\n  \"samples\" : [\n    {\n      \"t\" : 0,\n      \"x\" : 0.5,\n      \"y\" : 0.25\n    },\n    {\n      \"t\" : 0.008333333333333333,\n      \"x\" : 1.0000001,\n      \"y\" : -0.02\n    }\n  ]\n}",
+      "type" : "cursor"
+    },
+    {
+      "input" : "{\"samples\":[]}",
+      "note" : "no clicks key",
+      "output" : null,
+      "type" : "cursor"
+    }
+  ]
+}

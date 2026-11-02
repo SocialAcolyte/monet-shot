@@ -1,0 +1,5297 @@
+{
+  "cases" : [
+    {
+      "clips" : [
+        {
+          "end" : 3,
+          "start" : 1,
+          "take" : 0
+        },
+        {
+          "end" : 9,
+          "start" : 5,
+          "take" : 1
+        },
+        {
+          "end" : 1,
+          "start" : 0,
+          "take" : 0
+        }
+      ],
+      "duration" : 7,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 1
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 1
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 1.24
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 1.6099999999999999
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 0,
+          "time" : 1.98
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 2.35
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 2.72
+        },
+        {
+          "index" : 1,
+          "t" : 2.0900000000000003,
+          "take" : 1,
+          "time" : 5.09
+        },
+        {
+          "index" : 1,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 5.460000000000001
+        },
+        {
+          "index" : 1,
+          "t" : 2.8300000000000005,
+          "take" : 1,
+          "time" : 5.83
+        },
+        {
+          "index" : 1,
+          "t" : 3.2000000000000006,
+          "take" : 1,
+          "time" : 6.200000000000001
+        },
+        {
+          "index" : 1,
+          "t" : 3.5700000000000007,
+          "take" : 1,
+          "time" : 6.57
+        },
+        {
+          "index" : 1,
+          "t" : 3.940000000000001,
+          "take" : 1,
+          "time" : 6.940000000000001
+        },
+        {
+          "index" : 1,
+          "t" : 4.3100000000000005,
+          "take" : 1,
+          "time" : 7.3100000000000005
+        },
+        {
+          "index" : 1,
+          "t" : 4.680000000000001,
+          "take" : 1,
+          "time" : 7.680000000000001
+        },
+        {
+          "index" : 1,
+          "t" : 5.050000000000001,
+          "take" : 1,
+          "time" : 8.05
+        },
+        {
+          "index" : 1,
+          "t" : 5.420000000000001,
+          "take" : 1,
+          "time" : 8.420000000000002
+        },
+        {
+          "index" : 1,
+          "t" : 5.790000000000001,
+          "take" : 1,
+          "time" : 8.790000000000001
+        },
+        {
+          "index" : 2,
+          "t" : 6.160000000000001,
+          "take" : 0,
+          "time" : 0.16000000000000103
+        },
+        {
+          "index" : 2,
+          "t" : 6.530000000000001,
+          "take" : 0,
+          "time" : 0.5300000000000011
+        },
+        {
+          "index" : 2,
+          "t" : 6.900000000000001,
+          "take" : 0,
+          "time" : 0.9000000000000012
+        },
+        {
+          "index" : 2,
+          "t" : 7.270000000000001,
+          "take" : 0,
+          "time" : 1
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : true,
+          "output" : 6.11,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : true,
+          "output" : 6.72,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : true,
+          "output" : 0.33000000000000007,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : true,
+          "output" : 0.94,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 1.5499999999999998,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 2.5999999999999996,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : true,
+          "output" : 3.21,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : true,
+          "output" : 3.8200000000000003,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : true,
+          "output" : 4.43,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : true,
+          "output" : 5.039999999999999,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : true,
+          "output" : 5.65,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 3,
+          "start" : 1,
+          "take" : 0
+        },
+        {
+          "at" : 2,
+          "end" : 9,
+          "start" : 5,
+          "take" : 1
+        },
+        {
+          "at" : 6,
+          "end" : 1,
+          "start" : 0,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+
+      ],
+      "duration" : 0,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 0
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 0
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 0
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 0.0005,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 4,
+          "start" : 2,
+          "take" : 0
+        }
+      ],
+      "duration" : 2,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 2
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 2
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 2.24
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 2.61
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 0,
+          "time" : 2.98
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 3.35
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 3.72
+        },
+        {
+          "index" : 0,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 4
+        },
+        {
+          "index" : 0,
+          "t" : 2.4600000000000004,
+          "take" : 0,
+          "time" : 4
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 0.5499999999999998,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 1.1600000000000001,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 1.77,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 4,
+          "start" : 2,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 3.679923288270344,
+          "start" : 2.4218895992724017,
+          "take" : 1
+        },
+        {
+          "end" : 2.7602610303182065,
+          "start" : 0.34525391803820954,
+          "take" : 0
+        },
+        {
+          "end" : 4.3108428077833585,
+          "start" : 2.917773989702568,
+          "take" : 0
+        },
+        {
+          "end" : 2.4936874456501075,
+          "start" : 1.4327433593120125,
+          "take" : 1
+        },
+        {
+          "end" : 6.456179916261712,
+          "start" : 4.474377701181877,
+          "take" : 0
+        },
+        {
+          "end" : 4.120732265678413,
+          "start" : 3.590951502857002,
+          "take" : 0
+        }
+      ],
+      "duration" : 8.638636683598072,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 2.4218895992724017
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 2.4218895992724017
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 1,
+          "time" : 2.661889599272402
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 1,
+          "time" : 3.0318895992724015
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 3.4018895992724016
+        },
+        {
+          "index" : 1,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 0.4372202290402672
+        },
+        {
+          "index" : 1,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 0.8072202290402672
+        },
+        {
+          "index" : 1,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 1.1772202290402674
+        },
+        {
+          "index" : 1,
+          "t" : 2.4600000000000004,
+          "take" : 0,
+          "time" : 1.5472202290402675
+        },
+        {
+          "index" : 1,
+          "t" : 2.8300000000000005,
+          "take" : 0,
+          "time" : 1.9172202290402676
+        },
+        {
+          "index" : 1,
+          "t" : 3.2000000000000006,
+          "take" : 0,
+          "time" : 2.2872202290402677
+        },
+        {
+          "index" : 1,
+          "t" : 3.5700000000000007,
+          "take" : 0,
+          "time" : 2.657220229040268
+        },
+        {
+          "index" : 2,
+          "t" : 3.940000000000001,
+          "take" : 0,
+          "time" : 3.1847331884246293
+        },
+        {
+          "index" : 2,
+          "t" : 4.3100000000000005,
+          "take" : 0,
+          "time" : 3.554733188424629
+        },
+        {
+          "index" : 2,
+          "t" : 4.680000000000001,
+          "take" : 0,
+          "time" : 3.924733188424629
+        },
+        {
+          "index" : 2,
+          "t" : 5.050000000000001,
+          "take" : 0,
+          "time" : 4.29473318842463
+        },
+        {
+          "index" : 3,
+          "t" : 5.420000000000001,
+          "take" : 1,
+          "time" : 1.7866337399532828
+        },
+        {
+          "index" : 3,
+          "t" : 5.790000000000001,
+          "take" : 1,
+          "time" : 2.156633739953283
+        },
+        {
+          "index" : 4,
+          "t" : 6.160000000000001,
+          "take" : 0,
+          "time" : 4.507323995485052
+        },
+        {
+          "index" : 4,
+          "t" : 6.530000000000001,
+          "take" : 0,
+          "time" : 4.877323995485052
+        },
+        {
+          "index" : 4,
+          "t" : 6.900000000000001,
+          "take" : 0,
+          "time" : 5.247323995485052
+        },
+        {
+          "index" : 4,
+          "t" : 7.270000000000001,
+          "take" : 0,
+          "time" : 5.6173239954850525
+        },
+        {
+          "index" : 4,
+          "t" : 7.6400000000000015,
+          "take" : 0,
+          "time" : 5.987323995485053
+        },
+        {
+          "index" : 4,
+          "t" : 8.010000000000002,
+          "take" : 0,
+          "time" : 6.357323995485053
+        },
+        {
+          "index" : 5,
+          "t" : 8.38,
+          "take" : 0,
+          "time" : 3.8620955820803404
+        },
+        {
+          "index" : 5,
+          "t" : 8.75,
+          "take" : 0,
+          "time" : 4.120732265678413
+        },
+        {
+          "index" : 5,
+          "t" : 9.12,
+          "take" : 0,
+          "time" : 4.120732265678413
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : true,
+          "output" : 1.632779770959733,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : true,
+          "output" : 2.242779770959733,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : true,
+          "output" : 2.852779770959733,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 3.4627797709597328,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 3.9152668115753717,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 4.525266811575372,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 6.642676004514949,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 7.2526760045149485,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : true,
+          "output" : 7.862676004514949,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : true,
+          "output" : 5.573366260046718,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 0.12811040072759816,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 0.7381104007275985,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 3.679923288270344,
+          "start" : 2.4218895992724017,
+          "take" : 1
+        },
+        {
+          "at" : 1.2580336889979424,
+          "end" : 2.7602610303182065,
+          "start" : 0.34525391803820954,
+          "take" : 0
+        },
+        {
+          "at" : 3.6730408012779394,
+          "end" : 4.3108428077833585,
+          "start" : 2.917773989702568,
+          "take" : 0
+        },
+        {
+          "at" : 5.0661096193587305,
+          "end" : 2.4936874456501075,
+          "start" : 1.4327433593120125,
+          "take" : 1
+        },
+        {
+          "at" : 6.1270537056968255,
+          "end" : 6.456179916261712,
+          "start" : 4.474377701181877,
+          "take" : 0
+        },
+        {
+          "at" : 8.108855920776662,
+          "end" : 4.120732265678413,
+          "start" : 3.590951502857002,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 8.173930275211557,
+          "start" : 7.478747862127043,
+          "take" : 0
+        },
+        {
+          "end" : 5.103508155436782,
+          "start" : 4.334955451007735,
+          "take" : 1
+        },
+        {
+          "end" : 6,
+          "start" : 4.598256299730265,
+          "take" : 1
+        },
+        {
+          "end" : 10,
+          "start" : 8.997393266746219,
+          "take" : 0
+        },
+        {
+          "end" : 4.304060895795128,
+          "start" : 3.7893706867851242,
+          "take" : 0
+        },
+        {
+          "end" : 5.806634732233006,
+          "start" : 4.115689503045418,
+          "take" : 1
+        }
+      ],
+      "duration" : 6.073720989234669,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 7.478747862127043
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 7.478747862127043
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 7.718747862127043
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 8.088747862127043
+        },
+        {
+          "index" : 1,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 4.6197730379232205
+        },
+        {
+          "index" : 1,
+          "t" : 1.35,
+          "take" : 1,
+          "time" : 4.9897730379232215
+        },
+        {
+          "index" : 2,
+          "t" : 1.7200000000000002,
+          "take" : 1,
+          "time" : 4.854521182216704
+        },
+        {
+          "index" : 2,
+          "t" : 2.0900000000000003,
+          "take" : 1,
+          "time" : 5.224521182216703
+        },
+        {
+          "index" : 2,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 5.594521182216704
+        },
+        {
+          "index" : 2,
+          "t" : 2.8300000000000005,
+          "take" : 1,
+          "time" : 5.9645211822167035
+        },
+        {
+          "index" : 3,
+          "t" : 3.2000000000000006,
+          "take" : 0,
+          "time" : 9.331914448962923
+        },
+        {
+          "index" : 3,
+          "t" : 3.5700000000000007,
+          "take" : 0,
+          "time" : 9.701914448962922
+        },
+        {
+          "index" : 4,
+          "t" : 3.940000000000001,
+          "take" : 0,
+          "time" : 3.861285135748047
+        },
+        {
+          "index" : 4,
+          "t" : 4.3100000000000005,
+          "take" : 0,
+          "time" : 4.231285135748047
+        },
+        {
+          "index" : 5,
+          "t" : 4.680000000000001,
+          "take" : 1,
+          "time" : 4.412913742998337
+        },
+        {
+          "index" : 5,
+          "t" : 5.050000000000001,
+          "take" : 1,
+          "time" : 4.782913742998337
+        },
+        {
+          "index" : 5,
+          "t" : 5.420000000000001,
+          "take" : 1,
+          "time" : 5.152913742998337
+        },
+        {
+          "index" : 5,
+          "t" : 5.790000000000001,
+          "take" : 1,
+          "time" : 5.5229137429983375
+        },
+        {
+          "index" : 5,
+          "t" : 6.160000000000001,
+          "take" : 1,
+          "time" : 5.806634732233006
+        },
+        {
+          "index" : 5,
+          "t" : 6.530000000000001,
+          "take" : 1,
+          "time" : 5.806634732233006
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : true,
+          "output" : 0.5612521378729562,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : true,
+          "output" : 3.1280855510370777,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : true,
+          "output" : 3.738085551037077,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 0.740226962076779,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 1.3502269620767793,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 2.4654788177832963,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 8.173930275211557,
+          "start" : 7.478747862127043,
+          "take" : 0
+        },
+        {
+          "at" : 0.6951824130845141,
+          "end" : 5.103508155436782,
+          "start" : 4.334955451007735,
+          "take" : 1
+        },
+        {
+          "at" : 1.4637351175135613,
+          "end" : 6,
+          "start" : 4.598256299730265,
+          "take" : 1
+        },
+        {
+          "at" : 2.8654788177832966,
+          "end" : 10,
+          "start" : 8.997393266746219,
+          "take" : 0
+        },
+        {
+          "at" : 3.868085551037078,
+          "end" : 4.304060895795128,
+          "start" : 3.7893706867851242,
+          "take" : 0
+        },
+        {
+          "at" : 4.382775760047082,
+          "end" : 5.806634732233006,
+          "start" : 4.115689503045418,
+          "take" : 1
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 5.773199213650782,
+          "start" : 3.5235019089359128,
+          "take" : 0
+        },
+        {
+          "end" : 2.009603959750964,
+          "start" : 0.6342065607810948,
+          "take" : 1
+        },
+        {
+          "end" : 1.8699142529917645,
+          "start" : 1.3552313416772102,
+          "take" : 0
+        }
+      ],
+      "duration" : 4.139777614999293,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 3.5235019089359128
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 3.5235019089359128
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 3.763501908935913
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 4.133501908935913
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 0,
+          "time" : 4.503501908935913
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 4.873501908935912
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 5.243501908935913
+        },
+        {
+          "index" : 0,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 5.613501908935913
+        },
+        {
+          "index" : 1,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 0.8445092560662256
+        },
+        {
+          "index" : 1,
+          "t" : 2.8300000000000005,
+          "take" : 1,
+          "time" : 1.2145092560662256
+        },
+        {
+          "index" : 1,
+          "t" : 3.2000000000000006,
+          "take" : 1,
+          "time" : 1.5845092560662257
+        },
+        {
+          "index" : 1,
+          "t" : 3.5700000000000007,
+          "take" : 1,
+          "time" : 1.9545092560662258
+        },
+        {
+          "index" : 2,
+          "t" : 3.940000000000001,
+          "take" : 0,
+          "time" : 1.6701366379924723
+        },
+        {
+          "index" : 2,
+          "t" : 4.3100000000000005,
+          "take" : 0,
+          "time" : 1.8699142529917645
+        },
+        {
+          "index" : 2,
+          "t" : 4.680000000000001,
+          "take" : 0,
+          "time" : 1.8699142529917645
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 0.24649809106408727,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 0.8564980910640871,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 1.4664980910640875,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 2.076498091064087,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : true,
+          "output" : 2.3354907439337746,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : true,
+          "output" : 2.945490743933775,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : true,
+          "output" : 3.555490743933775,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 5.773199213650782,
+          "start" : 3.5235019089359128,
+          "take" : 0
+        },
+        {
+          "at" : 2.2496973047148696,
+          "end" : 2.009603959750964,
+          "start" : 0.6342065607810948,
+          "take" : 1
+        },
+        {
+          "at" : 3.6250947036847387,
+          "end" : 1.8699142529917645,
+          "start" : 1.3552313416772102,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 4.993816083760975,
+          "start" : 4.621905390810946,
+          "take" : 0
+        }
+      ],
+      "duration" : 0.37191069295002865,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 4.621905390810946
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 4.621905390810946
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 4.861905390810946
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 4.993816083760975
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 0.368094609189054,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 4.993816083760975,
+          "start" : 4.621905390810946,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 2.3463773327165636,
+          "start" : 0.9583727618727588,
+          "take" : 1
+        },
+        {
+          "end" : 3.135027606779033,
+          "start" : 2.3381688796050843,
+          "take" : 1
+        },
+        {
+          "end" : 6.128679815607526,
+          "start" : 3.534668796611684,
+          "take" : 0
+        }
+      ],
+      "duration" : 4.778874317013596,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 0.9583727618727588
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 0.9583727618727588
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 1,
+          "time" : 1.1983727618727587
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 1,
+          "time" : 1.5683727618727588
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 1.9383727618727589
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 1,
+          "time" : 2.308372761872759
+        },
+        {
+          "index" : 1,
+          "t" : 1.7200000000000002,
+          "take" : 1,
+          "time" : 2.67016430876128
+        },
+        {
+          "index" : 1,
+          "t" : 2.0900000000000003,
+          "take" : 1,
+          "time" : 3.04016430876128
+        },
+        {
+          "index" : 2,
+          "t" : 2.4600000000000004,
+          "take" : 0,
+          "time" : 3.8098054985939314
+        },
+        {
+          "index" : 2,
+          "t" : 2.8300000000000005,
+          "take" : 0,
+          "time" : 4.1798054985939315
+        },
+        {
+          "index" : 2,
+          "t" : 3.2000000000000006,
+          "take" : 0,
+          "time" : 4.549805498593932
+        },
+        {
+          "index" : 2,
+          "t" : 3.5700000000000007,
+          "take" : 0,
+          "time" : 4.919805498593932
+        },
+        {
+          "index" : 2,
+          "t" : 3.940000000000001,
+          "take" : 0,
+          "time" : 5.289805498593932
+        },
+        {
+          "index" : 2,
+          "t" : 4.3100000000000005,
+          "take" : 0,
+          "time" : 5.659805498593931
+        },
+        {
+          "index" : 2,
+          "t" : 4.680000000000001,
+          "take" : 0,
+          "time" : 6.029805498593932
+        },
+        {
+          "index" : 2,
+          "t" : 5.050000000000001,
+          "take" : 0,
+          "time" : 6.128679815607526
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 2.420194501406069,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 3.030194501406069,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 3.6401945014060693,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 4.250194501406069,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : true,
+          "output" : 0.3716272381272413,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : true,
+          "output" : 0.9816272381272412,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 1.5998356912387202,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 2.3463773327165636,
+          "start" : 0.9583727618727588,
+          "take" : 1
+        },
+        {
+          "at" : 1.3880045708438047,
+          "end" : 3.135027606779033,
+          "start" : 2.3381688796050843,
+          "take" : 1
+        },
+        {
+          "at" : 2.184863298017753,
+          "end" : 6.128679815607526,
+          "start" : 3.534668796611684,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 6,
+          "start" : 3.844905620971228,
+          "take" : 1
+        }
+      ],
+      "duration" : 2.155094379028772,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 3.844905620971228
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 3.844905620971228
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 1,
+          "time" : 4.084905620971228
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 1,
+          "time" : 4.454905620971228
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 4.8249056209712275
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 1,
+          "time" : 5.1949056209712285
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 1,
+          "time" : 5.564905620971228
+        },
+        {
+          "index" : 0,
+          "t" : 2.0900000000000003,
+          "take" : 1,
+          "time" : 5.934905620971229
+        },
+        {
+          "index" : 0,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 6
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 0.5350943790287719,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 1.1450943790287722,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 1.7550943790287716,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 6,
+          "start" : 3.844905620971228,
+          "take" : 1
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 10,
+          "start" : 7.513592836739234,
+          "take" : 0
+        }
+      ],
+      "duration" : 2.4864071632607656,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 7.513592836739234
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 7.513592836739234
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 7.753592836739235
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 8.123592836739235
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 0,
+          "time" : 8.493592836739234
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 8.863592836739235
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 9.233592836739234
+        },
+        {
+          "index" : 0,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 9.603592836739235
+        },
+        {
+          "index" : 0,
+          "t" : 2.4600000000000004,
+          "take" : 0,
+          "time" : 9.973592836739234
+        },
+        {
+          "index" : 0,
+          "t" : 2.8300000000000005,
+          "take" : 0,
+          "time" : 10
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : true,
+          "output" : 0.5264071632607648,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : true,
+          "output" : 1.136407163260766,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : true,
+          "output" : 1.7464071632607654,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : true,
+          "output" : 2.356407163260765,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 10,
+          "start" : 7.513592836739234,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 3.933407188979797,
+          "start" : 1.0363848617010045,
+          "take" : 1
+        },
+        {
+          "end" : 3.92274732693408,
+          "start" : 1.2412378022572257,
+          "take" : 1
+        }
+      ],
+      "duration" : 5.578531851955646,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 1.0363848617010045
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 1.0363848617010045
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 1,
+          "time" : 1.2763848617010045
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 1,
+          "time" : 1.6463848617010046
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 2.0163848617010043
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 1,
+          "time" : 2.3863848617010044
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 1,
+          "time" : 2.7563848617010045
+        },
+        {
+          "index" : 0,
+          "t" : 2.0900000000000003,
+          "take" : 1,
+          "time" : 3.1263848617010046
+        },
+        {
+          "index" : 0,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 3.4963848617010047
+        },
+        {
+          "index" : 0,
+          "t" : 2.8300000000000005,
+          "take" : 1,
+          "time" : 3.866384861701005
+        },
+        {
+          "index" : 1,
+          "t" : 3.2000000000000006,
+          "take" : 1,
+          "time" : 1.544215474978434
+        },
+        {
+          "index" : 1,
+          "t" : 3.5700000000000007,
+          "take" : 1,
+          "time" : 1.9142154749784341
+        },
+        {
+          "index" : 1,
+          "t" : 3.940000000000001,
+          "take" : 1,
+          "time" : 2.284215474978434
+        },
+        {
+          "index" : 1,
+          "t" : 4.3100000000000005,
+          "take" : 1,
+          "time" : 2.654215474978434
+        },
+        {
+          "index" : 1,
+          "t" : 4.680000000000001,
+          "take" : 1,
+          "time" : 3.0242154749784342
+        },
+        {
+          "index" : 1,
+          "t" : 5.050000000000001,
+          "take" : 1,
+          "time" : 3.3942154749784343
+        },
+        {
+          "index" : 1,
+          "t" : 5.420000000000001,
+          "take" : 1,
+          "time" : 3.7642154749784345
+        },
+        {
+          "index" : 1,
+          "t" : 5.790000000000001,
+          "take" : 1,
+          "time" : 3.92274732693408
+        },
+        {
+          "index" : 1,
+          "t" : 6.160000000000001,
+          "take" : 1,
+          "time" : 3.92274732693408
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : true,
+          "output" : 0.29361513829899555,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : true,
+          "output" : 0.9036151382989954,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 1.5136151382989953,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 2.1236151382989954,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 2.7336151382989957,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 3.933407188979797,
+          "start" : 1.0363848617010045,
+          "take" : 1
+        },
+        {
+          "at" : 2.8970223272787923,
+          "end" : 3.92274732693408,
+          "start" : 1.2412378022572257,
+          "take" : 1
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 5.684760207362608,
+          "start" : 3.379596695664964,
+          "take" : 0
+        },
+        {
+          "end" : 5.287421601932358,
+          "start" : 3.9842999871636673,
+          "take" : 1
+        }
+      ],
+      "duration" : 3.6082851264663347,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 0,
+          "time" : 3.379596695664964
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 0,
+          "time" : 3.379596695664964
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 3.6195966956649643
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 3.989596695664964
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 0,
+          "time" : 4.359596695664964
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 4.729596695664965
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 5.099596695664964
+        },
+        {
+          "index" : 0,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 5.469596695664965
+        },
+        {
+          "index" : 1,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 4.1391364754660245
+        },
+        {
+          "index" : 1,
+          "t" : 2.8300000000000005,
+          "take" : 1,
+          "time" : 4.509136475466024
+        },
+        {
+          "index" : 1,
+          "t" : 3.2000000000000006,
+          "take" : 1,
+          "time" : 4.879136475466025
+        },
+        {
+          "index" : 1,
+          "t" : 3.5700000000000007,
+          "take" : 1,
+          "time" : 5.249136475466024
+        },
+        {
+          "index" : 1,
+          "t" : 3.940000000000001,
+          "take" : 1,
+          "time" : 5.287421601932358
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 0.3904033043350359,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 1.0004033043350358,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 1.610403304335036,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : true,
+          "output" : 2.2204033043350355,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 2.7008635245339763,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 3.3108635245339766,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 5.684760207362608,
+          "start" : 3.379596695664964,
+          "take" : 0
+        },
+        {
+          "at" : 2.3051635116976437,
+          "end" : 5.287421601932358,
+          "start" : 3.9842999871636673,
+          "take" : 1
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 3.9521614336213924,
+          "start" : 2.1889350571307022,
+          "take" : 1
+        },
+        {
+          "end" : 9.557406617363295,
+          "start" : 8.408497648422022,
+          "take" : 0
+        },
+        {
+          "end" : 3.4631296657333097,
+          "start" : 3.369339137864978,
+          "take" : 1
+        }
+      ],
+      "duration" : 3.0059258733002943,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 2.1889350571307022
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 2.1889350571307022
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 1,
+          "time" : 2.428935057130702
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 1,
+          "time" : 2.798935057130702
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 3.1689350571307022
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 1,
+          "time" : 3.5389350571307023
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 1,
+          "time" : 3.9089350571307024
+        },
+        {
+          "index" : 1,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 8.735271271931332
+        },
+        {
+          "index" : 1,
+          "t" : 2.4600000000000004,
+          "take" : 0,
+          "time" : 9.105271271931333
+        },
+        {
+          "index" : 1,
+          "t" : 2.8300000000000005,
+          "take" : 0,
+          "time" : 9.475271271931334
+        },
+        {
+          "index" : 2,
+          "t" : 3.2000000000000006,
+          "take" : 1,
+          "time" : 3.4631296657333097
+        },
+        {
+          "index" : 2,
+          "t" : 3.5700000000000007,
+          "take" : 1,
+          "time" : 3.4631296657333097
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : true,
+          "output" : 2.004728728068668,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : true,
+          "output" : 2.6147287280686675,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 0.3610649428692976,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 0.9710649428692979,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 1.5810649428692978,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 3.9521614336213924,
+          "start" : 2.1889350571307022,
+          "take" : 1
+        },
+        {
+          "at" : 1.7632263764906901,
+          "end" : 9.557406617363295,
+          "start" : 8.408497648422022,
+          "take" : 0
+        },
+        {
+          "at" : 2.9121353454319627,
+          "end" : 3.4631296657333097,
+          "start" : 3.369339137864978,
+          "take" : 1
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 4.954216090144651,
+          "start" : 3.2322286547198718,
+          "take" : 1
+        },
+        {
+          "end" : 5.539313747107972,
+          "start" : 2.5814473121724615,
+          "take" : 1
+        },
+        {
+          "end" : 5.925472282624557,
+          "start" : 5.86671831878935,
+          "take" : 0
+        }
+      ],
+      "duration" : 4.738607834195496,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 3.2322286547198718
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 3.2322286547198718
+        },
+        {
+          "index" : 0,
+          "t" : 0.24,
+          "take" : 1,
+          "time" : 3.4722286547198715
+        },
+        {
+          "index" : 0,
+          "t" : 0.61,
+          "take" : 1,
+          "time" : 3.8422286547198716
+        },
+        {
+          "index" : 0,
+          "t" : 0.98,
+          "take" : 1,
+          "time" : 4.212228654719872
+        },
+        {
+          "index" : 0,
+          "t" : 1.35,
+          "take" : 1,
+          "time" : 4.582228654719872
+        },
+        {
+          "index" : 0,
+          "t" : 1.7200000000000002,
+          "take" : 1,
+          "time" : 4.952228654719872
+        },
+        {
+          "index" : 1,
+          "t" : 2.0900000000000003,
+          "take" : 1,
+          "time" : 2.949459876747683
+        },
+        {
+          "index" : 1,
+          "t" : 2.4600000000000004,
+          "take" : 1,
+          "time" : 3.319459876747683
+        },
+        {
+          "index" : 1,
+          "t" : 2.8300000000000005,
+          "take" : 1,
+          "time" : 3.689459876747683
+        },
+        {
+          "index" : 1,
+          "t" : 3.2000000000000006,
+          "take" : 1,
+          "time" : 4.059459876747683
+        },
+        {
+          "index" : 1,
+          "t" : 3.5700000000000007,
+          "take" : 1,
+          "time" : 4.429459876747684
+        },
+        {
+          "index" : 1,
+          "t" : 3.940000000000001,
+          "take" : 1,
+          "time" : 4.799459876747683
+        },
+        {
+          "index" : 1,
+          "t" : 4.3100000000000005,
+          "take" : 1,
+          "time" : 5.169459876747683
+        },
+        {
+          "index" : 2,
+          "t" : 4.680000000000001,
+          "take" : 0,
+          "time" : 5.8668644484290615
+        },
+        {
+          "index" : 2,
+          "t" : 5.050000000000001,
+          "take" : 0,
+          "time" : 5.925472282624557
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 2.3005401232523175,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 0.5377713452801283,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 1.1477713452801281,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 4.130540123252318,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 4.954216090144651,
+          "start" : 3.2322286547198718,
+          "take" : 1
+        },
+        {
+          "at" : 1.7219874354247788,
+          "end" : 5.539313747107972,
+          "start" : 2.5814473121724615,
+          "take" : 1
+        },
+        {
+          "at" : 4.679853870360289,
+          "end" : 5.925472282624557,
+          "start" : 5.86671831878935,
+          "take" : 0
+        }
+      ]
+    },
+    {
+      "clips" : [
+        {
+          "end" : 3.3358667430499582,
+          "start" : 3.255655471306971,
+          "take" : 1
+        },
+        {
+          "end" : 4.230204972810096,
+          "start" : 1.9892389888615645,
+          "take" : 0
+        },
+        {
+          "end" : 5.079410752390376,
+          "start" : 2.801167559387329,
+          "take" : 0
+        },
+        {
+          "end" : 1.7702692495988055,
+          "start" : 1.3528392822394073,
+          "take" : 1
+        }
+      ],
+      "duration" : 5.016850416053964,
+      "locate" : [
+        {
+          "index" : 0,
+          "t" : -0.5,
+          "take" : 1,
+          "time" : 3.255655471306971
+        },
+        {
+          "index" : 0,
+          "t" : -0.13,
+          "take" : 1,
+          "time" : 3.255655471306971
+        },
+        {
+          "index" : 1,
+          "t" : 0.24,
+          "take" : 0,
+          "time" : 2.149027717118577
+        },
+        {
+          "index" : 1,
+          "t" : 0.61,
+          "take" : 0,
+          "time" : 2.5190277171185773
+        },
+        {
+          "index" : 1,
+          "t" : 0.98,
+          "take" : 0,
+          "time" : 2.8890277171185774
+        },
+        {
+          "index" : 1,
+          "t" : 1.35,
+          "take" : 0,
+          "time" : 3.2590277171185775
+        },
+        {
+          "index" : 1,
+          "t" : 1.7200000000000002,
+          "take" : 0,
+          "time" : 3.6290277171185776
+        },
+        {
+          "index" : 1,
+          "t" : 2.0900000000000003,
+          "take" : 0,
+          "time" : 3.9990277171185777
+        },
+        {
+          "index" : 2,
+          "t" : 2.4600000000000004,
+          "take" : 0,
+          "time" : 2.9399903036958106
+        },
+        {
+          "index" : 2,
+          "t" : 2.8300000000000005,
+          "take" : 0,
+          "time" : 3.3099903036958107
+        },
+        {
+          "index" : 2,
+          "t" : 3.2000000000000006,
+          "take" : 0,
+          "time" : 3.679990303695811
+        },
+        {
+          "index" : 2,
+          "t" : 3.5700000000000007,
+          "take" : 0,
+          "time" : 4.049990303695811
+        },
+        {
+          "index" : 2,
+          "t" : 3.940000000000001,
+          "take" : 0,
+          "time" : 4.419990303695811
+        },
+        {
+          "index" : 2,
+          "t" : 4.3100000000000005,
+          "take" : 0,
+          "time" : 4.789990303695811
+        },
+        {
+          "index" : 3,
+          "t" : 4.680000000000001,
+          "take" : 1,
+          "time" : 1.4334188335448417
+        },
+        {
+          "index" : 3,
+          "t" : 5.050000000000001,
+          "take" : 1,
+          "time" : 1.7702692495988055
+        },
+        {
+          "index" : 3,
+          "t" : 5.420000000000001,
+          "take" : 1,
+          "time" : 1.7702692495988055
+        }
+      ],
+      "output" : [
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 1.94
+        },
+        {
+          "keeps" : true,
+          "output" : 0.6409722828814224,
+          "take" : 0,
+          "time" : 2.55
+        },
+        {
+          "keeps" : true,
+          "output" : 1.2509722828814227,
+          "take" : 0,
+          "time" : 3.16
+        },
+        {
+          "keeps" : true,
+          "output" : 1.8609722828814226,
+          "take" : 0,
+          "time" : 3.77
+        },
+        {
+          "keeps" : true,
+          "output" : 3.9000096963041897,
+          "take" : 0,
+          "time" : 4.38
+        },
+        {
+          "keeps" : true,
+          "output" : 4.51000969630419,
+          "take" : 0,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 0,
+          "time" : 10.48
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : -0.5
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.10999999999999999
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 0.72
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.33
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 1.94
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 2.55
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.16
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 3.77
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.38
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 4.99
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 5.6
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.21
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 6.82
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 7.43
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.04
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 8.65
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.26
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 9.87
+        },
+        {
+          "keeps" : false,
+          "output" : null,
+          "take" : 1,
+          "time" : 10.48
+        }
+      ],
+      "spans" : [
+        {
+          "at" : 0,
+          "end" : 3.3358667430499582,
+          "start" : 3.255655471306971,
+          "take" : 1
+        },
+        {
+          "at" : 0.08021127174298703,
+          "end" : 4.230204972810096,
+          "start" : 1.9892389888615645,
+          "take" : 0
+        },
+        {
+          "at" : 2.3211772556915187,
+          "end" : 5.079410752390376,
+          "start" : 2.801167559387329,
+          "take" : 0
+        },
+        {
+          "at" : 4.599420448694566,
+          "end" : 1.7702692495988055,
+          "start" : 1.3528392822394073,
+          "take" : 1
+        }
+      ]
+    }
+  ]
+}

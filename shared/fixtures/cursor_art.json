@@ -1,0 +1,524 @@
+{
+  "cases" : [
+    {
+      "file" : "cursor-classic-clay-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "classic",
+      "tint" : "clay",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-classic-clay-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "classic",
+      "tint" : "clay",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-white-clay-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "white",
+      "tint" : "clay",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-white-clay-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "white",
+      "tint" : "clay",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-soft-clay-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "soft",
+      "tint" : "clay",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-soft-clay-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "soft",
+      "tint" : "clay",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-soft-sky-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "soft",
+      "tint" : "sky",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-soft-sky-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "soft",
+      "tint" : "sky",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-soft-mint-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "soft",
+      "tint" : "mint",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-soft-mint-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "soft",
+      "tint" : "mint",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-soft-butter-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "soft",
+      "tint" : "butter",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-soft-butter-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "soft",
+      "tint" : "butter",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-soft-lilac-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "soft",
+      "tint" : "lilac",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-soft-lilac-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "soft",
+      "tint" : "lilac",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-soft-rose-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "soft",
+      "tint" : "rose",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-soft-rose-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "soft",
+      "tint" : "rose",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 33
+    },
+    {
+      "file" : "cursor-dot-clay-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "dot",
+      "tint" : "clay",
+      "tip" : [
+        45,
+        45
+      ],
+      "width" : 90
+    },
+    {
+      "file" : "cursor-dot-clay-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "dot",
+      "tint" : "clay",
+      "tip" : [
+        22.5,
+        22.5
+      ],
+      "width" : 45
+    },
+    {
+      "file" : "cursor-dot-sky-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "dot",
+      "tint" : "sky",
+      "tip" : [
+        45,
+        45
+      ],
+      "width" : 90
+    },
+    {
+      "file" : "cursor-dot-sky-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "dot",
+      "tint" : "sky",
+      "tip" : [
+        22.5,
+        22.5
+      ],
+      "width" : 45
+    },
+    {
+      "file" : "cursor-dot-mint-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "dot",
+      "tint" : "mint",
+      "tip" : [
+        45,
+        45
+      ],
+      "width" : 90
+    },
+    {
+      "file" : "cursor-dot-mint-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "dot",
+      "tint" : "mint",
+      "tip" : [
+        22.5,
+        22.5
+      ],
+      "width" : 45
+    },
+    {
+      "file" : "cursor-dot-butter-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "dot",
+      "tint" : "butter",
+      "tip" : [
+        45,
+        45
+      ],
+      "width" : 90
+    },
+    {
+      "file" : "cursor-dot-butter-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "dot",
+      "tint" : "butter",
+      "tip" : [
+        22.5,
+        22.5
+      ],
+      "width" : 45
+    },
+    {
+      "file" : "cursor-dot-lilac-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "dot",
+      "tint" : "lilac",
+      "tip" : [
+        45,
+        45
+      ],
+      "width" : 90
+    },
+    {
+      "file" : "cursor-dot-lilac-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "dot",
+      "tint" : "lilac",
+      "tip" : [
+        22.5,
+        22.5
+      ],
+      "width" : 45
+    },
+    {
+      "file" : "cursor-dot-rose-66.png",
+      "height" : 90,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "dot",
+      "tint" : "rose",
+      "tip" : [
+        45,
+        45
+      ],
+      "width" : 90
+    },
+    {
+      "file" : "cursor-dot-rose-33.png",
+      "height" : 45,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "dot",
+      "tint" : "rose",
+      "tip" : [
+        22.5,
+        22.5
+      ],
+      "width" : 45
+    },
+    {
+      "file" : "cursor-tag-clay-66.png",
+      "height" : 110,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "tag",
+      "tint" : "clay",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 166
+    },
+    {
+      "file" : "cursor-tag-clay-33.png",
+      "height" : 55,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "tag",
+      "tint" : "clay",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-tag-sky-66.png",
+      "height" : 110,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "tag",
+      "tint" : "sky",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 166
+    },
+    {
+      "file" : "cursor-tag-sky-33.png",
+      "height" : 55,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "tag",
+      "tint" : "sky",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-tag-mint-66.png",
+      "height" : 110,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "tag",
+      "tint" : "mint",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 166
+    },
+    {
+      "file" : "cursor-tag-mint-33.png",
+      "height" : 55,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "tag",
+      "tint" : "mint",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-tag-butter-66.png",
+      "height" : 110,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "tag",
+      "tint" : "butter",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 166
+    },
+    {
+      "file" : "cursor-tag-butter-33.png",
+      "height" : 55,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "tag",
+      "tint" : "butter",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-tag-lilac-66.png",
+      "height" : 110,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "tag",
+      "tint" : "lilac",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 166
+    },
+    {
+      "file" : "cursor-tag-lilac-33.png",
+      "height" : 55,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "tag",
+      "tint" : "lilac",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 66
+    },
+    {
+      "file" : "cursor-tag-rose-66.png",
+      "height" : 110,
+      "label" : "Connor",
+      "pixelHeight" : 66,
+      "style" : "tag",
+      "tint" : "rose",
+      "tip" : [
+        12,
+        12
+      ],
+      "width" : 166
+    },
+    {
+      "file" : "cursor-tag-rose-33.png",
+      "height" : 55,
+      "label" : "",
+      "pixelHeight" : 33,
+      "style" : "tag",
+      "tint" : "rose",
+      "tip" : [
+        6,
+        6
+      ],
+      "width" : 66
+    }
+  ]
+}

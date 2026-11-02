@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Painter test</title>
+    <style>
+      body { margin: 0; background: #333; }
+      canvas { display: block; width: 960px; height: 540px; }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <pre id="log" style="color:#eee"></pre>
+    <script type="module">
+      // Dev aid: paints a synthetic FramePlan (no video) to check the painter
+      // on a given engine. Open http://localhost:5183/painter-test.html.
+      import { Painter } from "/src/editor/painter.ts";
+      const log = (m) => (document.getElementById("log").textContent += m + "\n");
+      try {
+        const c = document.getElementById("c");
+        const p = new Painter(c);
+        p.resize(960, 540, 1);
+        const plan = {
+          t: 0, canvas: { width: 1920, height: 1080 }, clipIndex: 0, take: 0, takeTime: 0,
+          backdrop: { kind: "linear", from: { x: 0, y: 0 }, to: { x: 1920, y: 1080 }, colorFrom: { r: 0.72, g: 0.41, b: 0.29, a: 1 }, colorTo: { r: 0.17, g: 0.13, b: 0.11, a: 1 }, grain: 0 },
+          shadow: { rect: { x: 300, y: 220, w: 1320, h: 700 }, radius: 30, color: { r: 0, g: 0, b: 0, a: 0.9 }, sigma: 40 },
+          frame: { x: 300, y: 200, w: 1320, h: 700 }, cornerRadius: 30,
+          source: { take: 0, width: 100, height: 100, hides: [], bounds: { x: 0, y: 0, w: 100, h: 100 }, rect: { x: 0, y: 0, w: 100, h: 100 }, lanczos: false },
+          camera: { scale: 1, centerX: 0.5, centerY: 0.5 },
+          ripples: [{ center: { x: 960, y: 540 }, radius: 80, alpha: 1, color: { r: 1, g: 1, b: 1, a: 1 } }],
+          cursor: null, webcam: [],
+        };
+        // ?image: a painting backdrop with the real recording's blur, at 4K.
+        const q = new URLSearchParams(location.search);
+        let img = null;
+        if (q.has("image") || q.has("k4")) {
+          plan.canvas = { width: 3840, height: 2160 };
+          for (const r of [plan.frame, plan.shadow.rect]) Object.assign(r, { x: r.x * 2, y: r.y * 2, w: r.w * 2, h: r.h * 2 });
+          plan.shadow = { ...plan.shadow, color: { r: 0.05, g: 0.04, b: 0.03, a: 0.55 }, sigma: 75.6, radius: 54 };
+          plan.cornerRadius = 54;
+          plan.ripples = [];
+          if (q.has("image")) plan.backdrop = { kind: "image", file: "x", blurSigma: q.has("noblur") ? 0 : 17.15, fallback: plan.backdrop };
+          img = new Image();
+          if (q.has("image")) img.src = `/@fs${__MONETSHOT_REPO__}/Resources/Backdrops/van-gogh-wheat-field-cypresses.jpg`;
+          if (q.has("image")) await img.decode();
+        }
+        const src = { video: () => null, webcam: () => null, image: () => img, cursorArt: () => null };
+        p.paint(plan, src);
+        if (!q.has("once")) p.paint(plan, src);
+        log("painted");
+      } catch (e) {
+        log(String(e.stack || e));
+      }
+    </script>
+  </body>
+</html>

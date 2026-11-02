@@ -1,0 +1,2283 @@
+{
+  "insert" : [
+    {
+      "at" : 0,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 2,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 0,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 1,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 0,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 2.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 1
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 1,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 2,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 1,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 1.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0.5,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 1,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 2.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 1
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 3,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : null,
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 3,
+      "duration" : 10,
+      "length" : 1,
+      "result" : null,
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 3,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : null,
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 4.2,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 6.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 4.2,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 4.2,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : null,
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 4.5,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 6.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 4.5,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 4.5,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : null,
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 5,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 6.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 5,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 5.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4.5,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 5,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : null,
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 6,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 7,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4.75,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 6,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 6.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 5.5,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 6,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 7.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 5,
+        "take" : 1
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 6.8,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 7,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 5.55,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 6.8,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 7,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 6.3,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 6.8,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 8.05,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 5.55,
+        "take" : 1
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 9,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 10,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 8,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 9,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 9.5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 8.5,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 9,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 10,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 7.75,
+        "take" : 1
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "at" : 9.9,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 10,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 8.65,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 9.9,
+      "duration" : 10,
+      "length" : 1,
+      "result" : {
+        "auto" : false,
+        "end" : 10,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 9.4,
+        "take" : 0
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "at" : 9.9,
+      "duration" : 10,
+      "length" : 2.5,
+      "result" : {
+        "auto" : false,
+        "end" : 10,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 8.65,
+        "take" : 1
+      },
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 8,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 7,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 5,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 3,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    }
+  ],
+  "move" : [
+    {
+      "delta" : -5,
+      "duration" : 6,
+      "result" : {
+        "auto" : false,
+        "end" : 2,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      }
+    },
+    {
+      "delta" : -1,
+      "duration" : 6,
+      "result" : {
+        "auto" : false,
+        "end" : 3,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 1,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      }
+    },
+    {
+      "delta" : 0,
+      "duration" : 6,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      }
+    },
+    {
+      "delta" : 0.7,
+      "duration" : 6,
+      "result" : {
+        "auto" : false,
+        "end" : 4.7,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2.7,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      }
+    },
+    {
+      "delta" : 10,
+      "duration" : 6,
+      "result" : {
+        "auto" : false,
+        "end" : 6,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 4,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      }
+    }
+  ],
+  "reAuto" : [
+    {
+      "clicks" : [
+        {
+          "t" : 1,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "t" : 10,
+          "x" : 0.5,
+          "y" : 0.5
+        }
+      ],
+      "duration" : 20,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 3,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 3,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "auto" : true,
+          "end" : 11.7,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 9.1,
+          "take" : 0
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : false,
+          "end" : 3,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 3,
+          "start" : 0,
+          "take" : 0
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "clicks" : [
+        {
+          "t" : 8.834788631642635,
+          "x" : 0.20632108310256214,
+          "y" : 0.910327772282953
+        },
+        {
+          "t" : 21.24110607563157,
+          "x" : 0.4076985012388922,
+          "y" : 0.811800809380346
+        },
+        {
+          "t" : 25.495742190039024,
+          "x" : 0.21038089564319096,
+          "y" : 0.20709694133062162
+        },
+        {
+          "t" : 11.62387441276412,
+          "x" : 0.9684798813424359,
+          "y" : 0.5839336590738687
+        },
+        {
+          "t" : 20.46590690704357,
+          "x" : 0.8975093196471373,
+          "y" : 0.6017439774382752
+        },
+        {
+          "t" : 9.797182956516888,
+          "x" : 0.44156686663455735,
+          "y" : 0.3610913200944882
+        },
+        {
+          "t" : 5.457114514408946,
+          "x" : 0.15790758787660375,
+          "y" : 0.6122801078012319
+        }
+      ],
+      "duration" : 26.378215709867344,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 15.583454172692853,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 7.684922144236835,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 19.63412746483515,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 4.139198527439487,
+          "take" : 0
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 9.411449368989288,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 4.495480846819201,
+          "take" : 0
+        },
+        {
+          "auto" : true,
+          "end" : 18.70016462455167,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 16.100164624551674,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 19.63412746483515,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 4.139198527439487,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 15.583454172692853,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 7.684922144236835,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "clicks" : [
+        {
+          "t" : 2.7215368124848656,
+          "x" : 0.5649117534059942,
+          "y" : 0.7960896423423459
+        },
+        {
+          "t" : 3.076686973843407,
+          "x" : 0.20052777394744958,
+          "y" : 0.14107326214132232
+        },
+        {
+          "t" : 0.8787603709460202,
+          "x" : 0.09174660620826136,
+          "y" : 0.2960987436698238
+        },
+        {
+          "t" : 2.2511489271746066,
+          "x" : 0.17734732773787998,
+          "y" : 0.23114656533913835
+        }
+      ],
+      "duration" : 8.062816678547332,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 4.282037736541443,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 1.4611028454861736,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 4.191920672081356,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 3.4503021492469985,
+          "take" : 1
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 8.062816678547332,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 1.7355090559395405,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 4.282037736541443,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 1.4611028454861736,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 4.191920672081356,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 3.4503021492469985,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "clicks" : [
+        {
+          "t" : 23.905439801680387,
+          "x" : 0.4855721765338885,
+          "y" : 0.6097894432778932
+        }
+      ],
+      "duration" : 25.315287800200394,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 20.762001412871726,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 7.416473514732235,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 16.475910603553142,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 8.997620752594395,
+          "take" : 0
+        },
+        {
+          "auto" : true,
+          "end" : 25.315287800200394,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 23.00543980168039,
+          "take" : 0
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 11.232116111551615,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 2.659901012623619,
+          "take" : 0
+        },
+        {
+          "auto" : true,
+          "end" : 17.943120187065524,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 15.343120187065525,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 16.475910603553142,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 8.997620752594395,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 20.762001412871726,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 7.416473514732235,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "clicks" : [
+        {
+          "t" : 3.4838241759000335,
+          "x" : 0.30301986476100506,
+          "y" : 0.40059414896602163
+        },
+        {
+          "t" : 12.90518935218708,
+          "x" : 0.9314110024421052,
+          "y" : 0.22631173952866857
+        },
+        {
+          "t" : 6.13294662737455,
+          "x" : 0.18617256407717797,
+          "y" : 0.42233117509358653
+        },
+        {
+          "t" : 9.546684296711899,
+          "x" : 0.058611537803846425,
+          "y" : 0.7942231062530938
+        },
+        {
+          "t" : 11.211278272585702,
+          "x" : 0.640033224440152,
+          "y" : 0.18750496573551134
+        },
+        {
+          "t" : 1.5099389533857666,
+          "x" : 0.702169467275799,
+          "y" : 0.8527978094699222
+        },
+        {
+          "t" : 4.2013523508018755,
+          "x" : 0.1164131275530581,
+          "y" : 0.02187379371696907
+        }
+      ],
+      "duration" : 13.866271333232573,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 12.412322006895844,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 5.262022505643772,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 11.999572207742379,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 6.284137841487136,
+          "take" : 1
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 2.453408483018579,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 0,
+          "take" : 1
+        },
+        {
+          "auto" : true,
+          "end" : 10.966923228242761,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 8.366923228242761,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 12.412322006895844,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 5.262022505643772,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 11.999572207742379,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 6.284137841487136,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    },
+    {
+      "clicks" : [
+        {
+          "t" : 7.975944053402071,
+          "x" : 0.8122493977974611,
+          "y" : 0.7192471340295682
+        },
+        {
+          "t" : 1.3840946508325305,
+          "x" : 0.6647309406226131,
+          "y" : 0.10270470110779528
+        },
+        {
+          "t" : 1.2181913784229759,
+          "x" : 0.5740425421691607,
+          "y" : 0.4260456344496326
+        },
+        {
+          "t" : 1.995056051025831,
+          "x" : 0.042992254013542675,
+          "y" : 0.611149090802305
+        },
+        {
+          "t" : 2.9486557177589923,
+          "x" : 0.6622629053005925,
+          "y" : 0.4804735058468069
+        },
+        {
+          "t" : 0.6547201534146605,
+          "x" : 0.31599821293323904,
+          "y" : 0.538632439143078
+        },
+        {
+          "t" : 2.3106089538191394,
+          "x" : 0.12692345690681817,
+          "y" : 0.1755214384591588
+        },
+        {
+          "t" : 2.389385269970427,
+          "x" : 0.3422280712008864,
+          "y" : 0.41927484274195326
+        },
+        {
+          "t" : 8.005444470903026,
+          "x" : 0.7704641120199568,
+          "y" : 0.9555792527236757
+        },
+        {
+          "t" : 0.300175485893869,
+          "x" : 0.4368193531317315,
+          "y" : 0.4400307013556589
+        }
+      ],
+      "duration" : 10.017867591282934,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 7.272025941788706,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 4.6697021893649655,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 9.146181823477427,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 3.1563200994928384,
+          "take" : 0
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 8.557521049778888,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 0.4517969742608484,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 9.146181823477427,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 3.1563200994928384,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 7.272025941788706,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 4.6697021893649655,
+          "take" : 1
+        }
+      ],
+      "take" : 0
+    },
+    {
+      "clicks" : [
+        {
+          "t" : 0.7126812975158412,
+          "x" : 0.4438738453025256,
+          "y" : 0.6855869475098209
+        },
+        {
+          "t" : 7.951830041390146,
+          "x" : 0.7185992389074138,
+          "y" : 0.4290754091921052
+        },
+        {
+          "t" : 1.109341842606266,
+          "x" : 0.3654434690294497,
+          "y" : 0.9006914753635007
+        },
+        {
+          "t" : 6.9703138530261475,
+          "x" : 0.8282309065986977,
+          "y" : 0.45701111990038623
+        },
+        {
+          "t" : 9.50485557766157,
+          "x" : 0.0818773690475616,
+          "y" : 0.8639922099781132
+        },
+        {
+          "t" : 14.164695442295645,
+          "x" : 0.3509445991836707,
+          "y" : 0.2687630698540384
+        }
+      ],
+      "duration" : 18.600896677096195,
+      "result" : [
+        {
+          "auto" : false,
+          "end" : 13.416227709887778,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 8.036785710804393,
+          "take" : 0
+        },
+        {
+          "auto" : true,
+          "end" : 2.809341842606266,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 0,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 11.201103792051278,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 9.02431998948922,
+          "take" : 1
+        }
+      ],
+      "segments" : [
+        {
+          "auto" : true,
+          "end" : 4.278981512264448,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 0.25576297432747486,
+          "take" : 1
+        },
+        {
+          "auto" : true,
+          "end" : 10.644106794868925,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 8.044106794868926,
+          "take" : 1
+        },
+        {
+          "auto" : true,
+          "end" : 18.275534815546273,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2,
+          "start" : 15.675534815546273,
+          "take" : 1
+        },
+        {
+          "auto" : false,
+          "end" : 13.416227709887778,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 2.5,
+          "start" : 8.036785710804393,
+          "take" : 0
+        },
+        {
+          "auto" : false,
+          "end" : 11.201103792051278,
+          "focusX" : null,
+          "focusY" : null,
+          "scale" : 1.5,
+          "start" : 9.02431998948922,
+          "take" : 1
+        }
+      ],
+      "take" : 1
+    }
+  ],
+  "resize" : [
+    {
+      "duration" : 6,
+      "leading" : true,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 0,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : -1
+    },
+    {
+      "duration" : 6,
+      "leading" : true,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 1,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 1
+    },
+    {
+      "duration" : 6,
+      "leading" : true,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 3.6,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 3.9
+    },
+    {
+      "duration" : 6,
+      "leading" : true,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2.1,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 2.1
+    },
+    {
+      "duration" : 6,
+      "leading" : true,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 3.6,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 5
+    },
+    {
+      "duration" : 6,
+      "leading" : true,
+      "result" : {
+        "auto" : false,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 3.6,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 7
+    },
+    {
+      "duration" : 6,
+      "leading" : false,
+      "result" : {
+        "auto" : false,
+        "end" : 2.4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : -1
+    },
+    {
+      "duration" : 6,
+      "leading" : false,
+      "result" : {
+        "auto" : false,
+        "end" : 2.4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 1
+    },
+    {
+      "duration" : 6,
+      "leading" : false,
+      "result" : {
+        "auto" : false,
+        "end" : 3.9,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 3.9
+    },
+    {
+      "duration" : 6,
+      "leading" : false,
+      "result" : {
+        "auto" : false,
+        "end" : 2.4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 2.1
+    },
+    {
+      "duration" : 6,
+      "leading" : false,
+      "result" : {
+        "auto" : false,
+        "end" : 5,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 5
+    },
+    {
+      "duration" : 6,
+      "leading" : false,
+      "result" : {
+        "auto" : false,
+        "end" : 6,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "segment" : {
+        "auto" : true,
+        "end" : 4,
+        "focusX" : null,
+        "focusY" : null,
+        "scale" : 2,
+        "start" : 2,
+        "take" : 0
+      },
+      "to" : 7
+    }
+  ]
+}

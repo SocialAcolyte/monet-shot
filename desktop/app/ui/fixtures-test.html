@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Painter vs Mac</title>
+    <style>
+      body { margin: 16px; background: #17191b; color: #e6e3dd; font: 12px ui-rounded, system-ui, sans-serif; }
+      .case { display: grid; grid-template-columns: repeat(3, 320px); gap: 8px; margin-bottom: 18px; }
+      .case h2 { grid-column: 1 / -1; margin: 0; font-size: 13px; }
+      canvas, img { width: 320px; height: 180px; display: block; background: #000; }
+      pre { white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <pre id="summary">painting…</pre>
+    <div id="out"></div>
+    <script type="module">
+      // Dev aid: paints every reference case in shared/fixtures/render with
+      // the preview painter and compares it to the frame the Mac rendered.
+      // Columns: ours, the Mac's, the difference ×8. Open
+      // http://localhost:5183/fixtures-test.html (Safari: the closest engine
+      // to WebKitGTK).
+      import init, * as core from "monetshot-core-wasm";
+      import { Painter } from "/src/editor/painter.ts";
+
+      const repo = `/@fs${__MONETSHOT_REPO__}`;
+      const dir = `${repo}/shared/fixtures/render`;
+      const load = (src) => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = src; });
+      await init();
+      const { cases } = await (await fetch(`${dir}/cases.json`)).json();
+      const lines = [];
+      // ?case=<name> paints one case; ?zoom=<x>,<y> shows a 160×90 crop of
+      // ours | the Mac's at 6×.
+      const q = new URLSearchParams(location.search);
+      for (const c of cases.filter((c) => !q.get("case") || c.name === q.get("case"))) {
+        const takes = c.takes.map((t, i) => ({ meta: JSON.parse(t.meta), cursor: JSON.parse(t.cursor), dir: i ? `take-${i + 1}` : "" }));
+        // The Mac case hands its renderer a camera frame directly; without an
+        // overlay clip that is the take's own camera, so name one (starting
+        // with the take) or the plan has no webcam to draw.
+        if (c.webcam && !c.overlay) for (const t of takes) { t.meta.camera = c.webcam; t.meta.cameraOffset = 0; }
+        const ed = new core.Editor(JSON.parse(c.edit), takes);
+        const plan = ed.plan(c.t);
+        const sources = await Promise.all(c.sources.map((s) => load(`${dir}/${s}`)));
+        const cam = c.webcam ? await load(`${dir}/${c.webcam}`) : null;
+        const backdrop = plan.backdrop.kind === "image" ? await load(`${repo}/${c.backdropFolder}/${plan.backdrop.file}`).catch(() => "failed") : null;
+        const canvas = document.createElement("canvas");
+        const p = new Painter(canvas);
+        p.resize(plan.canvas.width, plan.canvas.height, 1);
+        const src = {
+          video: (take) => sources[take] ?? null,
+          webcam: () => cam,
+          image: () => backdrop,
+          cursorArt: (s, t, l, h) => core.cursorArt(s, t, l, h),
+        };
+        p.paint(plan, src);
+        const mac = await load(`${dir}/${c.file}`);
+        // Both into 2D canvases, then the difference.
+        const w = plan.canvas.width, h = plan.canvas.height;
+        const read = (el) => { const x = document.createElement("canvas"); x.width = w; x.height = h; const g = x.getContext("2d"); g.drawImage(el, 0, 0, w, h); return g.getImageData(0, 0, w, h); };
+        const a = read(canvas), b = read(mac);
+        const diff = new ImageData(w, h);
+        let sum = 0, max = 0, over = 0;
+        for (let i = 0; i < a.data.length; i += 4) {
+          let m = 0;
+          for (let k = 0; k < 3; k++) {
+            const d = Math.abs(a.data[i + k] - b.data[i + k]);
+            sum += d;
+            m = Math.max(m, d);
+            diff.data[i + k] = Math.min(255, d * 8);
+          }
+          diff.data[i + 3] = 255;
+          max = Math.max(max, m);
+          if (m > 24) over++;
+        }
+        const mean = sum / (w * h * 3);
+        lines.push(`${c.name.padEnd(28)} mean ${mean.toFixed(2).padStart(6)}  max ${String(max).padStart(3)}  >24: ${((over / (w * h)) * 100).toFixed(2)}%`);
+        const dc = document.createElement("canvas");
+        dc.width = w; dc.height = h;
+        dc.getContext("2d").putImageData(diff, 0, 0);
+        const row = document.createElement("div");
+        row.className = "case";
+        row.innerHTML = `<h2>${c.name} — mean ${mean.toFixed(2)}</h2>`;
+        row.append(canvas, mac, dc);
+        document.getElementById("out").append(row);
+        if (q.has("shift")) {
+          // Which offset of ours best matches the Mac's (an alignment check).
+          const res = [];
+          for (const dy of [-1, -0.5, 0, 0.5, 1]) for (const dx of [-1, -0.5, 0, 0.5, 1]) {
+            const x = document.createElement("canvas"); x.width = w; x.height = h;
+            const g = x.getContext("2d"); g.drawImage(canvas, dx, dy, w, h);
+            const sa = g.getImageData(0, 0, w, h).data;
+            let sm = 0;
+            for (let i = 0; i < sa.length; i += 4) for (let k = 0; k < 3; k++) sm += Math.abs(sa[i + k] - b.data[i + k]);
+            res.push([dx, dy, sm / (w * h * 3)]);
+          }
+          res.sort((u, v) => u[2] - v[2]);
+          lines.push("   best shifts: " + res.slice(0, 4).map(([x, y, m]) => `(${x},${y}) ${m.toFixed(2)}`).join("  "));
+        }
+        if (q.get("zoom")) {
+          const [zx, zy] = q.get("zoom").split(",").map(Number);
+          const z = document.createElement("canvas");
+          z.width = 160 * 2 * 6; z.height = 90 * 6;
+          z.style.cssText = `width:${z.width / 2}px;height:${z.height / 2}px`;
+          const g = z.getContext("2d");
+          g.imageSmoothingEnabled = false;
+          g.drawImage(canvas, zx, zy, 160, 90, 0, 0, 960, 540);
+          g.drawImage(mac, zx, zy, 160, 90, 960, 0, 960, 540);
+          document.getElementById("out").prepend(z);
+        }
+        ed.free();
+      }
+      document.getElementById("summary").textContent = lines.join("\n");
+      // In the app (MONETSHOT_DEV_PAGE), the numbers go to its log too.
+      if ("__TAURI_INTERNALS__" in window) {
+        const { invoke } = await import("@tauri-apps/api/core");
+        for (const l of lines) await invoke("ui_log", { level: "info", message: `fixtures: ${l}` });
+      }
+    </script>
+  </body>
+</html>

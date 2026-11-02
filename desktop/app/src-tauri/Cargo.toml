@@ -1,0 +1,26 @@
+[package]
+name = "monet-shot"
+version = "0.1.1"
+description = "Monet Shot: a screen recorder that makes your recordings look good"
+edition = "2021"
+publish = false
+
+[lib]
+name = "monet_shot_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+monetshot-core = { workspace = true }
+monetshot-capture = { path = "../../crates/capture" }
+monetshot-export = { path = "../../crates/export" }
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api", "protocol-asset"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tiny-skia = "0.11"
+trash = "5"
+tauri-plugin-single-instance = "2"

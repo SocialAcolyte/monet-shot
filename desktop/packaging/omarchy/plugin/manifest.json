@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "monet-shot",
+  "name": "Monet Shot",
+  "version": "0.1.1",
+  "author": "Connor Hood",
+  "license": "MIT",
+  "description": "Record the screen with Monet Shot from the bar: click to record or stop, the time while recording.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "Widget.qml"
+  },
+  "barWidget": {
+    "displayName": "Monet Shot",
+    "description": "Click to record or stop; right-click to pause. Shows the 3-2-1 and the recorded time.",
+    "category": "Capture",
+    "aliases": ["monet-shot", "record", "screen-recorder"],
+    "defaultSection": "centerEnd",
+    "allowMultiple": false
+  }
+}

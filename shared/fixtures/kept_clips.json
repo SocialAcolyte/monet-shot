@@ -1,0 +1,341 @@
+{
+  "cases" : [
+    {
+      "clips" : [
+        {
+          "end" : 3,
+          "start" : 1,
+          "take" : 0
+        },
+        {
+          "end" : 9,
+          "start" : 5,
+          "take" : 0
+        }
+      ],
+      "duration" : 10,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 5,\n      \"start\" : 3\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 9,\n  \"trimStart\" : 1\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 7.5,
+          "start" : 0,
+          "take" : 0
+        }
+      ],
+      "duration" : 7.5,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 14.984311919715395,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 20.41408158557842,
+          "start" : 18.975853264982288,
+          "take" : 0
+        }
+      ],
+      "duration" : 20.41408158557842,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 18.975853264982288,\n      \"start\" : 14.984311919715395\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 2.975646159539389,
+          "start" : 2.729391005657818,
+          "take" : 0
+        }
+      ],
+      "duration" : 6.16273295920629,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 5.784547945970605,\n      \"start\" : 2.975646159539389\n    },\n    {\n      \"end\" : 2.729391005657818,\n      \"start\" : -0.44101393905527186\n    },\n    {\n      \"end\" : 2.538737232993662,\n      \"start\" : 1.0496426232855804\n    },\n    {\n      \"end\" : 3.6275594049071844,\n      \"start\" : 3.501989466978028\n    },\n    {\n      \"end\" : 7.364511488347022,\n      \"start\" : 4.5778757586385845\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 8.82371589548465,
+          "start" : 7.113682306001612,
+          "take" : 0
+        }
+      ],
+      "duration" : 9.255309312830898,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 5.298631913328698,\n      \"start\" : 4.342506037782285\n    },\n    {\n      \"end\" : 1.9276782642616663,\n      \"start\" : 0.7295222638270655\n    },\n    {\n      \"end\" : 5.023750959654141,\n      \"start\" : 4.56079720765586\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 8.82371589548465,\n  \"trimStart\" : 7.113682306001612\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 7.272225919761102,
+          "start" : 0.12502013088842823,
+          "take" : 0
+        },
+        {
+          "end" : 13.149933760532631,
+          "start" : 10.751426685859876,
+          "take" : 0
+        },
+        {
+          "end" : 16.167693736609795,
+          "start" : 14.974317108016084,
+          "take" : 0
+        }
+      ],
+      "duration" : 17.68527883282428,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 10.751426685859876,\n      \"start\" : 7.272225919761102\n    },\n    {\n      \"end\" : 14.974317108016084,\n      \"start\" : 13.149933760532631\n    },\n    {\n      \"end\" : 18.88614762031632,\n      \"start\" : 16.167693736609795\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0.12502013088842823\n}"
+    },
+    {
+      "clips" : [
+
+      ],
+      "duration" : 3.6837267589189073,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 1.4971721158161682,\n      \"start\" : -0.0709199070960359\n    },\n    {\n      \"end\" : 4.7059249797297795,\n      \"start\" : 2.895748051931615\n    },\n    {\n      \"end\" : 1.8251138370964688,\n      \"start\" : -0.5992306734737138\n    },\n    {\n      \"end\" : 3.4657852365861634,\n      \"start\" : -0.04086784198003501\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 1.3749235650090648,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 7.810917457776,
+          "start" : 4.78814319082195,
+          "take" : 0
+        },
+        {
+          "end" : 27.566662671774118,
+          "start" : 11.333106080284129,
+          "take" : 0
+        }
+      ],
+      "duration" : 27.566662671774118,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 4.78814319082195,\n      \"start\" : 1.3749235650090648\n    },\n    {\n      \"end\" : 11.333106080284129,\n      \"start\" : 7.810917457776\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 1.106731755310638,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 2.4591835716623542,
+          "start" : 1.8062108009552809,
+          "take" : 0
+        }
+      ],
+      "duration" : 2.4591835716623542,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 1.8062108009552809,\n      \"start\" : 1.106731755310638\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+
+      ],
+      "duration" : 10.375951218974935,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 0.43521948391616516,\n      \"start\" : -0.6253990255814432\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 5.410668105731807,\n  \"trimStart\" : 7.441405386965172\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 8.52647894448173,
+          "start" : 0,
+          "take" : 0
+        }
+      ],
+      "duration" : 12.949545276435092,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 13.496523628459885,\n      \"start\" : 11.553258988075976\n    },\n    {\n      \"end\" : 13.721609793565055,\n      \"start\" : 11.644345460510468\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 8.52647894448173,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 5.133891724134783,
+          "start" : 4.765518730463072,
+          "take" : 0
+        },
+        {
+          "end" : 3.1293569703579305,
+          "start" : 2.0869568854097875,
+          "take" : 0
+        },
+        {
+          "end" : 2.397893621851808,
+          "start" : 1.905492667928599,
+          "take" : 0
+        },
+        {
+          "end" : 5.133891724134783,
+          "start" : 3.770025255877885,
+          "take" : 0
+        }
+      ],
+      "duration" : 5.133891724134783,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"clips\" : [\n    {\n      \"end\" : 5.133891724134783,\n      \"start\" : 4.765518730463072,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 3.1293569703579305,\n      \"start\" : 2.0869568854097875,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 2.397893621851808,\n      \"start\" : 1.905492667928599,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 5.133891724134783,\n      \"start\" : 3.770025255877885,\n      \"take\" : 0\n    }\n  ],\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 5.353278967242675,\n      \"start\" : 4.584978841333012\n    },\n    {\n      \"end\" : 2.985911294686017,\n      \"start\" : 1.702672343412834\n    },\n    {\n      \"end\" : 4.858212607195497,\n      \"start\" : 0.9483706011320516\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 4.454997786751379,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 14.23962730215518,
+          "start" : 0.3119940127164791,
+          "take" : 0
+        }
+      ],
+      "duration" : 14.23962730215518,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0.3119940127164791\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 2.220321524069119,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 8.19970902695831,
+          "start" : 7.99020097539083,
+          "take" : 0
+        },
+        {
+          "end" : 15.52199063362738,
+          "start" : 9.38005228112589,
+          "take" : 0
+        }
+      ],
+      "duration" : 15.52199063362738,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 6.979041246378391,\n      \"start\" : 3.8734921925127432\n    },\n    {\n      \"end\" : 7.99020097539083,\n      \"start\" : 6.624858801605074\n    },\n    {\n      \"end\" : 9.38005228112589,\n      \"start\" : 8.19970902695831\n    },\n    {\n      \"end\" : 5.8489150234836105,\n      \"start\" : 2.220321524069119\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 15.573049468558855,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+
+      ],
+      "duration" : 4.351957705764962,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 4.469508977580054,\n      \"start\" : 4.020109707519486\n    },\n    {\n      \"end\" : -0.5341786211350237,\n      \"start\" : -0.5464232725533553\n    },\n    {\n      \"end\" : 3.7902168678675325,\n      \"start\" : 1.040162131056256\n    },\n    {\n      \"end\" : 4.498002138001969,\n      \"start\" : 1.674313995243625\n    },\n    {\n      \"end\" : 2.963215612593041,\n      \"start\" : -0.8986983949915828\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+
+      ],
+      "duration" : 13.69652321166884,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 3.646284343628484,\n      \"start\" : 1.3160629996461233\n    },\n    {\n      \"end\" : 9.511101185212876,\n      \"start\" : 7.166756185298974\n    },\n    {\n      \"end\" : 16.22870972777843,\n      \"start\" : 12.992334006547047\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 7.561993330391725,\n  \"trimStart\" : 12.624418126762007\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 15.740212711444194,
+          "start" : 8.91494482603347,
+          "take" : 0
+        }
+      ],
+      "duration" : 16.971164513116676,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 6.64660883303627,\n      \"start\" : 3.8654549908911218\n    },\n    {\n      \"end\" : 19.27089412729388,\n      \"start\" : 15.740212711444194\n    },\n    {\n      \"end\" : 8.91494482603347,\n      \"start\" : 6.036098277157732\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 8.040474400267401\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 4.174230811890481,
+          "start" : 2.6080039873172183,
+          "take" : 0
+        },
+        {
+          "end" : 2.81732401806768,
+          "start" : 0.4436938555319605,
+          "take" : 0
+        },
+        {
+          "end" : 1.697515701965556,
+          "start" : 0.37737167759365026,
+          "take" : 0
+        },
+        {
+          "end" : 5.724394609729707,
+          "start" : 3.0481051950421882,
+          "take" : 0
+        },
+        {
+          "end" : 2.1078056807456256,
+          "start" : 1.7506071795173086,
+          "take" : 0
+        },
+        {
+          "end" : 8.75824825817148,
+          "start" : 6.951244503853763,
+          "take" : 0
+        }
+      ],
+      "duration" : 8.75824825817148,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"clips\" : [\n    {\n      \"end\" : 4.174230811890481,\n      \"start\" : 2.6080039873172183,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 2.81732401806768,\n      \"start\" : 0.4436938555319605,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 1.697515701965556,\n      \"start\" : 0.37737167759365026,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 5.724394609729707,\n      \"start\" : 3.0481051950421882,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 2.1078056807456256,\n      \"start\" : 1.7506071795173086,\n      \"take\" : 0\n    },\n    {\n      \"end\" : 8.75824825817148,\n      \"start\" : 6.951244503853763,\n      \"take\" : 0\n    }\n  ],\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 4.328051114787069,\n      \"start\" : 0.7063282593228635\n    },\n    {\n      \"end\" : 10.289552318161038,\n      \"start\" : 7.3546890373944755\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+
+      ],
+      "duration" : 3.786087967123763,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 1.3042352593588522,\n  \"trimStart\" : 3.4837093964470762\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 9.608293182832567,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 13.530660134637209,
+          "start" : 11.803308710000733,
+          "take" : 0
+        },
+        {
+          "end" : 20.361362500237266,
+          "start" : 17.230483104151816,
+          "take" : 0
+        },
+        {
+          "end" : 28.42886553632651,
+          "start" : 21.26458261022276,
+          "take" : 0
+        }
+      ],
+      "duration" : 28.42886553632651,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 15.48836137545564,\n      \"start\" : 13.89023602053439\n    },\n    {\n      \"end\" : 21.26458261022276,\n      \"start\" : 20.361362500237266\n    },\n    {\n      \"end\" : 17.230483104151816,\n      \"start\" : 13.530660134637209\n    },\n    {\n      \"end\" : 11.803308710000733,\n      \"start\" : 9.608293182832567\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 2.931365774438248,
+          "start" : 0,
+          "take" : 0
+        },
+        {
+          "end" : 7.051221157257169,
+          "start" : 4.174961837067142,
+          "take" : 0
+        },
+        {
+          "end" : 18.39818478047969,
+          "start" : 7.5946084459255925,
+          "take" : 0
+        },
+        {
+          "end" : 29.48321441826866,
+          "start" : 20.730892905202136,
+          "take" : 0
+        }
+      ],
+      "duration" : 29.48321441826866,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : 7.5946084459255925,\n      \"start\" : 7.051221157257169\n    },\n    {\n      \"end\" : 20.730892905202136,\n      \"start\" : 18.39818478047969\n    },\n    {\n      \"end\" : 4.174961837067142,\n      \"start\" : 2.931365774438248\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimStart\" : 0\n}"
+    },
+    {
+      "clips" : [
+        {
+          "end" : 0.3012827159435352,
+          "start" : 0,
+          "take" : 0
+        }
+      ],
+      "duration" : 1.3527516664808497,
+      "edit" : "{\n  \"backdrop\" : \"paper\",\n  \"backdropBlur\" : 0,\n  \"blurs\" : [\n\n  ],\n  \"cameraClips\" : [\n\n  ],\n  \"cameraLook\" : {\n    \"corner\" : \"bottomRight\",\n    \"duckMusic\" : true,\n    \"mirror\" : true,\n    \"shape\" : \"circle\",\n    \"size\" : 0.27,\n    \"visible\" : true\n  },\n  \"canvasAspect\" : 1.7777777777777777,\n  \"clickRipple\" : true,\n  \"cornerRadius\" : 0.018,\n  \"crops\" : [\n\n  ],\n  \"cursorLabel\" : \"\",\n  \"cursorScale\" : 1.5,\n  \"cursorSmoothing\" : 0.6,\n  \"cursorStyle\" : \"classic\",\n  \"cursorTint\" : \"clay\",\n  \"cursorVisible\" : true,\n  \"cuts\" : [\n    {\n      \"end\" : -0.40200412997621804,\n      \"start\" : -0.8661596663857729\n    },\n    {\n      \"end\" : 2.3888519302846456,\n      \"start\" : 0.3012827159435352\n    }\n  ],\n  \"outputWidth\" : 2560,\n  \"padding\" : 0.07,\n  \"segments\" : [\n\n  ],\n  \"shadow\" : true,\n  \"trimEnd\" : 1.7285247492468578,\n  \"trimStart\" : 0\n}"
+    }
+  ]
+}

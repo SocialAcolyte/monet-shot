@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Every Monet Shot window: Home, editors, the pill.",
+  "windows": ["home", "pill", "editor-*", "picker", "bubble", "devpage"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-set-size",
+    "core:window:allow-start-dragging",
+    "core:window:allow-close",
+    "core:window:allow-set-title",
+    "dialog:default",
+    "opener:default",
+    "opener:allow-reveal-item-in-dir"
+  ]
+}

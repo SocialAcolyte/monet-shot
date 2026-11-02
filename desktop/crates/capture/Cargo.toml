@@ -1,0 +1,56 @@
+[package]
+name = "monetshot-capture"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Monet Shot's recorder: screen, pointer, camera and microphone, written as the Mac's take folders"
+
+[lib]
+name = "monetshot_capture"
+
+[dependencies]
+monetshot-core = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+log = "0.4"
+thiserror = "2"
+png = "0.18"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-graphics = "0.25"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ashpd = { version = "0.13", default-features = false, features = ["tokio", "screencast"] }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "net", "io-util", "time", "sync", "macros"] }
+pipewire = "0.10"
+evdev = { version = "0.13", features = ["tokio"] }
+x11rb = "0.14"
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "0.62"
+features = [
+  "Foundation",
+  "Graphics",
+  "Graphics_Capture",
+  "Graphics_DirectX",
+  "Graphics_DirectX_Direct3D11",
+  "Win32_Foundation",
+  "Win32_Graphics_Direct3D",
+  "Win32_Graphics_Direct3D11",
+  "Win32_Graphics_Dxgi",
+  "Win32_Graphics_Dxgi_Common",
+  "Win32_Graphics_Dwm",
+  "Win32_Graphics_Gdi",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Threading",
+  "Win32_System_WinRT",
+  "Win32_System_WinRT_Direct3D11",
+  "Win32_System_WinRT_Graphics_Capture",
+  "Win32_UI_HiDpi",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_Storage_Xps",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_Media",
+]

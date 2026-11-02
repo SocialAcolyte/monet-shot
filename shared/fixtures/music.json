@@ -1,0 +1,275 @@
+{
+  "grid" : [
+    {
+      "bpm" : 108,
+      "grid" : {
+        "bar" : 2.222460749688309,
+        "firstDownbeat" : 0.4876190476190476,
+        "lifts" : [
+          4.932540546995666,
+          18.26730504512552,
+          27.157148043878756
+        ],
+        "nearest" : [
+          [
+            0,
+            0.4876190476190476
+          ],
+          [
+            1.3,
+            0.4876190476190476
+          ],
+          [
+            7.7,
+            7.155001296683975
+          ],
+          [
+            20,
+            20.48976579481383
+          ]
+        ]
+      },
+      "quietBars" : 8,
+      "seconds" : 40,
+      "start" : 0.5
+    },
+    {
+      "bpm" : 92,
+      "grid" : {
+        "bar" : 2.608354509927765,
+        "firstDownbeat" : 1.5131568468006174,
+        "lifts" : [
+          17.16328390636721
+        ],
+        "nearest" : [
+          [
+            0,
+            1.5131568468006174
+          ],
+          [
+            1.3,
+            1.5131568468006174
+          ],
+          [
+            7.7,
+            6.729865866656148
+          ],
+          [
+            20,
+            19.771638416294973
+          ]
+        ]
+      },
+      "quietBars" : 6,
+      "seconds" : 36,
+      "start" : 0.21
+    },
+    {
+      "bpm" : 128,
+      "grid" : {
+        "bar" : 1.8753321052975276,
+        "firstDownbeat" : 0.046439909297052155,
+        "lifts" : [
+          1.9217720145945798,
+          22.550425172867385
+        ],
+        "nearest" : [
+          [
+            0,
+            0.046439909297052155
+          ],
+          [
+            1.3,
+            1.9217720145945798
+          ],
+          [
+            7.7,
+            7.547768330487163
+          ],
+          [
+            20,
+            20.675093067569858
+          ]
+        ]
+      },
+      "quietBars" : 12,
+      "seconds" : 45,
+      "start" : 1
+    },
+    {
+      "bpm" : 100,
+      "grid" : null,
+      "quietBars" : 0,
+      "seconds" : 5,
+      "start" : 0
+    }
+  ],
+  "licenses" : [
+    {
+      "label" : "CC0",
+      "license" : "cc0",
+      "licenseVersion" : "1.0",
+      "needsCredit" : false
+    },
+    {
+      "label" : "Public domain",
+      "license" : "pdm",
+      "licenseVersion" : null,
+      "needsCredit" : false
+    },
+    {
+      "label" : "Your file",
+      "license" : "own",
+      "licenseVersion" : null,
+      "needsCredit" : false
+    },
+    {
+      "label" : "CC BY 4.0",
+      "license" : "by",
+      "licenseVersion" : "4.0",
+      "needsCredit" : true
+    },
+    {
+      "label" : "CC BY-SA",
+      "license" : "by-sa",
+      "licenseVersion" : null,
+      "needsCredit" : true
+    }
+  ],
+  "search" : [
+    {
+      "ids" : [
+        "holiznacc0_lost-on-the-freeway",
+        "holiznacc0_night-driving",
+        "holiznacc0_night-life",
+        "john-bartmann_lofi-jam",
+        "holiznacc0_day-trips",
+        "loyalty-freak-music_summer-pride",
+        "holiznacc0_sky-scrapers",
+        "zane-little_butterflies",
+        "zane-little_lovebug",
+        "holiznacc0_make-love",
+        "zane-little_midnight-cruiser",
+        "holiznacc0_dancing",
+        "tequila-moonrise_don-t-ride-the-dolphin",
+        "loyalty-freak-music_monarch-of-the-street",
+        "john-bartmann_disco-in-the-sky",
+        "holiznacc0_moving-forward",
+        "holiznacc0_unwind",
+        "us-marine-chamber-orchestra_debussy-danse-sacree",
+        "us-marine-chamber-orchestra_debussy-danse-profane",
+        "robin-alciatore-musopen_satie-gymnopedie-1"
+      ],
+      "mood" : null,
+      "query" : ""
+    },
+    {
+      "ids" : [
+        "holiznacc0_night-driving",
+        "holiznacc0_night-life",
+        "zane-little_midnight-cruiser"
+      ],
+      "mood" : null,
+      "query" : "night"
+    },
+    {
+      "ids" : [
+        "holiznacc0_night-driving",
+        "holiznacc0_day-trips",
+        "holiznacc0_sky-scrapers"
+      ],
+      "mood" : null,
+      "query" : "warm piano"
+    },
+    {
+      "ids" : [
+        "holiznacc0_lost-on-the-freeway",
+        "holiznacc0_night-driving",
+        "holiznacc0_night-life",
+        "holiznacc0_day-trips",
+        "holiznacc0_sky-scrapers",
+        "holiznacc0_make-love",
+        "holiznacc0_dancing",
+        "holiznacc0_moving-forward",
+        "holiznacc0_unwind"
+      ],
+      "mood" : null,
+      "query" : "HOLIZNA"
+    },
+    {
+      "ids" : [
+
+      ],
+      "mood" : null,
+      "query" : "zzz"
+    },
+    {
+      "ids" : [
+        "holiznacc0_night-driving",
+        "holiznacc0_night-life",
+        "holiznacc0_sky-scrapers",
+        "zane-little_butterflies",
+        "holiznacc0_dancing",
+        "tequila-moonrise_don-t-ride-the-dolphin"
+      ],
+      "mood" : "dreamy",
+      "query" : ""
+    },
+    {
+      "ids" : [
+        "john-bartmann_lofi-jam",
+        "holiznacc0_day-trips",
+        "loyalty-freak-music_summer-pride",
+        "holiznacc0_dancing",
+        "holiznacc0_moving-forward",
+        "holiznacc0_unwind"
+      ],
+      "mood" : "mellow",
+      "query" : ""
+    },
+    {
+      "ids" : [
+        "holiznacc0_lost-on-the-freeway",
+        "holiznacc0_night-driving",
+        "holiznacc0_night-life",
+        "loyalty-freak-music_summer-pride",
+        "holiznacc0_make-love"
+      ],
+      "mood" : "sunny",
+      "query" : "groove"
+    },
+    {
+      "ids" : [
+        "john-bartmann_disco-in-the-sky"
+      ],
+      "mood" : null,
+      "query" : "disco-in"
+    }
+  ],
+  "stableID" : [
+    {
+      "id" : "holiznacc0_night-driving",
+      "stableID" : "bnw1z9"
+    },
+    {
+      "id" : "",
+      "stableID" : "45h"
+    },
+    {
+      "id" : "a",
+      "stableID" : "3t1g"
+    },
+    {
+      "id" : "own-My Song.mp3",
+      "stableID" : "1xg4pi7"
+    },
+    {
+      "id" : "é😀",
+      "stableID" : "yj1ptk"
+    },
+    {
+      "id" : "john-bartmann_disco-in-the-sky",
+      "stableID" : "1qxlrod"
+    }
+  ]
+}

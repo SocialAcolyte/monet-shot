@@ -1,0 +1,1348 @@
+{
+  "cases" : [
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1440,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.6,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1440,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1440,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1440,
+      "outputWidth" : 2560,
+      "recordingAspect" : 0.5,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1600,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.6,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1654,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1440,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 5120,
+      "outputWidth" : 2560,
+      "recordingAspect" : 0.5,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2560,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.6,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2560,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2560,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2560,
+      "outputWidth" : 2560,
+      "recordingAspect" : 0.5,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4552,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.6,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4552,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4552,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4552,
+      "outputWidth" : 2560,
+      "recordingAspect" : 0.5,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1920,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.6,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1920,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1920,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1920,
+      "outputWidth" : 2560,
+      "recordingAspect" : 0.5,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1098,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.6,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1098,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1098,
+      "outputWidth" : 2560,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1098,
+      "outputWidth" : 2560,
+      "recordingAspect" : 0.5,
+      "width" : 2560
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.6,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1920,
+      "recordingAspect" : 0.5,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1200,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.6,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1242,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1080,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 3840,
+      "outputWidth" : 1920,
+      "recordingAspect" : 0.5,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1920,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.6,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1920,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1920,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1920,
+      "outputWidth" : 1920,
+      "recordingAspect" : 0.5,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3414,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.6,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3414,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3414,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3414,
+      "outputWidth" : 1920,
+      "recordingAspect" : 0.5,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.6,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1920,
+      "recordingAspect" : 0.5,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 822,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.6,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 822,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 822,
+      "outputWidth" : 1920,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 822,
+      "outputWidth" : 1920,
+      "recordingAspect" : 0.5,
+      "width" : 1920
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.6,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 1080,
+      "outputWidth" : 1921,
+      "recordingAspect" : 0.5,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1200,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.6,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1242,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1080,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 3842,
+      "outputWidth" : 1921,
+      "recordingAspect" : 0.5,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1922,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.6,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1922,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1922,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1922,
+      "outputWidth" : 1921,
+      "recordingAspect" : 0.5,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3416,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.6,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3416,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3416,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 3416,
+      "outputWidth" : 1921,
+      "recordingAspect" : 0.5,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.6,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 1440,
+      "outputWidth" : 1921,
+      "recordingAspect" : 0.5,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 824,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.6,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 824,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 824,
+      "outputWidth" : 1921,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 824,
+      "outputWidth" : 1921,
+      "recordingAspect" : 0.5,
+      "width" : 1921
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 720,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.6,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 720,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 720,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 720,
+      "outputWidth" : 1280,
+      "recordingAspect" : 0.5,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 800,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.6,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 828,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 720,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2560,
+      "outputWidth" : 1280,
+      "recordingAspect" : 0.5,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1280,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.6,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1280,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1280,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 1280,
+      "outputWidth" : 1280,
+      "recordingAspect" : 0.5,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 2276,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.6,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 2276,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 2276,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 2276,
+      "outputWidth" : 1280,
+      "recordingAspect" : 0.5,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 960,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.6,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 960,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 960,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 960,
+      "outputWidth" : 1280,
+      "recordingAspect" : 0.5,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 548,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.6,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 548,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 548,
+      "outputWidth" : 1280,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 548,
+      "outputWidth" : 1280,
+      "recordingAspect" : 0.5,
+      "width" : 1280
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2160,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.6,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2160,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2160,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2160,
+      "outputWidth" : 3840,
+      "recordingAspect" : 0.5,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2400,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.6,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2482,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2160,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 7680,
+      "outputWidth" : 3840,
+      "recordingAspect" : 0.5,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 3840,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.6,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 3840,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 3840,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 3840,
+      "outputWidth" : 3840,
+      "recordingAspect" : 0.5,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 6826,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.6,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 6826,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 6826,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 6826,
+      "outputWidth" : 3840,
+      "recordingAspect" : 0.5,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2880,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.6,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2880,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2880,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2880,
+      "outputWidth" : 3840,
+      "recordingAspect" : 0.5,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1646,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.6,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1646,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1646,
+      "outputWidth" : 3840,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 1646,
+      "outputWidth" : 3840,
+      "recordingAspect" : 0.5,
+      "width" : 3840
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 4,
+      "outputWidth" : 1,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 1,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 1,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 4,
+      "outputWidth" : 0,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 4,
+      "outputWidth" : 0,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.6,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 2,
+      "outputWidth" : 0,
+      "recordingAspect" : 0.5,
+      "width" : 2
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 360,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.6,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 360,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 360,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.7777777777777777,
+      "height" : 360,
+      "outputWidth" : 641,
+      "recordingAspect" : 0.5,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 400,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.6,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 414,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 360,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0,
+      "height" : 1282,
+      "outputWidth" : 641,
+      "recordingAspect" : 0.5,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 642,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.6,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 642,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 642,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1,
+      "height" : 642,
+      "outputWidth" : 641,
+      "recordingAspect" : 0.5,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 1140,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.6,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 1140,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 1140,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 0.5625,
+      "height" : 1140,
+      "outputWidth" : 641,
+      "recordingAspect" : 0.5,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 480,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.6,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 480,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 480,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 1.3333333333333333,
+      "height" : 480,
+      "outputWidth" : 641,
+      "recordingAspect" : 0.5,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 274,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.6,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 274,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.5470008952551477,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 274,
+      "outputWidth" : 641,
+      "recordingAspect" : 1.7777777777777777,
+      "width" : 641
+    },
+    {
+      "canvasAspect" : 2.3333333333333335,
+      "height" : 274,
+      "outputWidth" : 641,
+      "recordingAspect" : 0.5,
+      "width" : 641
+    }
+  ]
+}

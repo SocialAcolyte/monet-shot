@@ -1,0 +1,22 @@
+[package]
+name = "monetshot-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Monet Shot's brain: the .reel model, time map, camera, and the FramePlan both painters draw"
+
+[lib]
+name = "monetshot_core"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+uuid = { version = "1", features = ["v4", "js"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+dirs = "6"

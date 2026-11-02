@@ -1,0 +1,96 @@
+# Maintainer: Connor Hood
+# Monet Shot for Arch / Omarchy, built from source. The Tauri build makes a
+# .deb; its tree is what gets installed, so Arch matches the Ubuntu layout
+# (/usr/bin/monet-shot, /usr/lib/Monet Shot/ resources, desktop file, icons).
+# Then the Omarchy bits: Waybar module, Hyprland rules, the bind suggestion.
+#
+#   cd desktop/packaging/omarchy && makepkg -si
+#   (from a checkout; set _src=git to build the tagged release instead)
+
+pkgname=monet-shot
+pkgver=0.1.1
+pkgrel=1
+pkgdesc="A screen recorder that makes your recordings look good: auto-zooms, paintings behind, your cursor"
+arch=('x86_64' 'aarch64')
+url="https://github.com/SocialAcolyte/monet-shot"
+license=('MIT')
+depends=(
+  'ffmpeg'
+  'pipewire'
+  'xdg-desktop-portal'
+  'xdg-desktop-portal-impl'
+  'webkit2gtk-4.1'
+  'gtk3'
+  'libayatana-appindicator'
+  # The editor plays takes in WebKit's <video> through GStreamer. Takes made
+  # on a Mac are HEVC in .mov: qtdemux (good) + avdec_h265 (libav) are
+  # required, not optional; H.264 and AAC come from the same two.
+  'gst-plugins-base'
+  'gst-plugins-good'
+  'gst-libav'
+)
+optdepends=(
+  'xdg-desktop-portal-hyprland: screen sharing on Hyprland / Omarchy'
+  'waybar: the record button in the bar on Omarchy 3 (Omarchy 4 uses its own shell)'
+  'gst-plugin-va: hardware video decoding in the editor (VA-API)'
+)
+makedepends=('rust' 'rust-wasm' 'cargo' 'nodejs' 'npm' 'clang' 'pkgconf' 'git')
+options=('!lto' '!debug')
+install=monet-shot.install
+
+# Build from the checkout this PKGBUILD sits in, or from the release tag.
+_src=${_src:-local}
+if [[ $_src == git ]]; then
+  source=("monet-shot::git+$url.git#tag=v$pkgver")
+  sha256sums=('SKIP')
+else
+  source=()
+  sha256sums=()
+fi
+
+_root() {
+  if [[ $_src == git ]]; then echo "$srcdir/monet-shot"; else (cd "$startdir/../../.." && pwd); fi
+}
+
+prepare() {
+  cd "$(_root)/desktop/app"
+  export CARGO_HOME="$srcdir/cargo-home"
+  # The editor's wasm needs wasm-bindgen at exactly Cargo.lock's version.
+  ../tools/install-wasm-bindgen.sh --root "$srcdir/tools"
+  npm ci
+}
+
+build() {
+  cd "$(_root)/desktop/app"
+  export CARGO_HOME="$srcdir/cargo-home"
+  export CARGO_TARGET_DIR="$srcdir/target"
+  export PATH="$srcdir/tools/bin:$PATH"
+  npx tauri build --bundles deb --config ../packaging/linux/tauri.linux.conf.json
+}
+
+package() {
+  local deb
+  deb=$(find "$srcdir/target/release/bundle/deb" -name '*.deb' | head -1)
+  [[ -n $deb ]] || { echo "no .deb was built" >&2; return 1; }
+  mkdir -p "$srcdir/deb"
+  bsdtar -xf "$deb" -C "$srcdir/deb"
+  bsdtar -xf "$srcdir/deb"/data.tar.* -C "$pkgdir"
+
+  local om="$(_root)/desktop/packaging/omarchy"
+  local dst="$pkgdir/usr/share/monet-shot/omarchy"
+  # Omarchy 4: Lua rules + bind, omarchy-shell bar plugin.
+  install -Dm644 "$om/hyprland.lua" "$dst/hyprland.lua"
+  install -Dm644 "$om/bindings.lua" "$dst/bindings.lua"
+  install -Dm644 "$om/plugin/manifest.json" "$dst/plugin/manifest.json"
+  install -Dm644 "$om/plugin/Widget.qml" "$dst/plugin/Widget.qml"
+  # Omarchy 3: hyprlang rules + bind, Waybar module.
+  install -Dm644 "$om/hyprland.conf" "$dst/hyprland.conf"
+  install -Dm644 "$om/waybar-module.jsonc" "$dst/waybar-module.jsonc"
+  install -Dm644 "$om/waybar.css" "$dst/waybar.css"
+  install -Dm755 "$om/install.sh" "$dst/install.sh"
+  install -Dm755 /dev/stdin "$pkgdir/usr/bin/monet-shot-omarchy" <<'SH'
+#!/bin/sh
+exec /usr/share/monet-shot/omarchy/install.sh "$@"
+SH
+  install -Dm644 "$(_root)/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

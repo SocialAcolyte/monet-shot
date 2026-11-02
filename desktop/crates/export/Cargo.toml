@@ -1,0 +1,29 @@
+[package]
+name = "monetshot-export"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Draws FramePlans (CPU, linear light like CoreImage) and runs the ffmpeg export, import and stills"
+
+[lib]
+name = "monetshot_export"
+
+[features]
+default = ["paint", "pipeline"]
+# The frame painter (needs threads; not for wasm).
+paint = ["dep:rayon", "dep:image"]
+# ffmpeg decode -> paint -> encode, audio, import, stills, music analysis.
+pipeline = ["paint"]
+
+[dependencies]
+monetshot-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tiny-skia = { version = "0.11", default-features = false, features = ["std", "simd"] }
+ab_glyph = "0.2"
+rayon = { version = "1", optional = true }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"], optional = true }
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }

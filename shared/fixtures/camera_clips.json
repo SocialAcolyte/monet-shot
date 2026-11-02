@@ -1,0 +1,3366 @@
+{
+  "insert" : [
+    {
+      "clip" : {
+        "at" : 3,
+        "duration" : 2,
+        "file" : "b.mov",
+        "full" : false
+      },
+      "clips" : [
+        {
+          "at" : 1,
+          "duration" : 4,
+          "file" : "a.mov",
+          "full" : false
+        }
+      ],
+      "result" : [
+        {
+          "at" : 1,
+          "duration" : 2,
+          "file" : "a.mov",
+          "full" : false
+        },
+        {
+          "at" : 3,
+          "duration" : 2,
+          "file" : "b.mov",
+          "full" : false
+        }
+      ]
+    },
+    {
+      "clip" : {
+        "at" : 0.5,
+        "duration" : 9,
+        "file" : "c.mov",
+        "full" : false
+      },
+      "clips" : [
+        {
+          "at" : 1,
+          "duration" : 2,
+          "file" : "a.mov",
+          "full" : false
+        },
+        {
+          "at" : 3,
+          "duration" : 2,
+          "file" : "b.mov",
+          "full" : false
+        }
+      ],
+      "result" : [
+        {
+          "at" : 0.5,
+          "duration" : 9,
+          "file" : "c.mov",
+          "full" : false
+        }
+      ]
+    },
+    {
+      "clip" : {
+        "at" : 12,
+        "duration" : 1,
+        "file" : "d.mov",
+        "full" : false
+      },
+      "clips" : [
+        {
+          "at" : 0.5,
+          "duration" : 9,
+          "file" : "c.mov",
+          "full" : false
+        }
+      ],
+      "result" : [
+        {
+          "at" : 0.5,
+          "duration" : 9,
+          "file" : "c.mov",
+          "full" : false
+        },
+        {
+          "at" : 12,
+          "duration" : 1,
+          "file" : "d.mov",
+          "full" : false
+        }
+      ]
+    },
+    {
+      "clip" : {
+        "at" : 9.4,
+        "duration" : 1,
+        "file" : "e.mov",
+        "full" : true
+      },
+      "clips" : [
+        {
+          "at" : 0.5,
+          "duration" : 9,
+          "file" : "c.mov",
+          "full" : false
+        },
+        {
+          "at" : 12,
+          "duration" : 1,
+          "file" : "d.mov",
+          "full" : false
+        }
+      ],
+      "result" : [
+        {
+          "at" : 0.5,
+          "duration" : 8.9,
+          "file" : "c.mov",
+          "full" : false
+        },
+        {
+          "at" : 9.4,
+          "duration" : 1,
+          "file" : "e.mov",
+          "full" : true
+        },
+        {
+          "at" : 12,
+          "duration" : 1,
+          "file" : "d.mov",
+          "full" : false
+        }
+      ]
+    },
+    {
+      "clip" : {
+        "at" : 12.1,
+        "duration" : 3,
+        "file" : "f.mov",
+        "full" : false
+      },
+      "clips" : [
+        {
+          "at" : 0.5,
+          "duration" : 8.9,
+          "file" : "c.mov",
+          "full" : false
+        },
+        {
+          "at" : 9.4,
+          "duration" : 1,
+          "file" : "e.mov",
+          "full" : true
+        },
+        {
+          "at" : 12,
+          "duration" : 1,
+          "file" : "d.mov",
+          "full" : false
+        }
+      ],
+      "result" : [
+        {
+          "at" : 0.5,
+          "duration" : 8.9,
+          "file" : "c.mov",
+          "full" : false
+        },
+        {
+          "at" : 9.4,
+          "duration" : 1,
+          "file" : "e.mov",
+          "full" : true
+        },
+        {
+          "at" : 12.1,
+          "duration" : 3,
+          "file" : "f.mov",
+          "full" : false
+        }
+      ]
+    }
+  ],
+  "presence" : [
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5473
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5946
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.6419
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.6892
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.7365
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.7838
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.8311000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.8784000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.9257
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.973
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.015006593749999974,
+      "t" : 1.0203
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.14671860641399456,
+      "t" : 1.0676
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.3669764259293002,
+      "t" : 1.1149
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.6179317558309043,
+      "t" : 1.1622000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.84173629965379,
+      "t" : 1.2095
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.9805417609329449,
+      "t" : 1.2568000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.3041
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.3514
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.3987
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.446
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.4933
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.5406
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.5879
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.6352
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.6825
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.7298
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.7771000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.8244
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.8717000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.919
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 1.9663000000000002
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.0136000000000003
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.0609
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.1082
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.1555
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.2028
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.2501
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.2974
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.3447
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.392
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.4393000000000002
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.4866
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.5339
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.5812
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.6285000000000003
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.6758
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.7231
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.7704
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.8177
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.865
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.9123
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.9596
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.0069
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.0542000000000002
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.1015
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.1488
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.1961
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.2434000000000003
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.2907
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.338
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.3853
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.4326000000000003
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.4799
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.5272
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.5745
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.6218
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.6691000000000003
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.7164
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.7637
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.811
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.8583000000000003
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.9056
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 3.9529
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.0002
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.0475
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.0948
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.1421
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.1894
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.2367
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.284
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.3313
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.3786000000000005
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.4259
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.4732
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.5205
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.5678
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.6151
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.6624
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 4.7097
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.952229682944605,
+      "t" : 4.757000000000001
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.7826486249088899,
+      "t" : 4.8043000000000005
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.544945999999998,
+      "t" : 4.8516
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.2969701046829433,
+      "t" : 4.8989
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.09656923542274003,
+      "t" : 4.9462
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0.0015916886844023076,
+      "t" : 4.9935
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.0408
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.0881
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.1354
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.1827000000000005
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.23
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.2773
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.3246
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.3719
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.4192
+    },
+    {
+      "clip" : {
+        "at" : 1,
+        "duration" : 4,
+        "file" : "a.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.4665
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5473
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5946
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.6419
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.6892
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.7365
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.7838
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.8311000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.8784000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.9257
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.973
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.0203
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.0676
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.1149
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.1622000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.2095
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.2568000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.3041
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.3514
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.3987
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.446
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.4933
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.5406
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.5879
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.6352
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.6825
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.7298
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.7771000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.8244
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.8717000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.919
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.9663000000000002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0.05045708800000197,
+      "t" : 2.0136000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0.6609099420000025,
+      "t" : 2.0609
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.1082
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 1,
+      "t" : 2.1555
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0.997691904,
+      "t" : 2.2028
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0.4985000019999943,
+      "t" : 2.2501
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0.0019928479999995656,
+      "t" : 2.2974
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.3447
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.392
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.4393000000000002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.4866
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.5339
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.5812
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.6285000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.6758
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.7231
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.7704
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.8177
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.865
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.9123
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.9596
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.0069
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.0542000000000002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.1015
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.1488
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.1961
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.2434000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.2907
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.338
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.3853
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.4326000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.4799
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.5272
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.5745
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.6218
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.6691000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.7164
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.7637
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.811
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.8583000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.9056
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.9529
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.0002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.0475
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.0948
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.1421
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.1894
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.2367
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.284
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.3313
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.3786000000000005
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.4259
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.4732
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.5205
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.5678
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.6151
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.6624
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.7097
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.757000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.8043000000000005
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.8516
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.8989
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.9462
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.9935
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.0408
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.0881
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.1354
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.1827000000000005
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.23
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.2773
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.3246
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.3719
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.4192
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0.3,
+        "file" : "s.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.4665
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5473
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.5946
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.6419
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.6892
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.7365
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.7838
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.8311000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.8784000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.9257
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 0.973
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.0203
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.0676
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.1149
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.1622000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.2095
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.2568000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.3041
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.3514
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.3987
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.446
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.4933
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.5406
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.5879
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.6352
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.6825
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.7298
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.7771000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.8244
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.8717000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.919
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 1.9663000000000002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.0136000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.0609
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.1082
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.1555
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.2028
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.2501
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.2974
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.3447
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.392
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.4393000000000002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.4866
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.5339
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.5812
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.6285000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.6758
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.7231
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.7704
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.8177
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.865
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.9123
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 2.9596
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.0069
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.0542000000000002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.1015
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.1488
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.1961
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.2434000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.2907
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.338
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.3853
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.4326000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.4799
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.5272
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.5745
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.6218
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.6691000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.7164
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.7637
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.811
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.8583000000000003
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.9056
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 3.9529
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.0002
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.0475
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.0948
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.1421
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.1894
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.2367
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.284
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.3313
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.3786000000000005
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.4259
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.4732
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.5205
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.5678
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.6151
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.6624
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.7097
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.757000000000001
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.8043000000000005
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.8516
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.8989
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.9462
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 4.9935
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.0408
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.0881
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.1354
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.1827000000000005
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.23
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.2773
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.3246
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.3719
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.4192
+    },
+    {
+      "clip" : {
+        "at" : 2,
+        "duration" : 0,
+        "file" : "z.mov",
+        "full" : false
+      },
+      "presence" : 0,
+      "t" : 5.4665
+    }
+  ]
+}

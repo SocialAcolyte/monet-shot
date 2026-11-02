@@ -1,0 +1,14 @@
+/* Monet Shot in Omarchy 3's Waybar. Sized like Omarchy's own indicators;
+   the theme's @foreground otherwise, and the Mac app's clay while recording. */
+#custom-monet-shot {
+  min-width: 12px;
+  margin-left: 5px;
+  margin-right: 0;
+  font-size: 10px;
+  padding-bottom: 1px;
+}
+#custom-monet-shot.off { opacity: 0.5; }
+#custom-monet-shot.recording,
+#custom-monet-shot.countdown,
+#custom-monet-shot.paused { color: #c96f4a; }
+#custom-monet-shot.problem { color: #a55555; }
