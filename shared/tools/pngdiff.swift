@@ -1,8 +1,10 @@
 // Compares two reference frames pixel by pixel: `swift pngdiff.swift a.png b.png`.
 // CoreImage's software renderer differs by a hair between macOS versions, so
 // regenerated frames are judged with a tolerance, not byte for byte.
-// Exit 0 when the mean difference is at most 1/255 and no channel is off by
-// more than 24/255; prints the numbers either way.
+// Exit 0 when the mean difference is at most 0.5/255 and no channel is off by
+// more than 64/255; prints the numbers either way. Across macOS 26 and 27 the
+// frames differ by means of 0.001-0.03 and single pixels up to ~41 (edges);
+// a real change (a moved frame, a different radius) goes far past either.
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -35,4 +37,4 @@ for i in 0..<a.2.count {
 }
 let mean = Double(sum) / Double(a.2.count)
 print(String(format: "mean %.3f/255, max %d/255", mean, worst))
-exit(mean <= 1 && worst <= 24 ? 0 : 1)
+exit(mean <= 0.5 && worst <= 64 ? 0 : 1)
