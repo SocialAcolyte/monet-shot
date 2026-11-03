@@ -14,7 +14,7 @@
 set -uo pipefail
 L=/tmp/hypr S=/shots UH=/home/run
 mkdir -p "$S"; chmod 777 "$S"   # grim runs as the session user
-reset_app_log() { reset_app_log; chown run:run "$L/app.log"; }
+reset_app_log() { : > "$L/app.log"; chown run:run "$L/app.log"; }
 ok=0 bad=0
 pass() { ok=$((ok+1)); echo "ok   $*" | tee -a "$S/results.txt"; }
 fail() { bad=$((bad+1)); echo "FAIL $*" | tee -a "$S/results.txt"; }

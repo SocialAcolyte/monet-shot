@@ -34,6 +34,8 @@ done_() {
   # Hyprland's own log (stdout stops after the config loads) and crash reports.
   docker exec $name sh -c 'cp /run/user/1000/hypr/*/hyprland.log /tmp/hypr/hyprland-own.log; cp /home/run/.cache/hyprland/*.txt /tmp/hypr/' >/dev/null 2>&1 || true
   mkdir -p "$out/logs"; docker cp $name:/tmp/hypr/. "$out/logs/" >/dev/null 2>&1 || true
+  # cargo's lock files are root's 0600: the runner's cache step must read them.
+  docker exec $name chmod -R a+rX /target >/dev/null 2>&1 || true
   [[ ${KEEP:-} == 1 ]] || docker rm -f $name >/dev/null
 }
 trap done_ EXIT
