@@ -8,12 +8,13 @@ The job is `windows-run` in `.github/workflows/desktop.yml`. It runs on every
 push, beside `windows`, and builds its own: the release exe and the NSIS
 installer (`tauri build --bundles nsis`), the debug exe and core's
 `plan_dump`. It then runs `desktop/tools/windows-run.ps1`, with
-`windows-hevc-check.js` and `windows-window-check.js` as dev scripts. It
-fails on any failed check in stages 1–7. The `windows-run` artifact holds
+`windows-hevc-check.js`, `windows-window-check.js` and
+`app/ui/devchecks/home.js` as dev scripts. It fails on any failed check in
+stages 1–8. The `windows-run` artifact holds
 the app log for each stage, the takes, `export.mp4`, screenshots and
 `vite.log`. The job takes about 25 min, mostly the builds.
 
-## Done (all 7 stages green on run 41607242043, 2026-11-03)
+## Done (all 8 stages green on run 41622844239, 2026-11-03)
 1. **Record** (release exe, `MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP=5`).
    The pointer circles via SetCursorPos, with two SendInput clicks mid-take.
    - WGC records the display: `screen.mp4` is H.264 1024×768, 303 frames,
@@ -37,8 +38,11 @@ the app log for each stage, the takes, `export.mp4`, screenshots and
    with an uninstall entry, `ffmpeg.exe`/`ffprobe.exe` beside the app and
    40 backdrop images. The installed exe records a 7 s take using its own
    sidecar (`MONETSHOT_FFMPEG` unset; the app log says `encoder: libx264`).
-   - **Pause:** two SendInput Shift double-taps make one cut, 3.21–5.48 s,
-     which matches the taps; 4.78 s of 7.05 s are kept.
+   - **The pill never takes the focus:** a stand-in "user app" has it, and
+     with the pill up the foreground is still that app.
+   - **Pause:** with the pill up and the user app focused, two SendInput
+     Shift double-taps make one cut (1.91–4.17 s, matching the taps); 4.79 s
+     of 7.05 s are kept. No help from the script.
    - **Content protection** (`MONETSHOT_DEMO_PROTECT=1`): in the take, the
      pill's place differs from the bare desktop by a mean of 0.8/255, so the
      pill is not there. In stage 1's take (protection off) it differs by
@@ -51,6 +55,20 @@ the app log for each stage, the takes, `export.mp4`, screenshots and
    middle is the window's colour (198,89,58).
    - A 0.12 s real-mouse click on the pill's ring leaves the take running;
      a 1.3 s hold stops it.
+8. **Home + clips** (`app/ui/devchecks/home.js`, any platform), on a new
+   library on C: with "Open me" and "Trash me":
+   - Home shows both cards with their thumbnails.
+   - Move to Trash removes the card, and the folder is in the Recycle Bin.
+   - Show in folder opens Explorer on `recordings`.
+   - Clicking a card opens it in the editor.
+   - In the editor, add a video makes 2 takes and 2 clips. Record a new
+     take goes through our picker, 3-2-1 and recording (stopped with
+     `toggle`), and gives 3 takes and 3 clips (`take-3`).
+   - Dragging a clip reorders it, and undo puts it back. The 3 takes are
+     saved.
+   - Reveal and trash use the context menu's commands; the native menu
+     itself isn't clicked. Add a video uses the same calls as its handler;
+     the file dialog isn't driven.
 
 ## Found and fixed
 - `app/src-tauri/src/windows.rs` (Windows only): `open_editor` passed
@@ -72,17 +90,26 @@ the app log for each stage, the takes, `export.mp4`, screenshots and
   platform. `win/input.rs` logs key events at debug.
 - `MONETSHOT_DEMO_PROTECT=1` (windows.rs): keeps the pill's content
   protection on under the demo aid, for the protection check.
+- **The pill took the focus** (windows.rs, Windows only). Showing it
+  activated it despite `focused(false)`, and keys, including double-tap
+  Shift, then went to it and never reached the input hook. The pill and
+  the camera bubble now get `WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW` and are
+  shown with `SW_SHOWNOACTIVATE`. The install stage proves it with another
+  app focused.
+- **Deadlock building windows from sync commands** (commands.rs). On
+  Windows, clicking a Home card left a blank editor and the app hung. Record
+  a new take never showed the picker, and Home's New recording button and
+  the pill's record button would have hung the same way. Tauri runs sync
+  commands on the main thread inside WebView2's IPC callback, and a window
+  built there deadlocks. `run_on_main_thread` doesn't help: on the main
+  thread, tauri-runtime-wry runs the task at once. These commands are async
+  now: `open_recording`, `show_home`, `bar_tap`, `bar_cancel`,
+  `bar_toggle_pause`, `bar_stop`, `picker_choose`, `record_take`. The rule
+  is in ARCHITECTURE.md's contracts. The lead audited the remaining sync
+  commands; none builds a window.
 
 ## Open
-- **Double-tap Shift while the pill has focus.** When the recording
-  started, the foreground window was the pill itself, although it is built
-  with `focused(false)`. Shift taps injected then never reached the
-  WH_KEYBOARD_LL hook: no `key` lines at debug. After a click on the
-  desktop, the same taps arrived and paused at once. In CI nothing else had
-  focus (every window minimised), so the pill may only have got it by
-  default. Physical keys may behave differently from injected ones. Not
-  explained yet. The job clicks the desktop first, as a person working in
-  another app would be.
+- Nothing known. Standing by.
 
 ## Not proved by this job
 - The tray icon and its menu (not reachable from the script; `toggle` takes
@@ -90,5 +117,7 @@ the app log for each stage, the takes, `export.mp4`, screenshots and
 - Physical keyboard and mouse: all input was injected with SendInput.
 - Hardware encoders and GPU paths (no GPU here: libx264, Basic Render
   Driver).
-- Camera, music, Home clicks, add take/footage, clip move.
+- The native context menu and file dialogs (their commands are tested);
+  import from Home.
+- Camera and music.
 - Windows 10/11 client editions, and DPI scales other than 100%.

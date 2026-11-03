@@ -82,11 +82,11 @@ Windows Server 2025 VM, a real desktop without a GPU
 | Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🟡 (Waybar / omarchy-shell) | ✅ ring tap via `monet-shot toggle` → our picker → 3-2-1, and hold-to-stop on the pill with the real mouse (a short click doesn't stop) (CI VM) · 🟡 tray icon + menu not clicked |
 | Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🟡 portal + Hyprland mapping | ✅ display and window (CI VM: WGC on Server 2025; a window picked in our picker records at its own size; the pill is kept out of the take) |
 | Own cursor log + clicks | ✅ | 🟡 evdev/X11 | 🟡 Hyprland IPC | ✅ (CI VM: GetCursorPos samples + WH_MOUSE_LL clicks from injected input) |
-| Pause = clip (double-tap Shift) | ✅ | 🟡 | 🟡 | ✅ (CI VM: injected double-taps → one cut matching them; not detected while the pill itself had focus, see status/windows-run.md) |
-| Home (cards, import, reveal, trash) | ✅ | 🟡 | 🟡 | 🟡 (Home opens; cards not clicked) |
+| Pause = clip (double-tap Shift) | ✅ | 🟡 | 🟡 | ✅ (CI VM: injected double-taps with another app focused and the pill up → one cut matching them) |
+| Home (cards, import, reveal, trash) | ✅ | 🟡 | 🟡 | ✅ cards + thumbnails, open by clicking, reveal (Explorer), trash (Recycle Bin) (CI VM; reveal/trash through the context menu's commands, the native menu itself not clicked) · 🟡 import |
 | Editor preview (same frame as the export) | ✅ | 🟡 (WebGL2 in WebKitGTK: 0.06–0.82/255 vs the Mac's frames; Mac HEVC takes play) | 🟡 | ✅ (CI VM, WebView2: 0.04–0.76/255 vs the Mac's frames; an HEVC take plays via the H.264 proxy) |
 | Auto-zoom + zoom editing | ✅ | 🟡 | 🟡 | ✅ (CI VM: auto-zoom from recorded clicks; Z, Delete, undo/redo, drag) |
-| Clips: split, trim, move, add take, undo | ✅ | 🟡 (split/trim/move/undo clicked through in WebKitGTK; add take/footage wired, not clicked through) | 🟡 (as Linux) | ✅ split, trim, undo (CI VM) · 🟡 move, add take/footage |
+| Clips: split, trim, move, add take, undo | ✅ | 🟡 (split/trim/move/undo clicked through in WebKitGTK; add take/footage wired, not clicked through) | 🟡 (as Linux) | ✅ split, trim, move, undo, add a video (its command; the file dialog not driven), record a new take through the picker (CI VM) |
 | Backdrops (colours, 20 paintings, own image, blur) | ✅ | 🟡 | 🟡 | ✅ colours + paintings (CI VM) · 🟡 own image, blur |
 | Cursor looks (5) + tints + ripples | ✅ | 🟡 (tag in Inter Bold) | 🟡 (tag in Inter Bold) | ✅ Dot look in preview + export (CI VM) · 🟡 the rest (tag in Inter Bold) |
 | Hide (blur/pixelate/cover) & crop | ✅ | 🟡 | 🟡 | ✅ (CI VM: hide box drawn and in the export; crop corner dragged) |

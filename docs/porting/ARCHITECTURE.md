@@ -79,6 +79,13 @@ owned by **core**; app adds its `app/src-tauri` member line itself.
 - `docs/porting/contracts/frame-plan.md`: core, first thing.
 - `docs/porting/contracts/capture.md`: capture, first thing.
 - `docs/porting/contracts/ipc.md`: app (Tauri commands/events).
+- **Tauri commands that may create a window must be `async`.** A sync
+  command runs on the main thread inside WebView2's IPC callback, and
+  building a WebView2 window there deadlocks on Windows: it comes up blank
+  and the app hangs. `run_on_main_thread` is not enough from a sync
+  command, because on the main thread tauri-runtime-wry runs the task at
+  once. (Found by `windows-run`; WebKitGTK and WKWebView don't hang, so
+  Linux and the Mac won't catch it.)
 
 ## Working rules
 
