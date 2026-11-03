@@ -67,7 +67,7 @@ om() { [[ -f $UH/.config/hypr/hyprland.lua ]] && echo 4 || echo 3; }
 cmd_desktop() {
   # A clock in a terminal (moves every frame) and a second window we slide around.
   u "cd /tmp && exec foot --title clock -e sh -c 'while :; do printf \"\\r%s \" \$(date +%T.%N); sleep 0.05; done'" </dev/null >/dev/null 2>&1 &
-  u "cd /tmp && exec foot --title mover -e sh -c 'echo Monet Shot on Hyprland; cat'" </dev/null >/dev/null 2>&1 &
+  u "cd /tmp && exec foot --title mover -o colors-dark.background=ff00ff -e sh -c 'echo Monet Shot on Hyprland; cat'" </dev/null >/dev/null 2>&1 &
   for _ in $(seq 40); do (( $(hc "clients -j" | jq '[.[] | select(.class=="foot")] | length') >= 2 )) && break; sleep 0.5; done
   hd 'hl.dsp.window.float({ window = "title:^mover$", action = "toggle" })'
   hd 'hl.dsp.window.resize({ window = "title:^mover$", x = 420, y = 160 })'

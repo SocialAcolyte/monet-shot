@@ -72,16 +72,17 @@ if plateaus:
         bad += 1
     else:
         px = lambda X, Y: raw[(Y * vw + X) * 3:(Y * vw + X) * 3 + 3]
-        diff = lambda a, b: sum(abs(i - j) for i, j in zip(a, b))
         X, Y = round(x * s), round(y * s)
-        # The window's left edge on a row inside it, its top edge on a column inside it:
-        # the biggest colour step within ±20 px of the logged point.
+        # The mover's inside is magenta (foot's background): its first magenta
+        # pixel on a row and on a column inside it is its corner.
+        magenta = lambda c: c[0] > 180 and c[1] < 90 and c[2] > 180
         row, col = Y + round(30 * s), X + round(60 * s)
-        ex = max(range(X - 20, X + 20), key=lambda i: diff(px(i - 1, row), px(i + 1, row)))
-        ey = max(range(Y - 20, Y + 20), key=lambda j: diff(px(col, j - 1), px(col, j + 1)))
+        ex = next((i for i in range(X - 20, X + 21) if magenta(px(i, row))), None)
+        ey = next((j for j in range(Y - 20, Y + 21) if magenta(px(col, j))), None)
+        if ex is None or ey is None:
+            ex, ey = ex if ex is not None else -1, ey if ey is not None else -1
         dx, dy = ex - X, ey - Y
-        # Omarchy draws a 2 px border outside the window: the edge is the border's.
-        ok = abs(dx) <= 3 and abs(dy) <= 3
+        ok = abs(dx) <= 2 and abs(dy) <= 2
         print(f"     frame at t {t:.2f}: window corner seen at {ex},{ey} px, cursor.json says {X},{Y} px "
               f"(off by {dx},{dy}) {'ok' if ok else 'MISMATCH'}")
         bad += not ok
