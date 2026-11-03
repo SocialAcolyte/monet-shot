@@ -72,22 +72,25 @@ reference and the better Mac citizen today.
 ✅ works, verified on that platform's own hardware · 🟡 built and tested
 (unit tests, this Mac's dev backend, Linux containers, Windows
 cross-compile), not yet run on that platform's hardware · 🚧 in progress ·
-⏳ not built. Desktop rows as of 2026-11-02, from `docs/porting/status/`.
+⏳ not built. "CI VM" (Windows): run by the `windows-run` job on GitHub's
+Windows Server 2025 VM, a real desktop without a GPU
+(`docs/porting/status/windows-run.md`). Desktop rows as of 2026-11-03, from
+`docs/porting/status/`.
 
 | Feature | Mac | Linux | Omarchy | Windows |
 |---|---|---|---|---|
-| Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🟡 (Waybar / omarchy-shell) | 🟡 |
-| Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🟡 portal + Hyprland mapping | 🟡 WGC (cross-compiled) |
-| Own cursor log + clicks | ✅ | 🟡 evdev/X11 | 🟡 Hyprland IPC | 🟡 |
+| Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🟡 (Waybar / omarchy-shell) | 🟡 (CI VM ran ring tap → 3-2-1 → pill → stop through the demo hooks; tray menu and hold-to-stop not pressed) |
+| Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🟡 portal + Hyprland mapping | ✅ display (CI VM: WGC on Server 2025, 1024×768, 5 s take ffprobed) · 🟡 window |
+| Own cursor log + clicks | ✅ | 🟡 evdev/X11 | 🟡 Hyprland IPC | ✅ (CI VM: GetCursorPos samples + WH_MOUSE_LL clicks from injected input) |
 | Pause = clip (double-tap Shift) | ✅ | 🟡 | 🟡 | 🟡 |
-| Home (cards, import, reveal, trash) | ✅ | 🟡 | 🟡 | 🟡 |
-| Editor preview (same frame as the export) | ✅ | 🟡 (WebGL2 in WebKitGTK: 0.06–0.82/255 vs the Mac's frames; Mac HEVC takes play) | 🟡 | 🟡 (compiles; WebView2 not run; HEVC via H.264 proxy) |
-| Auto-zoom + zoom editing | ✅ | 🟡 | 🟡 | 🟡 |
-| Clips: split, trim, move, add take, undo | ✅ | 🟡 (split/trim/move/undo clicked through in WebKitGTK; add take/footage wired, not clicked through) | 🟡 (as Linux) | 🟡 (add take/footage wired, not run) |
-| Backdrops (colours, 20 paintings, own image, blur) | ✅ | 🟡 | 🟡 | 🟡 |
-| Cursor looks (5) + tints + ripples | ✅ | 🟡 (tag in Inter Bold) | 🟡 (tag in Inter Bold) | 🟡 (tag in Inter Bold) |
-| Hide (blur/pixelate/cover) & crop | ✅ | 🟡 | 🟡 | 🟡 |
+| Home (cards, import, reveal, trash) | ✅ | 🟡 | 🟡 | 🟡 (Home opens; cards not clicked) |
+| Editor preview (same frame as the export) | ✅ | 🟡 (WebGL2 in WebKitGTK: 0.06–0.82/255 vs the Mac's frames; Mac HEVC takes play) | 🟡 | ✅ (CI VM, WebView2: 0.04–0.76/255 vs the Mac's frames; an HEVC take plays via the H.264 proxy) |
+| Auto-zoom + zoom editing | ✅ | 🟡 | 🟡 | ✅ (CI VM: auto-zoom from recorded clicks; Z, Delete, undo/redo, drag) |
+| Clips: split, trim, move, add take, undo | ✅ | 🟡 (split/trim/move/undo clicked through in WebKitGTK; add take/footage wired, not clicked through) | 🟡 (as Linux) | ✅ split, trim, undo (CI VM) · 🟡 move, add take/footage |
+| Backdrops (colours, 20 paintings, own image, blur) | ✅ | 🟡 | 🟡 | ✅ colours + paintings (CI VM) · 🟡 own image, blur |
+| Cursor looks (5) + tints + ripples | ✅ | 🟡 (tag in Inter Bold) | 🟡 (tag in Inter Bold) | ✅ Dot look in preview + export (CI VM) · 🟡 the rest (tag in Inter Bold) |
+| Hide (blur/pixelate/cover) & crop | ✅ | 🟡 | 🟡 | ✅ (CI VM: hide box drawn and in the export; crop corner dragged) |
 | Camera: over video, just me, with screen | ✅ | 🟡 (no live camera yet) | 🟡 (no live camera yet) | 🟡 (no live camera yet) |
 | Music browser + ducking | 🚧 WIP | 🟡 (seen running in WebKitGTK; preview audio via media_url) | 🟡 | 🟡 |
-| Export MP4 | ✅ | 🟡 (matches the Mac's export, run on macOS; in-app export run in the Arch container) | 🟡 | 🟡 |
-| Install | Homebrew | 🟡 AppImage/deb (config) | 🟡 PKGBUILD (srcinfo ok) + install.sh (tested on real 3.8.4 / 4.x configs) | 🟡 NSIS + ffmpeg sidecar (config) |
+| Export MP4 | ✅ | 🟡 (matches the Mac's export, run on macOS; in-app export run in the Arch container) | 🟡 | ✅ (CI VM: Ctrl+E in the editor → H.264 1080p, ffprobed) |
+| Install | Homebrew | 🟡 AppImage/deb (config) | 🟡 PKGBUILD (srcinfo ok) + install.sh (tested on real 3.8.4 / 4.x configs) | 🟡 NSIS + ffmpeg sidecar (built in CI; the run uses the bare exes, not the installer) |
