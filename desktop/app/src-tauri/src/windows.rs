@@ -89,8 +89,23 @@ pub fn show_home(app: &AppHandle) {
     }
 }
 
+/// `fs::canonicalize`, without the verbatim prefix it adds on Windows
+/// (`\\?\D:\…`): the editor shows this path, exports next to it and hands it
+/// to Explorer, which all want the ordinary form.
+fn canonical(folder: &Path) -> PathBuf {
+    let c = std::fs::canonicalize(folder).unwrap_or_else(|_| folder.to_path_buf());
+    #[cfg(windows)]
+    if let Some(plain) = c.to_str().and_then(|s| s.strip_prefix(r"\\?\")) {
+        // Only drive paths: \\?\UNC\… has no plain form this simple.
+        if plain.as_bytes().get(1) == Some(&b':') {
+            return PathBuf::from(plain);
+        }
+    }
+    c
+}
+
 pub fn open_editor(app: &AppHandle, folder: &Path) {
-    let key = std::fs::canonicalize(folder).unwrap_or_else(|_| folder.to_path_buf());
+    let key = canonical(folder);
     if let Some(label) = with_reg(|r| r.editors.get(&key).cloned()) {
         if let Some(w) = app.get_webview_window(&label) {
             let _ = w.unminimize();

@@ -12,7 +12,7 @@ use ::windows::Graphics::DirectX::Direct3D11::IDirect3DDevice;
 use ::windows::Graphics::DirectX::DirectXPixelFormat;
 use ::windows::Graphics::SizeInt32;
 use ::windows::Win32::Foundation::HMODULE;
-use ::windows::Win32::Graphics::Direct3D::D3D_DRIVER_TYPE_HARDWARE;
+use ::windows::Win32::Graphics::Direct3D::{D3D_DRIVER_TYPE, D3D_DRIVER_TYPE_HARDWARE, D3D_DRIVER_TYPE_WARP};
 use ::windows::Win32::Graphics::Direct3D11::{
     D3D11CreateDevice, ID3D11Device, ID3D11DeviceContext, ID3D11Texture2D, D3D11_CPU_ACCESS_READ,
     D3D11_CREATE_DEVICE_BGRA_SUPPORT, D3D11_MAPPED_SUBRESOURCE, D3D11_MAP_READ, D3D11_SDK_VERSION, D3D11_TEXTURE2D_DESC,
@@ -65,12 +65,14 @@ impl Frames {
         if !supported() {
             return Err(CaptureError::Unsupported("screen capture needs Windows 10 version 1903 or later".into()));
         }
-        let (device, context) = unsafe {
+        // The GPU; WARP (software) where there is none (VMs, some remote
+        // sessions): capture still works, only slower.
+        let create = |kind: D3D_DRIVER_TYPE| unsafe {
             let mut device = None;
             let mut context = None;
             D3D11CreateDevice(
                 None,
-                D3D_DRIVER_TYPE_HARDWARE,
+                kind,
                 HMODULE::default(),
                 D3D11_CREATE_DEVICE_BGRA_SUPPORT,
                 None,
@@ -79,8 +81,14 @@ impl Frames {
                 None,
                 Some(&mut context),
             )
-            .map_err(err("Direct3D"))?;
-            (device.expect("device"), context.expect("context"))
+            .map(|()| (device.expect("device"), context.expect("context")))
+        };
+        let (device, context) = match create(D3D_DRIVER_TYPE_HARDWARE) {
+            Ok(dc) => dc,
+            Err(e) => {
+                log::info!("no hardware Direct3D device ({e}); using WARP");
+                create(D3D_DRIVER_TYPE_WARP).map_err(err("Direct3D"))?
+            }
         };
         let dxgi: IDXGIDevice = device.cast().map_err(err("DXGI"))?;
         let d3d: IDirect3DDevice = unsafe { CreateDirect3D11DeviceFromDXGIDevice(&dxgi) }.map_err(err("Direct3D"))?.cast().map_err(err("Direct3D"))?;

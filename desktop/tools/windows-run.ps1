@@ -91,18 +91,23 @@ function Stop-App {
   Start-Sleep -Milliseconds 800
 }
 
-# Starts an exe with extra environment variables (only for it).
+# Starts an exe with extra environment variables, set for it alone (never
+# in this process: PowerShell passes $null to .NET as "", and an empty
+# MONETSHOT_DEMO_RECORD still counts as set). No console window for the
+# debug exe; its log file has everything it prints.
 function Start-App([string]$exe, [hashtable]$vars, [string[]]$appArgs = @()) {
   Stop-App
-  $saved = @{}
-  foreach ($k in $vars.Keys) { $saved[$k] = [Environment]::GetEnvironmentVariable($k); [Environment]::SetEnvironmentVariable($k, $vars[$k]) }
-  try {
-    $quoted = $appArgs | ForEach-Object { '"' + $_ + '"' }
-    $p = if ($quoted) { Start-Process -FilePath $exe -ArgumentList $quoted -PassThru } else { Start-Process -FilePath $exe -PassThru }
-  } finally {
-    foreach ($k in $saved.Keys) { [Environment]::SetEnvironmentVariable($k, $saved[$k]) }
-  }
-  Write-Host "started $exe (pid $($p.Id)) $($appArgs -join ' ')"
+  # The runner's own console windows sit on top: put everything away first.
+  try { (New-Object -ComObject Shell.Application).MinimizeAll() } catch {}
+  Start-Sleep -Milliseconds 500
+  $psi = [System.Diagnostics.ProcessStartInfo]::new($exe)
+  $psi.UseShellExecute = $false
+  $psi.CreateNoWindow = $true
+  $psi.WorkingDirectory = Split-Path $exe
+  foreach ($a in $appArgs) { $psi.ArgumentList.Add($a) }
+  foreach ($k in $vars.Keys) { $psi.Environment[$k] = [string]$vars[$k] }
+  $p = [System.Diagnostics.Process]::Start($psi)
+  Write-Host "started $exe (pid $($p.Id)) $($appArgs -join ' ') with $(($vars.Keys | Sort-Object) -join ', ')"
   $p
 }
 
@@ -178,14 +183,15 @@ function Stage-Record {
   $t0 = Get-Date
   $clicks = 0
   $started = $null
-  $lastClick = 0.0
   while (((Get-Date) - $t0).TotalSeconds -lt 20) {
     $s = ((Get-Date) - $t0).TotalSeconds
     $a = $s * 2.0
     [MsMouse]::SetCursorPos([int]($cx + 220 * [math]::Cos($a)), [int]($cy + 160 * [math]::Sin($a))) | Out-Null
     if ($null -eq $started -and (Read-Log $h) -match 'recording into') { $started = $s }
-    if ($null -ne $started -and $s -gt $started + 1 -and $s -lt $started + 4.5 -and $s - $lastClick -gt 0.8) {
-      [MsMouse]::Click() | Out-Null; $clicks++; $lastClick = $s
+    # Two clicks mid-take (~2.5 s and ~2.8 s in): one auto-zoom of about
+    # 1.6-4.5 s, leaving room around it for the editor check's Z and drag.
+    if ($null -ne $started -and $clicks -lt 2 -and $s -gt $started + 2.5 + 0.3 * $clicks) {
+      [MsMouse]::Click() | Out-Null; $clicks++
     }
     if ((Get-ChildItem -Path (Join-Path $h 'recordings') -Recurse -Filter meta.json -ErrorAction SilentlyContinue)) { break }
     Start-Sleep -Milliseconds 30
@@ -254,7 +260,14 @@ function Stage-Editor {
   $good = [int]$done.Groups[1].Value; $bad = [int]$done.Groups[2].Value
   if ($bad -eq 0 -and $good -gt 0) { Ok "editor check: $good ok, 0 failed" } else { Fail "editor: check: done $good ok, $bad failed" }
   $m = [regex]::Match($log, 'export finished (.+?)\r?\n')
-  if ($m.Success) { $script:exported = $m.Groups[1].Value.Trim() }
+  if ($m.Success) {
+    $script:exported = $m.Groups[1].Value.Trim()
+    # The editor shows this path and hands it to Explorer: no \\?\ form.
+    if ($script:exported.StartsWith('\\?\')) {
+      Fail "editor: the export path is in verbatim form ($($script:exported))"
+      $script:exported = $script:exported.Substring(4)
+    }
+  }
 }
 
 function Stage-Export {
