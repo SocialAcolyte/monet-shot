@@ -13,31 +13,35 @@ pub fn bar_state(app: AppHandle) -> BarState {
     app.state::<Bar>().snapshot()
 }
 
+// Commands that may build a window (the pill, picker, bubble, Home, an
+// editor) are async. A sync command runs on the main thread inside
+// WebView2's IPC callback, and building a WebView2 window there deadlocks
+// on Windows: the window comes up blank and the app hangs.
+// run_on_main_thread doesn't help: on the main thread it runs the task
+// right away (tauri-runtime-wry's send_user_message).
+
 /// A click on the ring: idle records, a countdown cancels.
 #[tauri::command]
-pub fn bar_tap(app: AppHandle) {
+pub async fn bar_tap(app: AppHandle) {
     app.state::<Bar>().tap(&app)
 }
 
 #[tauri::command]
-pub fn bar_cancel(app: AppHandle) {
+pub async fn bar_cancel(app: AppHandle) {
     app.state::<Bar>().cancel(&app)
 }
 
 #[tauri::command]
-pub fn bar_toggle_pause(app: AppHandle) {
+pub async fn bar_toggle_pause(app: AppHandle) {
     app.state::<Bar>().toggle_pause(&app)
 }
 
 /// The hold ring completed (the pill times the hold itself).
 #[tauri::command]
-pub fn bar_stop(app: AppHandle) {
+pub async fn bar_stop(app: AppHandle) {
     app.state::<Bar>().stop(&app)
 }
 
-// Commands that build a window are async: a sync command runs on the main
-// thread, and building a WebView2 window there deadlocks on Windows (the
-// window comes up blank and the app hangs).
 #[tauri::command]
 pub async fn show_home(app: AppHandle) {
     windows::show_home(&app)
@@ -51,7 +55,7 @@ pub async fn picker_sources() -> Result<Vec<recorder::SourceView>, String> {
 
 /// The picker's answer: a source id, or null for "never mind".
 #[tauri::command]
-pub fn picker_choose(app: AppHandle, id: Option<String>) {
+pub async fn picker_choose(app: AppHandle, id: Option<String>) {
     recorder::choose(&app, id)
 }
 
@@ -124,7 +128,7 @@ pub async fn editor_save(path: PathBuf, edit: serde_json::Value) -> Result<(), S
 /// "Record a new take" from an editor: the editor steps aside, the take
 /// lands at the end of this recording.
 #[tauri::command]
-pub fn record_take(app: AppHandle, path: PathBuf) {
+pub async fn record_take(app: AppHandle, path: PathBuf) {
     app.state::<Bar>().record_take(&app, path)
 }
 
