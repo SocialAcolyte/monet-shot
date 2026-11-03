@@ -40,7 +40,10 @@ if (view === "pill" || view === "bubble") {
 // Dev builds: ?devscript=<abs path> runs a check script (see windows.rs).
 const devscript = params.get("devscript");
 if (import.meta.env.DEV && devscript) {
-  import(/* @vite-ignore */ `/@fs${devscript}`)
+  // Vite serves files outside its root at /@fs/<abs path>; a Windows path
+  // (C:\a\b.js) becomes /@fs/C:/a/b.js.
+  const abs = devscript.replace(/\\/g, "/");
+  import(/* @vite-ignore */ `/@fs${abs.startsWith("/") ? "" : "/"}${abs}`)
     .then((m) => m.default?.({ view, call }))
     .catch((e) => console.error("devscript", e));
 }
