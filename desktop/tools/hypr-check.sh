@@ -13,7 +13,8 @@
 # No -e: a step that breaks is a FAIL line, and the next step still runs.
 set -uo pipefail
 L=/tmp/hypr S=/shots UH=/home/run
-mkdir -p "$S"
+mkdir -p "$S"; chmod 777 "$S"   # grim runs as the session user
+reset_app_log() { reset_app_log; chown run:run "$L/app.log"; }
 ok=0 bad=0
 pass() { ok=$((ok+1)); echo "ok   $*" | tee -a "$S/results.txt"; }
 fail() { bad=$((bad+1)); echo "FAIL $*" | tee -a "$S/results.txt"; }
@@ -21,6 +22,11 @@ check() { local name=$1; shift; if "$@"; then pass "$name"; else fail "$name"; f
 note() { echo "     $*" | tee -a "$S/results.txt"; }
 u() { runuser -u run -- bash -c ". $L/env; $1"; }
 hc() { u "hyprctl $*"; }
+# hd 'hl.dsp.…(…)': a Lua dispatcher (Hyprland 0.57's Lua config takes no
+# classic dispatcher strings); says so when Hyprland didn't answer "ok".
+hd() { local r; r=$(u "hyprctl dispatch '$1'" 2>&1); [[ $r == ok ]] || echo "     dispatch $1: $r" | tee -a "$S/results.txt"; }
+cursor_to() { hd "hl.dsp.cursor.move({ x = $1, y = $2 })"; }
+mover_to() { hd "hl.dsp.window.move({ window = \"title:^mover\$\", x = $1, y = $2 })"; }
 library() { echo "$UH/Videos/MonetShot"; }
 newest_take() { ls -td "$(library)"/*/ 2>/dev/null | head -1 | sed 's:/$::'; }
 status_json() { u "monet-shot status" 2>/dev/null; }
@@ -48,7 +54,8 @@ cmd_install() {
   hc "configerrors" | sed 's/^/     /' | tee -a "$S/results.txt"
   local b; b=$(hc "binds -j" | jq -c '.[] | select(.key=="R" and .modmask==72)')
   note "bind: $b"
-  check "SUPER+ALT+R is bound to monet-shot toggle" bash -c "jq -e '.arg | test(\"monet-shot toggle\")' <<<'$b' >/dev/null"
+  # Lua binds show their function's id as the arg; ours carries a description.
+  check "SUPER+ALT+R is bound (Monet Shot: record or stop)" bash -c "jq -e 'select(.description | test(\"Monet Shot\"))' <<<'$b' >/dev/null"
 }
 om() { [[ -f $UH/.config/hypr/hyprland.lua ]] && echo 4 || echo 3; }
 
@@ -57,9 +64,9 @@ cmd_desktop() {
   u "cd /tmp && exec foot --title clock -e sh -c 'while :; do printf \"\\r%s \" \$(date +%T.%N); sleep 0.05; done'" </dev/null >/dev/null 2>&1 &
   u "cd /tmp && exec foot --title mover -e sh -c 'echo Monet Shot on Hyprland; cat'" </dev/null >/dev/null 2>&1 &
   for _ in $(seq 40); do (( $(hc "clients -j" | jq '[.[] | select(.class=="foot")] | length') >= 2 )) && break; sleep 0.5; done
-  hc "dispatch setfloating title:mover" >/dev/null
-  hc "dispatch resizewindowpixel exact 420 160,title:mover" >/dev/null
-  hc "dispatch movewindowpixel exact 600 500,title:mover" >/dev/null
+  hd 'hl.dsp.window.float({ window = "title:^mover$", action = "toggle" })'
+  hd 'hl.dsp.window.resize({ window = "title:^mover$", x = 420, y = 160 })'
+  mover_to 600 500
   hc "clients -j" | jq -c '.[] | {class, title, at, size, floating}' | sed 's/^/     /' | tee -a "$S/results.txt"
 }
 
@@ -72,7 +79,7 @@ cmd_take() {
   local name=$1; shift
   local before; before=$(cat "$L/picker.log" 2>/dev/null | wc -l)
   local prev; prev=$(newest_take)
-  stop_app; : > "$L/app.log"
+  stop_app; reset_app_log
   start_app MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP="${STOP:-5}" "$@" || { fail "$name: the app starts"; return; }
   # What the bar (Waybar module / omarchy-shell plugin) is fed, for the whole take.
   u "exec timeout 60 monet-shot status --waybar --follow" </dev/null > "$S/$name-bar.jsonl" 2>/dev/null &
@@ -85,7 +92,7 @@ cmd_take() {
   check "$name: the take starts recording (portal answered)" wait_phase recording 40
   : > "$S/$name-moves.txt"
   for s in "${SPOTS[@]}"; do
-    hc "dispatch movecursor $s" >/dev/null
+    cursor_to $s
     echo "$(date +%s.%N) $s $(hc 'cursorpos')" >> "$S/$name-moves.txt"
     sleep 0.6
   done
@@ -95,8 +102,8 @@ cmd_take() {
   u "grim $S/$name-recording.png" || true
   shot_bar "$name-bar"
   # Slide the mover across, so the video has motion to check.
-  for x in 640 700 760 820 880; do hc "dispatch movewindowpixel exact $x 500,title:mover" >/dev/null; sleep 0.1; done
-  hc "dispatch movewindowpixel exact 600 500,title:mover" >/dev/null
+  for x in 640 700 760 820 880; do mover_to $x 500; sleep 0.1; done
+  mover_to 600 500
   wait_phase 'idle' 60 || true
   kill $follow 2>/dev/null || true
   local take; take=$(newest_take)
@@ -161,36 +168,33 @@ pill_in_video() {
 
 cmd_bind() {
   local name=$1 before prev; before=$(cat "$L/picker.log" 2>/dev/null | wc -l); prev=$(newest_take)
-  stop_app; : > "$L/app.log"
+  stop_app; reset_app_log
   start_app || { fail "$name: the app starts"; return; }
   sleep 4
-  local b; b=$(hc "binds -j" | jq -r '[.[] | select(.key=="R" and .modmask==72)][0] | "\(.dispatcher) \(.arg)"')
-  note "SUPER+ALT+R runs: $b"
-  hc "dispatch $b" >/dev/null
-  check "$name: SUPER+ALT+R starts a take" wait_phase recording 40
+  note "SUPER+ALT+R: $(hc "binds -j" | jq -c '[.[] | select(.key=="R" and .modmask==72)][0] | {dispatcher, arg, description}')"
+  # The keys themselves, through the uinput keyboard (ydotoold): Hyprland
+  # matches its own bind, as for a person. (A Lua bind's function can't be
+  # dispatched from hyprctl.)
+  local kb; kb=$(hc "devices -j" | jq -r '[.keyboards[] | select(.name | test("ydotool"))][0].name // empty')
+  [[ -n $kb ]] || { fail "$name: Hyprland has the uinput keyboard (devices -j)"; stop_app; return; }
+  note "keyboard: $kb"
+  keys() { YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 125:1 56:1 19:1 19:0 56:0 125:0 >/dev/null 2>&1; }
+  keys
+  check "$name: pressing SUPER+ALT+R starts a take" wait_phase recording 40
   sleep 3
-  hc "dispatch $b" >/dev/null
-  check "$name: SUPER+ALT+R again stops it" wait_phase 'saving|idle' 20
+  keys
+  check "$name: pressing SUPER+ALT+R again stops it" wait_phase 'saving|idle' 20
   wait_phase idle 60 || true
   local take; take=$(newest_take)
   check "$name: the take is saved" test -n "$take" -a "$take" != "$prev"
   note "picker asked $(( $(cat "$L/picker.log" 2>/dev/null | wc -l) - before )) time(s)"
-  # The real keys through uinput, if Hyprland took the virtual keyboard (udev).
-  if hc "devices -j" | jq -e '.keyboards[] | select(.name | test("ydotool"))' >/dev/null 2>&1; then
-    YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 125:1 56:1 19:1 19:0 56:0 125:0 >/dev/null
-    if wait_phase 'countdown|starting|recording' 20; then pass "$name: pressing SUPER+ALT+R (uinput keyboard) starts a take"
-      sleep 2; YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 125:1 56:1 19:1 19:0 56:0 125:0 >/dev/null; wait_phase idle 60 || true
-    else fail "$name: pressing SUPER+ALT+R (uinput keyboard) starts a take"; fi
-  else
-    note "Hyprland has no uinput keyboard (no udev tags): keys not pressed, only the bind dispatched"
-  fi
   stop_app
 }
 
 cmd_editor() {
   local take=$1 name=$2 copy="$UH/Videos/check-$(basename "$1")"
   rm -rf "$copy"; cp -a "$take" "$copy"; chown -R run:run "$copy"
-  stop_app; : > "$L/app.log"
+  stop_app; reset_app_log
   start_app MONETSHOT_DEV_SCRIPT=/work/desktop/app/ui/devchecks/editor.js -- "\"$copy\"" || { fail "$name: the editor opens"; return; }
   sleep 25; u "grim $S/$name-editor.png" || true
   local t=0; until grep -q "check: done" "$L/app.log" || (( t++ > 900 )); do sleep 1; done
@@ -215,7 +219,7 @@ cmd_home() {
   cp -a "$take" "$h/recordings/Open me.reel"; cp -a "$take" "$h/recordings/Trash me.reel"
   cp "$take/screen.mp4" "$h/footage.mp4"; chown -R run:run "$h"
   : > "$L/xdg-open.log"; chmod 666 "$L/xdg-open.log"
-  stop_app; : > "$L/app.log"
+  stop_app; reset_app_log
   local before; before=$(cat "$L/picker.log" 2>/dev/null | wc -l)
   start_app MONETSHOT_HOME="$h" MONETSHOT_DEV_SCRIPT=/work/desktop/app/ui/devchecks/home.js || { fail "$name: the app starts (home)"; return; }
   hl() { cat "$L/app.log" "$h"/logs/* 2>/dev/null; }
@@ -254,10 +258,11 @@ cmd_waybar() {
   cp -a /opt/omarchy3 "$h/.local/share/omarchy"; cp -R /opt/omarchy3/config/. "$h/.config/"
   mkdir -p "$h/.config/omarchy/current"; ln -sfn "$h/.local/share/omarchy/themes/$(ls /opt/omarchy3/themes | head -1)" "$h/.config/omarchy/current/theme"
   chown -R run:run "$h"
-  u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
+  local p3=$h/.local/share/omarchy/bin:/usr/local/bin:/usr/bin:/bin
+  u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
   check "install.sh (Omarchy 3) added the Waybar module" grep -q '"custom/monet-shot"' "$h/.config/waybar/config.jsonc"
   pkill -u run -x quickshell 2>/dev/null || true; sleep 1
-  u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar.log" 2>&1 &
+  u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar.log" 2>&1 &
   sleep 6
   check "Waybar runs with the module" pgrep -u run -x waybar
 }
