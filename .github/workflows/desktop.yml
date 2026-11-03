@@ -160,7 +160,9 @@ jobs:
 
   # The Windows build run on the VM's real desktop (WebView2, Windows.Graphics
   # Capture): records a take, runs the editor check, compares the preview
-  # with the Mac's frames, plays an HEVC take via the H.264 proxy, exports.
+  # with the Mac's frames, plays an HEVC take via the H.264 proxy, exports,
+  # installs the NSIS build and records with it (pause, protected pill),
+  # records a window picked in our picker and stops it by holding the pill.
   # See desktop/tools/windows-run.ps1. Builds its own exes so it runs
   # alongside the `windows` job.
   windows-run:
@@ -183,15 +185,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: wasm-bindgen CLI (core-wasm)
         run: desktop/tools/install-wasm-bindgen.sh
-      - name: Build (release exe, debug exe, plan_dump)
+      - name: Build (release exe + NSIS installer, debug exe, plan_dump)
         working-directory: desktop/app
         run: |
           npm ci
-          npx tauri build --no-bundle --config ../packaging/windows/tauri.windows.conf.json
+          npx tauri build --bundles nsis --config ../packaging/windows/tauri.windows.conf.json
           cd ..
           cargo build -p monet-shot
           cargo build -p monetshot-core --example plan_dump
-      - name: Run on the desktop (record, editor, fixtures, HEVC, export)
+      - name: Run on the desktop (record, editor, fixtures, HEVC, export, install, window)
         shell: pwsh
         run: desktop/tools/windows-run.ps1 -Out "$env:RUNNER_TEMP/ms-run"
       - uses: actions/upload-artifact@v4

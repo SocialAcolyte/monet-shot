@@ -260,8 +260,9 @@ fn make_pill(app: &AppHandle) -> Option<WebviewWindow> {
         .skip_taskbar(true)
         .focused(false)
         // Kept out of the recording where the OS allows (Windows, macOS);
-        // the demo aid leaves it visible to screenshots.
-        .content_protected(std::env::var_os("MONETSHOT_DEMO_RECORD").is_none())
+        // the demo aid leaves it visible to screenshots, unless
+        // MONETSHOT_DEMO_PROTECT=1 (CI checks the pill stays out of a take).
+        .content_protected(std::env::var_os("MONETSHOT_DEMO_RECORD").is_none() || std::env::var_os("MONETSHOT_DEMO_PROTECT").is_some())
         .visible(false);
     match b.build() {
         Ok(w) => Some(w),
