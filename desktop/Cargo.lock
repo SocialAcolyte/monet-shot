@@ -2314,6 +2314,7 @@ dependencies = [
 name = "monet-shot"
 version = "0.1.1"
 dependencies = [
+ "log",
  "monetshot-capture",
  "monetshot-core",
  "monetshot-export",

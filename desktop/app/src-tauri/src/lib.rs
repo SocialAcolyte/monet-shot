@@ -66,6 +66,7 @@ pub fn run() {
     if run_cli() {
         return;
     }
+    log::install();
     let app = tauri::Builder::default()
         // One Monet Shot: a second launch hands its arguments to this one.
         .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| command(app, &argv)))

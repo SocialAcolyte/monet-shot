@@ -160,7 +160,10 @@ fn work(shared: Arc<Shared>, geo: Arc<Mutex<Geometry>>, rx: Receiver<Seen>) {
                 let (nx, ny) = geo.lock().unwrap().normalise(x as f64, y as f64);
                 shared.click_at(at, nx, ny);
             }
-            Seen::Key { key, down } => shared.key(key, down),
+            Seen::Key { key, down } => {
+                log::debug!("key {key:?} {}", if down { "down" } else { "up" });
+                shared.key(key, down)
+            }
         }
     }
 }

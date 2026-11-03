@@ -82,6 +82,15 @@ public static class MsWin {
   public static IntPtr Find(string title) { return FindWindow(null, title); }
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int attr, out RECT r, int size);
+  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+  [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);
+  /// The foreground window: "pid 123 'title'" (keys go there).
+  public static string Foreground() {
+    var h = GetForegroundWindow(); uint pid; GetWindowThreadProcessId(h, out pid);
+    var t = new System.Text.StringBuilder(256); GetWindowText(h, t, 256);
+    return "pid " + pid + " '" + t + "'";
+  }
   static uint Send(params INPUT[] a) { return SendInput((uint)a.Length, a, Marshal.SizeOf(typeof(INPUT))); }
   static INPUT Mouse(uint flags) { var i = new INPUT(); i.type = 0; i.u.mi.dwFlags = flags; return i; }
   static INPUT Key(ushort vk, bool up) { var i = new INPUT(); i.type = 1; i.u.ki.wVk = vk; i.u.ki.dwFlags = up ? 2u : 0u; return i; }
@@ -231,7 +240,11 @@ function Mean-Rgb([byte[]]$a) {
   @([math]::Round($s[0] / $n), [math]::Round($s[1] / $n), [math]::Round($s[2] / $n))
 }
 # The pill's window less its transparent margin.
-function Inset([hashtable]$r) { @{ x = $r.x + 8; y = $r.y + 4; w = [math]::Max(8, $r.w - 16); h = [math]::Max(8, $r.h - 8) } }
+# Even numbers: ffmpeg rounds a crop of 4:2:0 video to even sizes (not of a PNG).
+function Inset([hashtable]$r) {
+  $e = { param($v) [int]([math]::Floor($v / 2) * 2) }
+  @{ x = & $e ($r.x + 8); y = & $e ($r.y + 4); w = & $e ([math]::Max(8, $r.w - 16)); h = & $e ([math]::Max(8, $r.h - 8)) }
+}
 
 $script:take = $null      # the recorded .reel
 $script:pillOff = $null   # the pill's rect during stage 1 (protection off)
@@ -480,26 +493,36 @@ function Stage-Install {
 
   $h = Join-Path $Out 'home-install'
   New-Item -ItemType Directory -Force $h | Out-Null
-  Start-App $exe @{ MONETSHOT_HOME = $h; MONETSHOT_DEMO_RECORD = '1'; MONETSHOT_DEMO_STOP = '6'; MONETSHOT_DEMO_PROTECT = '1' } -Unset MONETSHOT_FFMPEG, MONETSHOT_FFPROBE | Out-Null
+  Start-App $exe @{ MONETSHOT_HOME = $h; MONETSHOT_DEMO_RECORD = '1'; MONETSHOT_DEMO_STOP = '7'; MONETSHOT_DEMO_PROTECT = '1'; MONETSHOT_DEBUG = '1' } -Unset MONETSHOT_FFMPEG, MONETSHOT_FFPROBE | Out-Null
   $m = Wait-Log $h 'recording into' 40
   $pillOn = $null
   if ($m) {
     $t0 = Get-Date
     $at = { ((Get-Date) - $t0).TotalSeconds }
+    $status = { Get-Content -Raw (Join-Path $h 'run\status.json') -ErrorAction SilentlyContinue }
+    $paused = { "$(& $status)" -match '"paused":true' }
     while ((& $at) -lt 1.5) { Start-Sleep -Milliseconds 20 }
-    $sent1 = [MsWin]::DoubleShift(); $pauseAt = & $at
-    while ((& $at) -lt 2.5) { Start-Sleep -Milliseconds 20 }
-    $st1 = Get-Content -Raw (Join-Path $h 'run\status.json') -ErrorAction SilentlyContinue
+    Write-Host "foreground before the taps: $([MsWin]::Foreground())"
+    $sent = [MsWin]::DoubleShift(); $pauseAt = & $at
+    Start-Sleep -Milliseconds 400
+    Write-Host ("double-tapped Shift at {0:N2} s ({1} of 4 events taken): {2}" -f $pauseAt, $sent, (& $status))
+    if (-not (& $paused)) {
+      # Keys go to the foreground window; one that outranks us drops them.
+      # Click the bare desktop (as a person would be somewhere) and retry.
+      [MsWin]::SetCursorPos(600, 520) | Out-Null; [MsWin]::Click() | Out-Null
+      Start-Sleep -Milliseconds 300
+      Write-Host "not paused; clicked the desktop, foreground now: $([MsWin]::Foreground())"
+      $sent = [MsWin]::DoubleShift(); $pauseAt = & $at
+      Start-Sleep -Milliseconds 400
+      Write-Host ("double-tapped Shift again at {0:N2} s ({1} of 4): {2}" -f $pauseAt, $sent, (& $status))
+    }
     $pillOn = Window-Rect 'Monet Shot Pill'
     Write-Host "pill (protection on) at $($pillOn | ConvertTo-Json -Compress)"
     Shot '6-installed-recording-paused' | Out-Null
-    while ((& $at) -lt 3.5) { Start-Sleep -Milliseconds 20 }
-    $sent2 = [MsWin]::DoubleShift(); $resumeAt = & $at
+    while ((& $at) -lt $pauseAt + 2.0) { Start-Sleep -Milliseconds 20 }
+    $sent = [MsWin]::DoubleShift(); $resumeAt = & $at
     Start-Sleep -Milliseconds 400
-    $st2 = Get-Content -Raw (Join-Path $h 'run\status.json') -ErrorAction SilentlyContinue
-    Write-Host ("double-tapped Shift at {0:N2} s ({1} of 4 events taken) and {2:N2} s ({3} of 4) after 'recording into'" -f $pauseAt, $sent1, $resumeAt, $sent2)
-    Write-Host "status after the first double tap: $st1"
-    Write-Host "status after the second: $st2"
+    Write-Host ("double-tapped Shift at {0:N2} s ({1} of 4) to resume: {2}" -f $resumeAt, $sent, (& $status))
   }
   $reel = Wait-Take $h 60
   Stop-App
@@ -515,14 +538,15 @@ function Stage-Install {
     $edit = Get-Content -Raw (Join-Path $reel 'edit.json') | ConvertFrom-Json
     $cuts = @($edit.cuts)
     Write-Host "installed take: $($v.frames) frames, $($v.duration) s; meta.duration $($meta.duration); cuts $($edit.cuts | ConvertTo-Json -Compress)"
-    if ($v.frames -gt 0 -and [math]::Abs($meta.duration - 6) -lt 0.8) { Ok "the installed exe recorded with its own ffmpeg: $($v.frames) frames, $($meta.duration) s" }
-    else { Fail "install: take of $($v.frames) frames, $($meta.duration) s (want ~6 s)" }
+    if ($v.frames -gt 0 -and [math]::Abs($meta.duration - 7) -lt 0.8) { Ok "the installed exe recorded with its own ffmpeg: $($v.frames) frames, $($meta.duration) s" }
+    else { Fail "install: take of $($v.frames) frames, $($meta.duration) s (want ~7 s)" }
     if ($cuts.Count -eq 1) {
       $c = $cuts[0]; $len = $c.end - $c.start
       $kept = $meta.duration - $len
-      if ([math]::Abs($len - 2.0) -lt 0.6 -and [math]::Abs($c.start - 1.5) -lt 0.8 -and [math]::Abs($kept - 4.0) -lt 0.9) {
+      $want = $resumeAt - $pauseAt
+      if ([math]::Abs($len - $want) -lt 0.6 -and [math]::Abs($c.start - $pauseAt) -lt 0.8 -and [math]::Abs($kept - ($meta.duration - $want)) -lt 0.6) {
         Ok ("pause: one cut {0:N2}-{1:N2} s ({2:N2} s); {3:N2} s of {4:N2} s kept" -f $c.start, $c.end, $len, $kept, $meta.duration)
-      } else { Fail ("pause: cut {0:N2}-{1:N2} s, {2:N2} s kept of {3:N2} (want ~1.5-3.5 s, ~4 s kept)" -f $c.start, $c.end, $kept, $meta.duration) }
+      } else { Fail ("pause: cut {0:N2}-{1:N2} s, {2:N2} s kept of {3:N2} (taps at {4:N2} and {5:N2} s)" -f $c.start, $c.end, $kept, $meta.duration, $pauseAt, $resumeAt) }
     } else { Fail "pause: $($cuts.Count) cuts in edit.json (want 1 from double-tapping Shift twice)" }
 
     # Content protection: the pill's place in the take is the bare desktop
@@ -532,13 +556,15 @@ function Stage-Install {
       $r = Inset $pillOn
       $on = Mean-Diff (Crop-Rgb $video 2.5 $r) (Crop-Rgb $ref -1 $r)
       Write-Host ("pill region, protected take vs the bare desktop: mean diff {0:N1}" -f $on)
-      if ($on -lt 20) { Ok ("protection: the pill is not in the take (diff {0:N1} from the bare desktop)" -f $on) }
+      if ($on -ge 999) { Fail 'protection: could not compare the pill region (crop failed)' }
+      elseif ($on -lt 20) { Ok ("protection: the pill is not in the take (diff {0:N1} from the bare desktop)" -f $on) }
       else { Fail ("protection: the pill's region differs from the bare desktop by {0:N1} (pill captured?)" -f $on) }
       if ($script:pillOff -and $script:take) {
         $r0 = Inset $script:pillOff
         $off = Mean-Diff (Crop-Rgb (Join-Path $script:take 'screen.mp4') 2.5 $r0) (Crop-Rgb $ref -1 $r0)
         Write-Host ("pill region, stage 1's take (protection off) vs the bare desktop: mean diff {0:N1}" -f $off)
-        if ($off -gt 40) { Ok ("protection off (stage 1): the pill is in the take (diff {0:N1}), so the check sees it" -f $off) }
+        if ($off -ge 999) { Fail 'protection: could not compare stage 1''s pill region (crop failed)' }
+        elseif ($off -gt 40) { Ok ("protection off (stage 1): the pill is in the take (diff {0:N1}), so the check sees it" -f $off) }
         else { Fail ("protection: stage 1's unprotected take doesn't show the pill either (diff {0:N1}); the check proves nothing" -f $off) }
       } else { Fail 'protection: no stage 1 pill to compare with' }
     }
