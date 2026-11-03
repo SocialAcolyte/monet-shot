@@ -60,8 +60,9 @@ cmd_install() {
     note "omarchy-shell plugins: $(echo "$pl" | tr '\n' ' ' | cut -c1-600)"
     check "the omarchy-shell plugin is enabled" grep -q 'enabled beside the clock' "$S/install-4.txt"
     sleep 2
-    check "the omarchy-shell plugin is loaded on the bar (listPlugins: active)" \
-      bash -c "runuser -u run -- bash -c '. $L/env; omarchy-shell shell listPlugins' | jq -e '.[] | select(.id==\"monet-shot\") | .enabled and .active' >/dev/null"
+    # (For a bar widget "enabled" is its place on the bar; "active" is for bars.)
+    check "the omarchy-shell plugin is on the bar (listPlugins: enabled)" \
+      bash -c "runuser -u run -- bash -c '. $L/env; omarchy-shell shell listPlugins' | jq -e '.[] | select(.id==\"monet-shot\") | .enabled' >/dev/null"
   fi
   check "SUPER+ALT+R is bound (Monet Shot: record or stop)" bash -c "jq -e 'select(.description | test(\"Monet Shot\"))' <<<'$b' >/dev/null"
 }
@@ -269,6 +270,10 @@ cmd_waybar() {
   mkdir -p "$h/.config/omarchy/current"; ln -sfn "$h/.local/share/omarchy/themes/$(ls /opt/omarchy3/themes | head -1)" "$h/.config/omarchy/current/theme"
   chown -R run:run "$h"
   local p3=$h/.local/share/omarchy/bin:/usr/local/bin:/usr/bin:/bin
+  # Omarchy 3's Waybar as it ships, for comparison: which icon is ours after.
+  pkill -u run -x quickshell 2>/dev/null || true; pkill -u run -x waybar 2>/dev/null || true; sleep 1
+  u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar-before.log" 2>&1 &
+  sleep 5; shot_bar waybar-before; pkill -u run -x waybar 2>/dev/null || true; sleep 1
   u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
   check "install.sh (Omarchy 3) added the Waybar module" grep -q '"custom/monet-shot"' "$h/.config/waybar/config.jsonc"
   # One Waybar: install.sh restarted Omarchy's (omarchy-restart-waybar); ours replaces it, with its log.
