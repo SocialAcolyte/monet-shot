@@ -108,6 +108,14 @@ the app log for each stage, the takes, `export.mp4`, screenshots and
   is in ARCHITECTURE.md's contracts. The lead audited the remaining sync
   commands; none builds a window.
 
+- For ms-omarchy's hyprland-run (windows.rs, Linux only): the pill and the
+  camera bubble are resizable on Linux. GTK3 pins a non-resizable window
+  at its child's natural size (min = max = 200x200, the WebKit view's
+  fallback), so the pill was 200x200, not 180x34. 8f6e711 fixed it, and
+  hyprland-run 41654698498 shows 180x34. (18e650c tried first but had the
+  condition inverted.) The bubble's change (bc6fe26) is for consistency;
+  no run covers it, since CI has no camera.
+
 ## Open
 - Nothing known. Standing by.
 
