@@ -75,6 +75,14 @@ omarchy_config() {
   else
     sed -i "s|^monitor=,preferred,auto,auto|monitor=,$mode,0x0,$scale|" "$UH/.config/hypr/monitors.conf"
   fi
+  # The theme, as Omarchy 4's installer seeds it (headless: no session yet):
+  # templates rendered into ~/.local/state/omarchy/current/theme.
+  if [[ $major == 4 ]]; then
+    chown -R "$U:$U" "$UH"
+    timeout 120 runuser -u "$U" -- env HOME="$UH" OMARCHY_PATH="$om" OMARCHY_THEME_HEADLESS=1 \
+      PATH="$om/bin:/usr/local/bin:/usr/bin:/bin" XDG_RUNTIME_DIR="$RT" \
+      omarchy-theme-set "Tokyo Night" </dev/null >"$L/theme.log" 2>&1 || echo "omarchy-theme-set failed (see theme.log)" >&2
+  fi
   # The app, as the package puts it on PATH.
   ln -sfn "${MONETSHOT_BIN:-/target/debug/monet-shot}" /usr/local/bin/monet-shot
   chown -R "$U:$U" "$UH"
@@ -85,7 +93,7 @@ hypr_up() {
   as_run DBUS_SESSION_BUS_ADDRESS="unix:path=$RT/bus" LIBSEAT_BACKEND=seatd \
     AQ_DRM_DEVICES="$(ls /dev/dri/card* | head -1)" OMARCHY_PATH="$UH/.local/share/omarchy" \
     XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=Hyprland LIBGL_ALWAYS_SOFTWARE=1 \
-    Hyprland </dev/null >"$L/hyprland.log" 2>&1 &
+    "$(command -v start-hyprland || echo Hyprland)" </dev/null >"$L/hyprland.log" 2>&1 &
   local hpid=$! sig=""
   for _ in $(seq 120); do
     # (|| true: under -e -o pipefail an empty ls would end the script, silently.)
