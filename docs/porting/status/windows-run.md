@@ -5,14 +5,15 @@ Hardware: GitHub's `windows-latest` VM: Windows Server 2025 Datacenter
 Basic Render Driver; D3D11 "hardware" device creation succeeds on it).
 
 The job is `windows-run` in `.github/workflows/desktop.yml`. It runs on every
-push, beside `windows`, and builds its own exes: release with
-`tauri build --no-bundle`, plus the debug exe and core's `plan_dump`. It
-then runs `desktop/tools/windows-run.ps1`, with `windows-hevc-check.js` for
-the HEVC stage. It fails on any of stages 1–5. The `windows-run` artifact
-holds the app log for each stage, the take, `export.mp4`, screenshots of
-each stage and `vite.log`. The job takes about 26 min, mostly the two builds.
+push, beside `windows`, and builds its own: the release exe and the NSIS
+installer (`tauri build --bundles nsis`), the debug exe and core's
+`plan_dump`. It then runs `desktop/tools/windows-run.ps1`, with
+`windows-hevc-check.js` and `windows-window-check.js` as dev scripts. It
+fails on any failed check in stages 1–7. The `windows-run` artifact holds
+the app log for each stage, the takes, `export.mp4`, screenshots and
+`vite.log`. The job takes about 25 min, mostly the builds.
 
-## Done (green on run 41596260985, 2026-11-03)
+## Done (all 7 stages green on run 41607242043, 2026-11-03)
 1. **Record** (release exe, `MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP=5`).
    The pointer circles via SetCursorPos, with two SendInput clicks mid-take.
    - WGC records the display: `screen.mp4` is H.264 1024×768, 303 frames,
@@ -32,6 +33,24 @@ each stage and `vite.log`. The job takes about 26 min, mostly the two builds.
 5. **Export**: the editor check's Ctrl+E took 21 s and produced H.264
    1920×1080, 301 frames, 5.02 s. Its frames show the painting backdrop,
    the zoom, the Dot cursor and the hide box.
+6. **Install** (NSIS, 119 MB): `/S` installs to `%LOCALAPPDATA%\Monet Shot`
+   with an uninstall entry, `ffmpeg.exe`/`ffprobe.exe` beside the app and
+   40 backdrop images. The installed exe records a 7 s take using its own
+   sidecar (`MONETSHOT_FFMPEG` unset; the app log says `encoder: libx264`).
+   - **Pause:** two SendInput Shift double-taps make one cut, 3.21–5.48 s,
+     which matches the taps; 4.78 s of 7.05 s are kept.
+   - **Content protection** (`MONETSHOT_DEMO_PROTECT=1`): in the take, the
+     pill's place differs from the bare desktop by a mean of 0.8/255, so the
+     pill is not there. In stage 1's take (protection off) it differs by
+     140.7, so the check can see a pill.
+   - `uninstall.exe /S` removes the app.
+7. **Window + hold-to-stop** (debug exe): `monet-shot toggle` (a second
+   launch, as Waybar or a hotkey would do) opens our picker. The dev script
+   clicks the card of a WinForms window we opened. The take is
+   `source: window`, 642×432, the same as the window's DWM frame, and its
+   middle is the window's colour (198,89,58).
+   - A 0.12 s real-mouse click on the pill's ring leaves the take running;
+     a 1.3 s hold stops it.
 
 ## Found and fixed
 - `app/src-tauri/src/windows.rs` (Windows only): `open_editor` passed
@@ -46,16 +65,30 @@ each stage and `vite.log`. The job takes about 26 min, mostly the two builds.
   no hardware device can be created. The VM didn't need it.
 - Reported to the lead, who fixed it in 880f25b: `write_thumb`'s shared tmp
   name raced between two Home refreshes ("thumb …: os error 2").
+- `app/src-tauri/src/log.rs` (with the lead's OK): the `log` crate's records
+  now go to the app log. Ours are logged at info (debug with
+  `MONETSHOT_DEBUG=1`), other crates' from warn up. Capture's encoder
+  choice, start/stop, pauses and warnings had gone nowhere on every
+  platform. `win/input.rs` logs key events at debug.
+- `MONETSHOT_DEMO_PROTECT=1` (windows.rs): keeps the pill's content
+  protection on under the demo aid, for the protection check.
+
+## Open
+- **Double-tap Shift while the pill has focus.** When the recording
+  started, the foreground window was the pill itself, although it is built
+  with `focused(false)`. Shift taps injected then never reached the
+  WH_KEYBOARD_LL hook: no `key` lines at debug. After a click on the
+  desktop, the same taps arrived and paused at once. In CI nothing else had
+  focus (every window minimised), so the pill may only have got it by
+  default. Physical keys may behave differently from injected ones. Not
+  explained yet. The job clicks the desktop first, as a person working in
+  another app would be.
 
 ## Not proved by this job
-- **Pill and windows kept out of recordings.** The demo hook turns content
-  protection off on purpose, and the take shows the pill.
-- **The tray by hand:** the menu, hold-to-stop, our picker, window
-  recording, and pause (double-tap Shift).
-- **The installer.** NSIS is built by `windows`, but this run uses the bare
-  exes with ffmpeg copied beside them.
-- **Hardware encoders and GPU paths.** There is no GPU here; the encoder in
-  use isn't in the app log (capture logs through `log::`, which goes
-  nowhere in the app).
+- The tray icon and its menu (not reachable from the script; `toggle` takes
+  the same path as the ring's tap).
+- Physical keyboard and mouse: all input was injected with SendInput.
+- Hardware encoders and GPU paths (no GPU here: libx264, Basic Render
+  Driver).
 - Camera, music, Home clicks, add take/footage, clip move.
 - Windows 10/11 client editions, and DPI scales other than 100%.

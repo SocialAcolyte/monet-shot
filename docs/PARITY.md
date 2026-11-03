@@ -79,10 +79,10 @@ Windows Server 2025 VM, a real desktop without a GPU
 
 | Feature | Mac | Linux | Omarchy | Windows |
 |---|---|---|---|---|
-| Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🟡 (Waybar / omarchy-shell) | 🟡 (CI VM ran ring tap → 3-2-1 → pill → stop through the demo hooks; tray menu and hold-to-stop not pressed) |
-| Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🟡 portal + Hyprland mapping | ✅ display (CI VM: WGC on Server 2025, 1024×768, 5 s take ffprobed) · 🟡 window |
+| Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🟡 (Waybar / omarchy-shell) | ✅ ring tap via `monet-shot toggle` → our picker → 3-2-1, and hold-to-stop on the pill with the real mouse (a short click doesn't stop) (CI VM) · 🟡 tray icon + menu not clicked |
+| Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🟡 portal + Hyprland mapping | ✅ display and window (CI VM: WGC on Server 2025; a window picked in our picker records at its own size; the pill is kept out of the take) |
 | Own cursor log + clicks | ✅ | 🟡 evdev/X11 | 🟡 Hyprland IPC | ✅ (CI VM: GetCursorPos samples + WH_MOUSE_LL clicks from injected input) |
-| Pause = clip (double-tap Shift) | ✅ | 🟡 | 🟡 | 🟡 |
+| Pause = clip (double-tap Shift) | ✅ | 🟡 | 🟡 | ✅ (CI VM: injected double-taps → one cut matching them; not detected while the pill itself had focus, see status/windows-run.md) |
 | Home (cards, import, reveal, trash) | ✅ | 🟡 | 🟡 | 🟡 (Home opens; cards not clicked) |
 | Editor preview (same frame as the export) | ✅ | 🟡 (WebGL2 in WebKitGTK: 0.06–0.82/255 vs the Mac's frames; Mac HEVC takes play) | 🟡 | ✅ (CI VM, WebView2: 0.04–0.76/255 vs the Mac's frames; an HEVC take plays via the H.264 proxy) |
 | Auto-zoom + zoom editing | ✅ | 🟡 | 🟡 | ✅ (CI VM: auto-zoom from recorded clicks; Z, Delete, undo/redo, drag) |
@@ -93,4 +93,4 @@ Windows Server 2025 VM, a real desktop without a GPU
 | Camera: over video, just me, with screen | ✅ | 🟡 (no live camera yet) | 🟡 (no live camera yet) | 🟡 (no live camera yet) |
 | Music browser + ducking | 🚧 WIP | 🟡 (seen running in WebKitGTK; preview audio via media_url) | 🟡 | 🟡 |
 | Export MP4 | ✅ | 🟡 (matches the Mac's export, run on macOS; in-app export run in the Arch container) | 🟡 | ✅ (CI VM: Ctrl+E in the editor → H.264 1080p, ffprobed) |
-| Install | Homebrew | 🟡 AppImage/deb (config) | 🟡 PKGBUILD (srcinfo ok) + install.sh (tested on real 3.8.4 / 4.x configs) | 🟡 NSIS + ffmpeg sidecar (built in CI; the run uses the bare exes, not the installer) |
+| Install | Homebrew | 🟡 AppImage/deb (config) | 🟡 PKGBUILD (srcinfo ok) + install.sh (tested on real 3.8.4 / 4.x configs) | ✅ NSIS (CI VM: silent install, record with the installed exe and its ffmpeg sidecar, silent uninstall) |
