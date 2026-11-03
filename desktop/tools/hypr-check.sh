@@ -35,6 +35,8 @@ wait_phase() { # wait_phase <regex> <seconds>
   local t=$(( $2 * 4 ))
   while (( t-- > 0 )); do [[ $(phase) =~ $1 ]] && return 0; sleep 0.25; done; return 1
 }
+bar_class() { u "monet-shot status --waybar" 2>/dev/null | jq -r '.class // "off"' 2>/dev/null; }
+wait_class() { local t=$(( $2 * 4 )); while (( t-- > 0 )); do [[ $(bar_class) =~ $1 ]] && return 0; sleep 0.25; done; return 1; }
 app_running() { pgrep -u run -x monet-shot >/dev/null; }
 
 start_app() { # start_app [VAR=value ...] [-- args]
@@ -192,7 +194,16 @@ cmd_bind() {
   keys() { YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 125:1 56:1 19:1 19:0 56:0 125:0 >/dev/null 2>&1; }
   keys
   check "$name: pressing SUPER+ALT+R starts a take" wait_phase recording 40
-  sleep 3
+  sleep 2
+  # Pause = double-tap Shift (the app reads the keyboard through evdev).
+  shift2() { YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 42:1 42:0 >/dev/null 2>&1; sleep 0.12
+             YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 42:1 42:0 >/dev/null 2>&1; }
+  shift2
+  check "$name: double-tap Shift pauses (status: paused)" wait_class '^paused$' 5
+  sleep 1.5; shot_bar "$name-paused"
+  shift2
+  check "$name: double-tap Shift again resumes" wait_class '^recording$' 5
+  sleep 1.5
   keys
   check "$name: pressing SUPER+ALT+R again stops it" wait_phase 'saving|idle' 20
   wait_phase idle 60 || true
