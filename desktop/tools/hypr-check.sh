@@ -299,7 +299,12 @@ cmd_all() {
   check "omarchy-shell (Quickshell) answers its IPC" u "omarchy-shell shell ping"
   cmd_install; cmd_desktop
   sleep 8; u "grim $S/o4-desktop.png" || true
-  STOP=8 cmd_take o4-take1
+  # WAYLAND_DEBUG on this one take: what size the app's windows ask for.
+  STOP=8 cmd_take o4-take1 WAYLAND_DEBUG=1
+  grep -E 'xdg_toplevel#[0-9]+\.(set_title|set_min_size|set_max_size)|xdg_surface#[0-9]+\.(set_window_geometry|configure)|xdg_toplevel#[0-9]+\.configure|wl_shm_pool#[0-9]+\.create_buffer|zwp_linux_buffer_params_v1#[0-9]+\.create_immed' \
+    "$L/app.log" | grep -v -- '-> wl_' | head -400 > "$S/o4-take1-wayland.txt" || true
+  grep -E 'set_title|set_min_size|set_max_size|set_window_geometry' "$S/o4-take1-wayland.txt" | head -30 | sed 's/^/     wl: /' | tee -a "$S/results.txt"
+  reset_app_log
   check_pill o4-take1 countdown
   check "o4-take1: the portal's picker was asked once" test "$(cat "$S/o4-take1-picker-count.txt" 2>/dev/null)" = 1
   cmd_take o4-take2
