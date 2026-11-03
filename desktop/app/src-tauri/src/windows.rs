@@ -371,7 +371,9 @@ pub fn show_bubble(app: &AppHandle) {
             .decorations(false)
             .transparent(true)
             .shadow(false)
-            .resizable(false)
+            // As the pill: GTK3 would pin a non-resizable window at the
+            // WebKit view's 200x200 fallback, which only matches `size` by luck.
+            .resizable(cfg!(target_os = "linux"))
             .always_on_top(true)
             .visible_on_all_workspaces(true)
             .skip_taskbar(true)
