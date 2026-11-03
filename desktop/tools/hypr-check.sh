@@ -281,7 +281,7 @@ shot_pill() {
   local w='title:^Monet Shot Pill$'
   hd "hl.dsp.window.set_prop({ window = \"$w\", prop = \"no_screen_share\", value = \"0\" })"
   sleep 0.15
-  u "grim -g '600,20 400,80' $S/$1-pill.png" || true
+  u "grim -g '600,20 400x80' $S/$1-pill.png" || true
   hd "hl.dsp.window.set_prop({ window = \"$w\", prop = \"no_screen_share\", value = \"1\" })"
 }
 
