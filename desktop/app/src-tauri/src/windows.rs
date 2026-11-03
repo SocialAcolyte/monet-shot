@@ -254,7 +254,11 @@ fn make_pill(app: &AppHandle) -> Option<WebviewWindow> {
         .decorations(false)
         .transparent(true)
         .shadow(false)
-        .resizable(false)
+        // Not on Linux: GTK3 sizes a non-resizable window to its child's
+        // natural size, and the WebKit view's is GTK's 200x200 fallback, so
+        // inner_size and later set_size were ignored (hyprland-run). It's
+        // undecorated and floated/pinned there, so nobody can resize it.
+        .resizable(!cfg!(target_os = "linux"))
         .always_on_top(true)
         .visible_on_all_workspaces(true)
         .skip_taskbar(true)
