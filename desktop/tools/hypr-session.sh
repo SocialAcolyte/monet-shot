@@ -86,14 +86,18 @@ hypr_up() {
     AQ_DRM_DEVICES="$(ls /dev/dri/card* | head -1)" OMARCHY_PATH="$UH/.local/share/omarchy" \
     XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=Hyprland LIBGL_ALWAYS_SOFTWARE=1 \
     Hyprland </dev/null >"$L/hyprland.log" 2>&1 &
-  local sig=""
+  local hpid=$! sig=""
   for _ in $(seq 120); do
-    sig=$(ls "$RT/hypr" 2>/dev/null | head -1)
+    # (|| true: under -e -o pipefail an empty ls would end the script, silently.)
+    sig=$(ls "$RT/hypr" 2>/dev/null | head -1 || true)
     [[ -n $sig && -S $RT/hypr/$sig/.socket.sock ]] && break
+    kill -0 $hpid 2>/dev/null || { sig=""; echo "Hyprland exited" >&2; break; }
     sleep 0.5
   done
-  [[ -n $sig ]] || { echo "Hyprland didn't start:" >&2; tail -30 "$L/hyprland.log" >&2; exit 1; }
-  local wl; wl=$(cd "$RT" && ls wayland-* 2>/dev/null | grep -v lock | head -1)
+  [[ -n $sig ]] || { echo "Hyprland didn't start:" >&2; tail -40 "$L/hyprland.log" >&2
+    tail -60 "$RT"/hypr/*/hyprland.log >&2 2>/dev/null || true
+    tail -60 "$UH"/.cache/hyprland/hyprlandCrashReport*.txt >&2 2>/dev/null || true; exit 1; }
+  local wl; wl=$(cd "$RT" && ls wayland-* 2>/dev/null | grep -v lock | head -1 || true)
   cat >"$L/env" <<EOF
 export XDG_RUNTIME_DIR=$RT
 export DBUS_SESSION_BUS_ADDRESS=unix:path=$RT/bus

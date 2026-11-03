@@ -31,6 +31,8 @@ docker run -d --name $name --platform $platform --privileged --net=host \
   -v "$repo":/src:ro -v "${TARGET:-monetshot-run-target}":/target -v monetshot-run-work:/work -v "$out":/shots \
   monetshot-hypr sleep infinity >/dev/null
 done_() {
+  # Hyprland's own log (stdout stops after the config loads) and crash reports.
+  docker exec $name sh -c 'cp /run/user/1000/hypr/*/hyprland.log /tmp/hypr/hyprland-own.log; cp /home/run/.cache/hyprland/*.txt /tmp/hypr/' >/dev/null 2>&1 || true
   mkdir -p "$out/logs"; docker cp $name:/tmp/hypr/. "$out/logs/" >/dev/null 2>&1 || true
   [[ ${KEEP:-} == 1 ]] || docker rm -f $name >/dev/null
 }
