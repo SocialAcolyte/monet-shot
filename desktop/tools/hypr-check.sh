@@ -287,6 +287,9 @@ cmd_waybar() {
   sleep 5; shot_bar waybar-before; pkill -u run -x waybar 2>/dev/null || true; sleep 1
   u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
   check "install.sh (Omarchy 3) added the Waybar module" grep -q '"custom/monet-shot"' "$h/.config/waybar/config.jsonc"
+  # Diagnostic (this copy only): what Waybar's own follower prints, teed to a file.
+  sed -i 's#"exec": "monet-shot status --waybar --follow"#"exec": "monet-shot status --waybar --follow | tee -a /tmp/hypr/waybar-feed.jsonl"#' "$h/.config/waybar/config.jsonc"
+  : > "$L/waybar-feed.jsonl"; chmod 666 "$L/waybar-feed.jsonl"
   # One Waybar: install.sh restarted Omarchy's (omarchy-restart-waybar); ours replaces it, with its log.
   pkill -u run -x quickshell 2>/dev/null || true; pkill -u run -x waybar 2>/dev/null || true; sleep 1
   u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar.log" 2>&1 &
@@ -343,6 +346,8 @@ cmd_all() {
   cmd_waybar
   cmd_take waybar
   check "Waybar stayed up through the take" pgrep -u run -x waybar
+  note "Waybar's follower printed $(wc -l < "$L/waybar-feed.jsonl") line(s): $(jq -r '.class' "$L/waybar-feed.jsonl" 2>/dev/null | uniq | tr '\n' ' ')"
+  check "Waybar's module got the recording (its own feed)" grep -q '"class":"recording"' "$L/waybar-feed.jsonl"
   tail -5 "$L/waybar.log" | sed 's/^/     waybar: /' | tee -a "$S/results.txt"
   summary
 }
