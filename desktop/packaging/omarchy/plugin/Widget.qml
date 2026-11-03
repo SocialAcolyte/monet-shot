@@ -16,8 +16,19 @@ BarWidget {
   property string label: ""
   property string tip: "Monet Shot"
 
-  implicitWidth: button.implicitWidth
-  implicitHeight: button.implicitHeight
+  // The icon alone sits in the bar's icon slot (BarIconButton is fixed to
+  // it); with the 3-2-1 digit or the time beside it, a text button sized to
+  // its label, as Omarchy's keyboard-layout widget does.
+  readonly property bool withLabel: root.label !== ""
+  readonly property string glyph: root.phase === "paused" ? "󰏤" : "󰑊"
+  readonly property bool lit: root.phase === "recording" || root.phase === "countdown" || root.phase === "paused"
+  implicitWidth: withLabel ? labelButton.implicitWidth : button.implicitWidth
+  implicitHeight: withLabel ? labelButton.implicitHeight : button.implicitHeight
+
+  function press(b) {
+    if (!root.bar) return
+    root.bar.run(b === Qt.RightButton ? "monet-shot pause" : "monet-shot toggle")
+  }
 
   Process {
     id: follow
@@ -41,15 +52,24 @@ BarWidget {
 
   BarIconButton {
     id: button
+    visible: !root.withLabel
     anchors.fill: parent
     bar: root.bar
-    // nf-md-record_rec, nf-md-pause; the countdown digit or the clock beside it.
-    text: (root.phase === "paused" ? "󰏤" : "󰑊") + (root.label ? " " + root.label : "")
-    active: root.phase === "recording" || root.phase === "countdown" || root.phase === "paused"
+    // nf-md-record_rec, nf-md-pause
+    text: root.glyph
+    active: root.lit
     tooltipText: root.tip
-    onPressed: function(b) {
-      if (!root.bar) return
-      root.bar.run(b === Qt.RightButton ? "monet-shot pause" : "monet-shot toggle")
-    }
+    onPressed: function(b) { root.press(b) }
+  }
+
+  WidgetButton {
+    id: labelButton
+    visible: root.withLabel
+    anchors.fill: parent
+    bar: root.bar
+    text: root.glyph + " " + root.label
+    active: root.lit
+    tooltipText: root.tip
+    onPressed: function(b) { root.press(b) }
   }
 }

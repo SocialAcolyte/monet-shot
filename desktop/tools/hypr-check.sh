@@ -59,6 +59,9 @@ cmd_install() {
     local pl; pl=$(u "omarchy-shell shell listPlugins" 2>&1)
     note "omarchy-shell plugins: $(echo "$pl" | tr '\n' ' ' | cut -c1-600)"
     check "the omarchy-shell plugin is enabled" grep -q 'enabled beside the clock' "$S/install-4.txt"
+    sleep 2
+    check "the omarchy-shell plugin is loaded on the bar (listPlugins: active)" \
+      bash -c "runuser -u run -- bash -c '. $L/env; omarchy-shell shell listPlugins' | jq -e '.[] | select(.id==\"monet-shot\") | .enabled and .active' >/dev/null"
   fi
   check "SUPER+ALT+R is bound (Monet Shot: record or stop)" bash -c "jq -e 'select(.description | test(\"Monet Shot\"))' <<<'$b' >/dev/null"
 }
