@@ -32,26 +32,26 @@ system_up() {
   ls /dev/dri/card* >/dev/null 2>&1 || mknods
   # A virtual mouse + keyboard (uinput), so clicks and keys reach evdev as on hardware.
   if [[ -c /dev/uinput ]] && ! pgrep -x ydotoold >/dev/null; then
-    (ydotoold --socket-path=/tmp/.ydotool_socket --socket-own=1000:1000 >"$L/ydotoold.log" 2>&1 &)
+    (ydotoold --socket-path=/tmp/.ydotool_socket --socket-own=1000:1000 </dev/null >"$L/ydotoold.log" 2>&1 &)
     for _ in $(seq 50); do grep -qs ydotoold /proc/bus/input/devices && break; sleep 0.1; done
   fi
   mknods
   # udev: libinput (Hyprland) only takes devices udev has tagged.
   if ! pgrep -x systemd-udevd >/dev/null; then
-    /usr/lib/systemd/systemd-udevd --daemon 2>"$L/udevd.log" || true
-    udevadm trigger --subsystem-match=input --subsystem-match=drm 2>/dev/null || true
-    udevadm settle -t 5 2>/dev/null || true
+    /usr/lib/systemd/systemd-udevd --daemon </dev/null >"$L/udevd.log" 2>&1 || true
+    udevadm trigger --subsystem-match=input --subsystem-match=drm >/dev/null 2>&1 || true
+    timeout 10 udevadm settle -t 5 >/dev/null 2>&1 || true
   fi
-  pgrep -x seatd >/dev/null || (seatd -g seat >"$L/seatd.log" 2>&1 &)
+  pgrep -x seatd >/dev/null || (seatd -g seat </dev/null >"$L/seatd.log" 2>&1 &)
   for _ in $(seq 50); do [[ -S /run/seatd.sock ]] && break; sleep 0.1; done
 }
 
 user_up() {
-  [[ -S $RT/bus ]] || as_run dbus-daemon --session --address="unix:path=$RT/bus" --fork --nopidfile
+  [[ -S $RT/bus ]] || as_run dbus-daemon --session --address="unix:path=$RT/bus" --fork --nopidfile </dev/null >"$L/dbus.log" 2>&1
   export DBUS_SESSION_BUS_ADDRESS="unix:path=$RT/bus"
-  pgrep -u "$U" -x pipewire >/dev/null || (as_run DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" pipewire >"$L/pipewire.log" 2>&1 &)
+  pgrep -u "$U" -x pipewire >/dev/null || (as_run DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" pipewire </dev/null >"$L/pipewire.log" 2>&1 &)
   sleep 0.5
-  pgrep -u "$U" -x wireplumber >/dev/null || (as_run DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" wireplumber >"$L/wireplumber.log" 2>&1 &)
+  pgrep -u "$U" -x wireplumber >/dev/null || (as_run DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" wireplumber </dev/null >"$L/wireplumber.log" 2>&1 &)
 }
 
 # Omarchy's config, laid out as its installer does: the repo in
@@ -85,7 +85,7 @@ hypr_up() {
   as_run DBUS_SESSION_BUS_ADDRESS="unix:path=$RT/bus" LIBSEAT_BACKEND=seatd \
     AQ_DRM_DEVICES="$(ls /dev/dri/card* | head -1)" OMARCHY_PATH="$UH/.local/share/omarchy" \
     XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=Hyprland LIBGL_ALWAYS_SOFTWARE=1 \
-    bash -c 'exec Hyprland >"'"$L"'/hyprland.log" 2>&1' &
+    Hyprland </dev/null >"$L/hyprland.log" 2>&1 &
   local sig=""
   for _ in $(seq 120); do
     sig=$(ls "$RT/hypr" 2>/dev/null | head -1)
@@ -107,13 +107,13 @@ export HOME=$UH
 EOF
   chmod 644 "$L/env"
   # The portals see the compositor through the bus's activation environment.
-  as_run bash -c ". $L/env; dbus-update-activation-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE XDG_SESSION_TYPE"
-  (as_run bash -c ". $L/env; exec /usr/lib/xdg-desktop-portal-hyprland" >"$L/xdph.log" 2>&1 &)
+  timeout 10 runuser -u "$U" -- bash -c ". $L/env; dbus-update-activation-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE XDG_SESSION_TYPE" || echo "dbus-update-activation-environment failed" >&2
+  (as_run bash -c ". $L/env; exec /usr/lib/xdg-desktop-portal-hyprland" </dev/null >"$L/xdph.log" 2>&1 &)
   sleep 1
-  (as_run bash -c ". $L/env; exec /usr/lib/xdg-desktop-portal -r" >"$L/xdp.log" 2>&1 &)
+  (as_run bash -c ". $L/env; exec /usr/lib/xdg-desktop-portal -r" </dev/null >"$L/xdp.log" 2>&1 &)
   sleep 1
   echo "Hyprland $sig on $wl (Omarchy $major)"
-  hyprctl_run monitors -j | jq -c '.[] | {name, width, height, refreshRate, scale, reserved}'
+  timeout 10 runuser -u "$U" -- bash -c ". $L/env; hyprctl monitors -j" | jq -c '.[] | {name, width, height, refreshRate, scale, reserved}'
 }
 
 hyprctl_run() { as_run bash -c ". $L/env; hyprctl \"\$@\"" _ "$@"; }
@@ -128,9 +128,10 @@ stop() {
   rm -rf "$RT/hypr" "$RT"/wayland-*
 }
 
+step() { echo "     [$(date +%T)] $1" >&2; "$1"; }
 case $cmd in
-  start) stop; system_up; user_up; omarchy_config; hypr_up ;;
-  prep) stop; system_up; user_up; omarchy_config; echo "prepared (Omarchy $major), no Hyprland" ;;
+  start) step stop; step system_up; step user_up; step omarchy_config; step hypr_up ;;
+  prep) step stop; step system_up; step user_up; step omarchy_config; echo "prepared (Omarchy $major), no Hyprland" ;;
   stop) stop ;;
   env) cat "$L/env" ;;
   *) echo "usage: $0 start 4|3 | stop | env" >&2; exit 2 ;;

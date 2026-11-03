@@ -39,4 +39,5 @@ x() { docker exec $name "$@"; }
 
 x bash /src/desktop/tools/hypr-build.sh
 : > "$out/results.txt"
-x bash /src/desktop/tools/hypr-check.sh all
+# Bounded, so a hang still leaves the logs (the EXIT trap copies them).
+timeout 40m docker exec $name bash /src/desktop/tools/hypr-check.sh all

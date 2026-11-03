@@ -34,7 +34,7 @@ start_app() { # start_app [VAR=value ...] [-- args]
   local envs=() args=()
   while (( $# )) && [[ $1 != -- ]]; do envs+=("$1"); shift; done; [[ ${1:-} == -- ]] && shift; args=("$@")
   local path='$PATH'; [[ -n ${PATH_NOBAR:-} ]] && path=/usr/local/bin:/usr/bin:/bin
-  u "cd /tmp && PATH=$path exec env ${envs[*]} monet-shot ${args[*]} >>$L/app.log 2>&1" &
+  u "cd /tmp && PATH=$path exec env ${envs[*]} monet-shot ${args[*]} >>$L/app.log 2>&1" </dev/null >/dev/null 2>&1 &
   for _ in $(seq 120); do app_running && return 0; sleep 0.25; done; return 1
 }
 stop_app() { pkill -u run -x monet-shot 2>/dev/null || true; for _ in $(seq 40); do app_running || return 0; sleep 0.25; done; pkill -9 -u run -x monet-shot || true; }
@@ -53,8 +53,8 @@ om() { [[ -f $UH/.config/hypr/hyprland.lua ]] && echo 4 || echo 3; }
 
 cmd_desktop() {
   # A clock in a terminal (moves every frame) and a second window we slide around.
-  u "cd /tmp && exec foot --title clock -e sh -c 'while :; do printf \"\\r%s \" \$(date +%T.%N); sleep 0.05; done'" >/dev/null 2>&1 &
-  u "cd /tmp && exec foot --title mover -e sh -c 'echo Monet Shot on Hyprland; cat'" >/dev/null 2>&1 &
+  u "cd /tmp && exec foot --title clock -e sh -c 'while :; do printf \"\\r%s \" \$(date +%T.%N); sleep 0.05; done'" </dev/null >/dev/null 2>&1 &
+  u "cd /tmp && exec foot --title mover -e sh -c 'echo Monet Shot on Hyprland; cat'" </dev/null >/dev/null 2>&1 &
   for _ in $(seq 40); do (( $(hc "clients -j" | jq '[.[] | select(.class=="foot")] | length') >= 2 )) && break; sleep 0.5; done
   hc "dispatch setfloating title:mover" >/dev/null
   hc "dispatch resizewindowpixel exact 420 160,title:mover" >/dev/null
@@ -74,7 +74,7 @@ cmd_take() {
   stop_app; : > "$L/app.log"
   start_app MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP="${STOP:-5}" "$@" || { fail "$name: the app starts"; return; }
   # What the bar (Waybar module / omarchy-shell plugin) is fed, for the whole take.
-  u "exec timeout 60 monet-shot status --waybar --follow" > "$S/$name-bar.jsonl" 2>/dev/null &
+  u "exec timeout 60 monet-shot status --waybar --follow" </dev/null > "$S/$name-bar.jsonl" 2>/dev/null &
   local follow=$!
   if wait_phase 'countdown|starting|recording' 30; then
     sleep 0.4
@@ -219,7 +219,7 @@ cmd_waybar() {
   u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
   check "install.sh (Omarchy 3) added the Waybar module" grep -q '"custom/monet-shot"' "$h/.config/waybar/config.jsonc"
   pkill -u run -x quickshell 2>/dev/null || true; sleep 1
-  u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" >"$L/waybar.log" 2>&1 &
+  u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar.log" 2>&1 &
   sleep 6
   check "Waybar runs with the module" pgrep -u run -x waybar
 }
@@ -253,6 +253,11 @@ cmd_all() {
   summary
 }
 
+# Every step announces itself, with the time, in the results.
+for f in $(declare -F | awk '$3 ~ /^cmd_/ && $3 != "cmd_all" {print $3}'); do
+  eval "_$f() $(declare -f "$f" | tail -n +2)"
+  eval "$f() { echo \"-- [\$(date +%T)] ${f#cmd_} \$*\" | tee -a \"\$S/results.txt\"; _$f \"\$@\"; }"
+done
 c=${1:-all}; shift || true
 "cmd_$c" "$@"
 [[ $c == all ]] || summary
