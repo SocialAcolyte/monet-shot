@@ -331,7 +331,12 @@ pub fn write_thumb(project: &Project) -> Result<PathBuf, ExportError> {
     let img = render_still(project, thumb_time(project), Some(640))?;
     let rgb: Vec<u8> = img.data.chunks(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
     let path = project.folder.join("thumb.jpg");
-    let tmp = project.folder.join(".thumb.jpg.tmp");
+    // A name of its own per call: two thumbnails of one take can be written at
+    // once (home asks right as a recording stops), and a shared tmp file
+    // would be renamed away under the second.
+    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let n = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let tmp = project.folder.join(format!(".thumb.jpg.{}-{n}.tmp", std::process::id()));
     {
         let f = std::io::BufWriter::new(std::fs::File::create(&tmp)?);
         image::codecs::jpeg::JpegEncoder::new_with_quality(f, 80)
