@@ -258,7 +258,7 @@ fn make_pill(app: &AppHandle) -> Option<WebviewWindow> {
         // natural size, and the WebKit view's is GTK's 200x200 fallback, so
         // inner_size and later set_size were ignored (hyprland-run). It's
         // undecorated and floated/pinned there, so nobody can resize it.
-        .resizable(!cfg!(target_os = "linux"))
+        .resizable(cfg!(target_os = "linux"))
         .always_on_top(true)
         .visible_on_all_workspaces(true)
         .skip_taskbar(true)
