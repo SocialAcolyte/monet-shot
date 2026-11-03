@@ -77,7 +77,9 @@ public static class MsWin {
   [StructLayout(LayoutKind.Sequential)] struct INPUT { public uint type; public UNION u; }
   [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
   [DllImport("user32.dll", SetLastError = true)] static extern uint SendInput(uint n, INPUT[] inputs, int size);
-  [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string cls, string title);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string cls, string title);
+  /// A top-level window by title (from C#: PowerShell would pass "" for the null class).
+  public static IntPtr Find(string title) { return FindWindow(null, title); }
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int attr, out RECT r, int size);
   static uint Send(params INPUT[] a) { return SendInput((uint)a.Length, a, Marshal.SizeOf(typeof(INPUT))); }
@@ -88,10 +90,12 @@ public static class MsWin {
   public static uint Up() { return Send(Mouse(0x0004)); }
   public static uint Click() { return Send(Mouse(0x0002), Mouse(0x0004)); }
   /// Two quick taps of Shift alone: Monet Shot's pause/resume.
-  public static void DoubleShift() {
-    Send(Key(0x10, false)); Thread.Sleep(60); Send(Key(0x10, true));
+  /// Returns how many events Windows took (4 when all went in).
+  public static uint DoubleShift() {
+    uint n = Send(Key(0x10, false)); Thread.Sleep(60); n += Send(Key(0x10, true));
     Thread.Sleep(120);
-    Send(Key(0x10, false)); Thread.Sleep(60); Send(Key(0x10, true));
+    n += Send(Key(0x10, false)); Thread.Sleep(60); n += Send(Key(0x10, true));
+    return n;
   }
   /// A window's visible frame (DWM's, without the invisible resize borders).
   public static RECT Frame(IntPtr h) {
@@ -199,7 +203,7 @@ function Wait-Take([string]$home_, [int]$seconds) {
 
 # A window's rectangle as @{x; y; w; h}, or $null.
 function Window-Rect([string]$title) {
-  $h = [MsWin]::FindWindow($null, $title)
+  $h = [MsWin]::Find($title)
   if ($h -eq [IntPtr]::Zero) { return $null }
   $r = [MsWin]::Frame($h)
   @{ x = $r.Left; y = $r.Top; w = $r.Right - $r.Left; h = $r.Bottom - $r.Top }
@@ -266,6 +270,7 @@ function Stage-Record {
   $t0 = Get-Date
   $clicks = 0
   $started = $null
+  $pillTried = $false
   while (((Get-Date) - $t0).TotalSeconds -lt 20) {
     $s = ((Get-Date) - $t0).TotalSeconds
     $a = $s * 2.0
@@ -276,7 +281,8 @@ function Stage-Record {
     if ($null -ne $started -and $clicks -lt 2 -and $s -gt $started + 2.5 + 0.3 * $clicks) {
       [MsWin]::Click() | Out-Null; $clicks++
     }
-    if ($null -ne $started -and $null -eq $script:pillOff -and $s -gt $started + 2.0) {
+    if ($null -ne $started -and -not $pillTried -and $s -gt $started + 2.0) {
+      $pillTried = $true
       $script:pillOff = Window-Rect 'Monet Shot Pill'
       Write-Host "pill (protection off) at $($script:pillOff | ConvertTo-Json -Compress)"
     }
@@ -481,14 +487,19 @@ function Stage-Install {
     $t0 = Get-Date
     $at = { ((Get-Date) - $t0).TotalSeconds }
     while ((& $at) -lt 1.5) { Start-Sleep -Milliseconds 20 }
-    [MsWin]::DoubleShift(); $pauseAt = & $at
+    $sent1 = [MsWin]::DoubleShift(); $pauseAt = & $at
     while ((& $at) -lt 2.5) { Start-Sleep -Milliseconds 20 }
+    $st1 = Get-Content -Raw (Join-Path $h 'run\status.json') -ErrorAction SilentlyContinue
     $pillOn = Window-Rect 'Monet Shot Pill'
     Write-Host "pill (protection on) at $($pillOn | ConvertTo-Json -Compress)"
     Shot '6-installed-recording-paused' | Out-Null
     while ((& $at) -lt 3.5) { Start-Sleep -Milliseconds 20 }
-    [MsWin]::DoubleShift(); $resumeAt = & $at
-    Write-Host ("double-tapped Shift at {0:N2} s and {1:N2} s after 'recording into'" -f $pauseAt, $resumeAt)
+    $sent2 = [MsWin]::DoubleShift(); $resumeAt = & $at
+    Start-Sleep -Milliseconds 400
+    $st2 = Get-Content -Raw (Join-Path $h 'run\status.json') -ErrorAction SilentlyContinue
+    Write-Host ("double-tapped Shift at {0:N2} s ({1} of 4 events taken) and {2:N2} s ({3} of 4) after 'recording into'" -f $pauseAt, $sent1, $resumeAt, $sent2)
+    Write-Host "status after the first double tap: $st1"
+    Write-Host "status after the second: $st2"
   }
   $reel = Wait-Take $h 60
   Stop-App
