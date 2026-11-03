@@ -87,7 +87,19 @@ pub async fn open_recording(app: AppHandle, path: PathBuf) {
 #[tauri::command]
 pub fn reveal(app: AppHandle, path: PathBuf) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
-    app.opener().reveal_item_in_dir(&path).map_err(|e| e.to_string())
+    let shown = app.opener().reveal_item_in_dir(&path).map_err(|e| e.to_string());
+    // Without an org.freedesktop.FileManager1 (no Nautilus/Dolphin running),
+    // tauri-plugin-opener 2.7 falls back to the OpenURI portal under the
+    // wrong bus name, so it always fails there. Open the folder instead
+    // (xdg-open: the user's file manager, yazi in a terminal, …).
+    #[cfg(target_os = "linux")]
+    if let Err(e) = &shown {
+        crate::log::info(&format!("reveal: {e}; opening the folder instead"));
+        if let Some(dir) = path.parent() {
+            return app.opener().open_path(dir.to_string_lossy(), None::<&str>).map_err(|e| e.to_string());
+        }
+    }
+    shown
 }
 
 #[tauri::command]

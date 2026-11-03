@@ -18,5 +18,8 @@ o.window({ class = "^monet-shot$", title = "^Monet Shot Pill$" }, {
   no_dim = true,
   no_initial_focus = true,
   no_screen_share = true,
+  -- The app's own size: Hyprland otherwise maps it at 200x200 (seen on
+  -- 0.57), and no_screen_share blacks out the whole window, not just the pill.
+  size = { 180, 34 },
   move = { "(monitor_w-window_w)*0.5", 40 },
 })

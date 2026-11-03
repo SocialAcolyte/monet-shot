@@ -11,7 +11,7 @@ FROM ${BASE}
 RUN pacman -Syu --noconfirm --needed \
       rust-wasm hyprland xorg-xwayland xdg-desktop-portal xdg-desktop-portal-hyprland \
       pipewire wireplumber seatd ydotool grim jq socat python foot \
-      quickshell qt6-wayland qt6-svg waybar ttf-jetbrains-mono-nerd \
+      quickshell qt6-wayland qt6-svg waybar ttf-jetbrains-mono-nerd mako \
     && pacman -Scc --noconfirm
 # Omarchy at the tags users run: 4.x (Lua Hyprland, omarchy-shell) and the
 # last 3.x (hyprlang, Waybar).

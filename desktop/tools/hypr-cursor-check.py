@@ -36,8 +36,11 @@ def near(smp, x, y, tol=1.0):
     return abs(smp["x"] * LW - x) <= tol and abs(smp["y"] * LH - y) <= tol
 
 plateaus = []
+after = -1.0  # each spot is looked for after the previous one (the pointer may start on the last)
 for (_, x, y) in spots:
-    hit = [m for m in samples if near(m, x, y)]
+    hit = [m for m in samples if near(m, x, y) and m["t"] > after]
+    if hit:
+        after = hit[0]["t"]
     if hit:
         plateaus.append((x, y, hit[0]["t"], hit[-1]["t"]))
         print(f"     spot {x:g},{y:g}: {len(hit)} samples at t {hit[0]['t']:.2f}–{hit[-1]['t']:.2f}")

@@ -42,6 +42,11 @@ system_up() {
     udevadm trigger --subsystem-match=input --subsystem-match=drm >/dev/null 2>&1 || true
     timeout 10 udevadm settle -t 5 >/dev/null 2>&1 || true
   fi
+  # A system bus (Waybar's modules and others ask for one).
+  if [[ ! -S /run/dbus/system_bus_socket ]]; then
+    mkdir -p /run/dbus; dbus-uuidgen --ensure 2>/dev/null || true
+    dbus-daemon --system --fork </dev/null >"$L/dbus-system.log" 2>&1 || true
+  fi
   pgrep -x seatd >/dev/null || (seatd -g seat </dev/null >"$L/seatd.log" 2>&1 &)
   for _ in $(seq 50); do [[ -S /run/seatd.sock ]] && break; sleep 0.1; done
 }

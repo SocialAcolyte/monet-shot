@@ -4,7 +4,7 @@
 #
 #   hypr-check.sh install        install.sh --yes on the live session; binds/rules loaded
 #   hypr-check.sh desktop        something to record: a terminal and a moving window
-#   hypr-check.sh take <name>    a demo take (MONETSHOT_DEMO_RECORD=1 STOP=5) with
+#   hypr-check.sh take <name>    a demo take (MONETSHOT_DEMO_RECORD=1 STOP=7) with
 #                                pointer moves to known spots + a uinput click;
 #                                checks video, cursor.json, picker, pill, bar JSON
 #   hypr-check.sh bind <name>    SUPER+ALT+R (the installed bind) starts and stops a take
@@ -55,6 +55,11 @@ cmd_install() {
   local b; b=$(hc "binds -j" | jq -c '.[] | select(.key=="R" and .modmask==72)')
   note "bind: $b"
   # Lua binds show their function's id as the arg; ours carries a description.
+  if [[ $(om) == 4 ]]; then
+    local pl; pl=$(u "omarchy-shell shell listPlugins" 2>&1)
+    note "omarchy-shell plugins: $(echo "$pl" | tr '\n' ' ' | cut -c1-600)"
+    check "the omarchy-shell plugin is enabled" grep -q 'enabled beside the clock' "$S/install-4.txt"
+  fi
   check "SUPER+ALT+R is bound (Monet Shot: record or stop)" bash -c "jq -e 'select(.description | test(\"Monet Shot\"))' <<<'$b' >/dev/null"
 }
 om() { [[ -f $UH/.config/hypr/hyprland.lua ]] && echo 4 || echo 3; }
@@ -80,7 +85,7 @@ cmd_take() {
   local before; before=$(cat "$L/picker.log" 2>/dev/null | wc -l)
   local prev; prev=$(newest_take)
   stop_app; reset_app_log
-  start_app MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP="${STOP:-5}" "$@" || { fail "$name: the app starts"; return; }
+  start_app MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP="${STOP:-7}" "$@" || { fail "$name: the app starts"; return; }
   # What the bar (Waybar module / omarchy-shell plugin) is fed, for the whole take.
   u "exec timeout 60 monet-shot status --waybar --follow" </dev/null > "$S/$name-bar.jsonl" 2>/dev/null &
   local follow=$!
@@ -88,6 +93,7 @@ cmd_take() {
     sleep 0.4
     hc "clients -j" > "$S/$name-clients-countdown.json"
     u "grim $S/$name-countdown.png" || true
+    shot_pill "$name-countdown"
   fi
   check "$name: the take starts recording (portal answered)" wait_phase recording 40
   : > "$S/$name-moves.txt"
@@ -150,6 +156,7 @@ check_pill() {
   [[ -n $p ]] || { fail "$name: the pill is mapped during $phase"; return; }
   local mw; mw=$(hc "monitors -j" | jq '.[0].width / .[0].scale')
   check "$name: pill floating + pinned during $phase" jq -e '.floating and .pinned' <<<"$p"
+  check "$name: pill at the rule's size (180x34) during $phase" jq -e '.size == [180, 34]' <<<"$p"
   check "$name: pill at the rule's place (centred, y 40) during $phase" \
     jq -e --argjson mw "$mw" '((.at[0] + .size[0] / 2) - $mw / 2 | fabs) <= 1 and .at[1] == 40' <<<"$p"
 }
@@ -267,6 +274,16 @@ cmd_waybar() {
   check "Waybar runs with the module" pgrep -u run -x waybar
 }
 
+# The pill as a person sees it: grim is a screencopy client, so no_screen_share
+# blacks the pill out of it too. Lift the prop for one shot, then put it back.
+shot_pill() {
+  local w='title:^Monet Shot Pill$'
+  hd "hl.dsp.window.set_prop({ window = \"$w\", prop = \"no_screen_share\", value = \"0\" })"
+  sleep 0.15
+  u "grim -g '600,20 400,80' $S/$1-pill.png" || true
+  hd "hl.dsp.window.set_prop({ window = \"$w\", prop = \"no_screen_share\", value = \"1\" })"
+}
+
 shot_bar() { # shot_bar <name>: the top 40 px, centre half
   u "grim -g '400,0 800x40' $S/$1.png" || true
 }
@@ -276,9 +293,11 @@ cmd_all() {
   bash /src/desktop/tools/hypr-session.sh start 4 2>&1 | tee -a "$S/results.txt"
   if [[ ${PIPESTATUS[0]} != 0 ]]; then fail "Hyprland starts on the vkms card with Omarchy 4's config"; summary; return; fi
   pass "Hyprland starts on the vkms card with Omarchy 4's config"
+  local t=0; until u "omarchy-shell shell ping" >/dev/null 2>&1 || (( t++ > 60 )); do sleep 0.5; done
+  check "omarchy-shell (Quickshell) answers its IPC" u "omarchy-shell shell ping"
   cmd_install; cmd_desktop
   sleep 8; u "grim $S/o4-desktop.png" || true
-  STOP=6 cmd_take o4-take1
+  STOP=8 cmd_take o4-take1
   check_pill o4-take1 countdown
   check "o4-take1: the portal's picker was asked once" test "$(cat "$S/o4-take1-picker-count.txt" 2>/dev/null)" = 1
   cmd_take o4-take2
@@ -294,6 +313,8 @@ cmd_all() {
   pill_in_video nobar
   cmd_waybar
   cmd_take waybar
+  check "Waybar stayed up through the take" pgrep -u run -x waybar
+  tail -5 "$L/waybar.log" | sed 's/^/     waybar: /' | tee -a "$S/results.txt"
   summary
 }
 

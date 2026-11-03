@@ -83,14 +83,22 @@ install4() {
     cp "$share/plugin/manifest.json" "$share/plugin/Widget.qml" "$dest/"
     # Omarchy 4's shell places widgets in left / center / right; ours goes
     # after the clock. Enabling goes through the running shell (its IPC).
-    if command -v omarchy-plugin-validate >/dev/null 2>&1 && ! omarchy-plugin-validate "$dest" >/dev/null; then
-      say "  omarchy-plugin-validate refused it; not enabling"
-    elif command -v omarchy-plugin-enable >/dev/null 2>&1 &&
-         { omarchy-shell -q shell rescanPlugins; true; } &&
-         omarchy-plugin-enable monet-shot --section center --after omarchy.clock >/dev/null 2>&1; then
+    # The shell rescans its plugin folders on request, not at once: try a few times.
+    local why="omarchy-plugin-enable isn't here" enabled=0 refused=0
+    if command -v omarchy-plugin-validate >/dev/null 2>&1 && ! why=$(omarchy-plugin-validate "$dest" 2>&1); then
+      refused=1; say "  omarchy-plugin-validate refused it ($why); not enabling"
+    elif command -v omarchy-plugin-enable >/dev/null 2>&1; then
+      omarchy-shell -q shell rescanPlugins
+      for _ in 1 2 3 4 5; do
+        if why=$(omarchy-plugin-enable monet-shot --section center --after omarchy.clock 2>&1); then enabled=1; break; fi
+        sleep 1
+      done
+    fi
+    if (( enabled )); then
       say "  enabled beside the clock"
-    else
-      say "  copied to $dest; enable it with: omarchy plugin enable monet-shot --section center --after omarchy.clock"
+    elif (( ! refused )); then
+      say "  copied to $dest; not enabled ($why)"
+      say "  enable it with: omarchy plugin enable monet-shot --section center --after omarchy.clock"
     fi
   fi
   reload_hypr
