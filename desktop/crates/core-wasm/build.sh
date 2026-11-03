@@ -11,8 +11,9 @@ out=${1:-$here/pkg}
 target=${2:-web}
 cd "$here/../.."
 cargo build -p monetshot-core-wasm --target wasm32-unknown-unknown --release
+# CARGO_TARGET_DIR moves cargo's output (the PKGBUILD sets it).
 wasm-bindgen --target "$target" --out-dir "$out" --out-name monetshot_core_wasm \
-  target/wasm32-unknown-unknown/release/monetshot_core_wasm.wasm
+  "${CARGO_TARGET_DIR:-target}/wasm32-unknown-unknown/release/monetshot_core_wasm.wasm"
 cat > "$out/package.json" <<JSON
 {
   "name": "monetshot-core-wasm",
@@ -23,4 +24,4 @@ cat > "$out/package.json" <<JSON
   "files": ["monetshot_core_wasm.js", "monetshot_core_wasm.d.ts", "monetshot_core_wasm_bg.wasm", "monetshot_core_wasm_bg.wasm.d.ts"]
 }
 JSON
-ls -la "$out"
+echo "built $out" >&2
