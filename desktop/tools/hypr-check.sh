@@ -8,7 +8,8 @@
 #                                pointer moves to known spots + a uinput click;
 #                                checks video, cursor.json, picker, pill, bar JSON
 #   hypr-check.sh bind <name>    SUPER+ALT+R (the installed bind) starts and stops a take
-#   hypr-check.sh editor <take>  devchecks/editor.js on a copy of the take, then export
+#   hypr-check.sh editor <take> <name>  devchecks/editor.js on a copy of the take, then export
+#   hypr-check.sh home <take> <name>    devchecks/home.js on a library of two copies of the take
 # No -e: a step that breaks is a FAIL line, and the next step still runs.
 set -uo pipefail
 L=/tmp/hypr S=/shots UH=/home/run
@@ -204,6 +205,43 @@ cmd_editor() {
   stop_app
 }
 
+# devchecks/home.js (ms-win's; Windows: windows-run.ps1 stage "home"): Home's
+# cards, Move to Trash, Show in folder, open; in the editor, add a video,
+# Record a new take (the portal again, from inside the editor; stopped here
+# with `monet-shot toggle`), reorder clips, undo, save.
+cmd_home() {
+  local take=$1 name=$2 h=$UH/ms-home
+  rm -rf "$h" "$UH/.local/share/Trash"; mkdir -p "$h/recordings"
+  cp -a "$take" "$h/recordings/Open me.reel"; cp -a "$take" "$h/recordings/Trash me.reel"
+  cp "$take/screen.mp4" "$h/footage.mp4"; chown -R run:run "$h"
+  : > "$L/xdg-open.log"; chmod 666 "$L/xdg-open.log"
+  stop_app; : > "$L/app.log"
+  local before; before=$(cat "$L/picker.log" 2>/dev/null | wc -l)
+  start_app MONETSHOT_HOME="$h" MONETSHOT_DEV_SCRIPT=/work/desktop/app/ui/devchecks/home.js || { fail "$name: the app starts (home)"; return; }
+  hl() { cat "$L/app.log" "$h"/logs/* 2>/dev/null; }
+  wait_log() { local t=$(( $2 * 2 )); while (( t-- > 0 )); do hl | grep -qE "$1" && return 0; sleep 0.5; done; return 1; }
+  wait_log 'home: (ok|FAIL) Home shows' 90 && { sleep 2; u "grim $S/$name-home.png" || true; }
+  if wait_log 'recording into' 180; then
+    sleep 3; u "grim $S/$name-home-new-take.png" || true
+    u "MONETSHOT_HOME=$h monet-shot toggle" </dev/null >/dev/null 2>&1 || true
+  else fail "$name: Record a new take (from the editor) starts recording"; fi
+  local done_=0; wait_log 'home: done [0-9]+ ok, [0-9]+ failed' 180 && done_=1
+  sleep 1; u "grim $S/$name-home-clips.png" || true
+  stop_app
+  hl | grep -E 'home:|recording into|ERROR' | sed 's/^/     /' | tee "$S/$name-home-log.txt" | tee -a "$S/results.txt" >/dev/null
+  note "picker asked $(( $(cat "$L/picker.log" 2>/dev/null | wc -l) - before )) time(s) for the new take"
+  local fails; fails=$(hl | grep -o 'home: FAIL.*')
+  if [[ -n $fails ]]; then while IFS= read -r f; do fail "$name: $f"; done <<<"$fails"; fi
+  if (( ! done_ )); then fail "$name: home.js's editor part finished ('home: done')"
+  elif [[ -z $fails ]]; then pass "$name: home.js, $(hl | grep -c 'home: ok') checks ok"; fi
+  check "$name: Trash me.reel left the library for the freedesktop Trash" \
+    bash -c "[[ ! -e '$h/recordings/Trash me.reel' ]] && ls '$UH/.local/share/Trash/files' | grep -q 'Trash me'"
+  note "xdg-open asked for: $(tr '\n' ' ' < "$L/xdg-open.log")"
+  check "$name: Show in folder handed the recordings folder to the file manager" grep -q recordings "$L/xdg-open.log"
+  local takes; takes=$(ls -d "$h/recordings/Open me.reel"/take-* 2>/dev/null | wc -l)
+  check "$name: Open me.reel has $takes take folders (the video and the new recording added; Windows checks >= 2)" test "$takes" -ge 2
+}
+
 summary() { echo "== $ok ok, $bad failed" | tee -a "$S/results.txt"; }
 
 # Omarchy 3's Waybar module. Hyprland 0.57 (Arch, today) reads only Lua
@@ -242,6 +280,7 @@ cmd_all() {
   check "o4-take2: the restore token skips the picker" test "$(cat "$S/o4-take2-picker-count.txt" 2>/dev/null)" = 0
   cmd_bind o4-bind
   cmd_editor "$(cat "$S/o4-take1-take.txt")" o4
+  cmd_home "$(cat "$S/o4-take1-take.txt")" o4
   # Hyprland with no bar showing our clock (not Omarchy, or its bar off):
   # the pill stays up while recording.
   pkill -u run -x quickshell 2>/dev/null || true

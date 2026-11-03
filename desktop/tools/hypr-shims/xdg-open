@@ -1,0 +1,4 @@
+#!/bin/sh
+# No file manager in the container: note what the app asked to open
+# (tauri-plugin-opener's reveal falls back to xdg-open without FileManager1).
+echo "$(date +%T) $*" >> /tmp/hypr/xdg-open.log
