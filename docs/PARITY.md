@@ -72,25 +72,25 @@ reference and the better Mac citizen today.
 ✅ works, verified on that platform's own hardware · 🟡 built and tested
 (unit tests, this Mac's dev backend, Linux containers, Windows
 cross-compile), not yet run on that platform's hardware · 🚧 in progress ·
-⏳ not built. "CI VM" (Windows): run by the `windows-run` job on GitHub's
+⏳ not built. 🐳 "Hyprland in a container" (Omarchy): run by the `hyprland-run` job, real Hyprland 0.57 on a vkms virtual display with Omarchy's own config, in an Arch container on GitHub's Ubuntu VM; not real hardware (`docs/porting/status/omarchy-run.md`). "CI VM" (Windows): run by the `windows-run` job on GitHub's
 Windows Server 2025 VM, a real desktop without a GPU
 (`docs/porting/status/windows-run.md`). Desktop rows as of 2026-11-03, from
 `docs/porting/status/`.
 
 | Feature | Mac | Linux | Omarchy | Windows |
 |---|---|---|---|---|
-| Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🟡 (Waybar / omarchy-shell) | ✅ ring tap via `monet-shot toggle` → our picker → 3-2-1, and hold-to-stop on the pill with the real mouse (a short click doesn't stop) (CI VM) · 🟡 tray icon + menu not clicked |
-| Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🟡 portal + Hyprland mapping | ✅ display and window (CI VM: WGC on Server 2025; a window picked in our picker records at its own size; the pill is kept out of the take) |
-| Own cursor log + clicks | ✅ | 🟡 evdev/X11 | 🟡 Hyprland IPC | ✅ (CI VM: GetCursorPos samples + WH_MOUSE_LL clicks from injected input) |
-| Pause = clip (double-tap Shift) | ✅ | 🟡 | 🟡 | ✅ (CI VM: injected double-taps with another app focused and the pill up → one cut matching them) |
-| Home (cards, import, reveal, trash) | ✅ | 🟡 | 🟡 | ✅ cards + thumbnails, open by clicking, reveal (Explorer), trash (Recycle Bin) (CI VM; reveal/trash through the context menu's commands, the native menu itself not clicked) · 🟡 import |
-| Editor preview (same frame as the export) | ✅ | 🟡 (WebGL2 in WebKitGTK: 0.06–0.82/255 vs the Mac's frames; Mac HEVC takes play) | 🟡 | ✅ (CI VM, WebView2: 0.04–0.76/255 vs the Mac's frames; an HEVC take plays via the H.264 proxy) |
-| Auto-zoom + zoom editing | ✅ | 🟡 | 🟡 | ✅ (CI VM: auto-zoom from recorded clicks; Z, Delete, undo/redo, drag) |
-| Clips: split, trim, move, add take, undo | ✅ | 🟡 (split/trim/move/undo clicked through in WebKitGTK; add take/footage wired, not clicked through) | 🟡 (as Linux) | ✅ split, trim, move, undo, add a video (its command; the file dialog not driven), record a new take through the picker (CI VM) |
-| Backdrops (colours, 20 paintings, own image, blur) | ✅ | 🟡 | 🟡 | ✅ colours + paintings (CI VM) · 🟡 own image, blur |
-| Cursor looks (5) + tints + ripples | ✅ | 🟡 (tag in Inter Bold) | 🟡 (tag in Inter Bold) | ✅ Dot look in preview + export (CI VM) · 🟡 the rest (tag in Inter Bold) |
-| Hide (blur/pixelate/cover) & crop | ✅ | 🟡 | 🟡 | ✅ (CI VM: hide box drawn and in the export; crop corner dragged) |
+| Tray/menu bar ring, 3-2-1, hold-to-stop | ✅ | 🟡 | 🐳 Hyprland in a container: the omarchy-shell widget (4.0.6) shows the 3-2-1 and the time; SUPER+ALT+R pressed (uinput) starts and stops · the Waybar module (3.8.4) shows them too; the pill floats and pins at 180x34, top centre, and stays out of the take with a bar up · 🟡 the widget itself not clicked | ✅ ring tap via `monet-shot toggle` → our picker → 3-2-1, and hold-to-stop on the pill with the real mouse (a short click doesn't stop) (CI VM) · 🟡 tray icon + menu not clicked |
+| Record display / window | ✅ | 🟡 portal (tests on Arch + Ubuntu; no portal session run) | 🐳 Hyprland in a container: display through the ScreenCast portal (xdph, Omarchy's xdph.conf; the picker answered by a script), restore token skips the picker after the first take · 🟡 window pick | ✅ display and window (CI VM: WGC on Server 2025; a window picked in our picker records at its own size; the pill is kept out of the take) |
+| Own cursor log + clicks | ✅ | 🟡 evdev/X11 | 🐳 Hyprland in a container: Hyprland IPC pointer, matches the picture to 0 px; uinput clicks via evdev | ✅ (CI VM: GetCursorPos samples + WH_MOUSE_LL clicks from injected input) |
+| Pause = clip (double-tap Shift) | ✅ | 🟡 | 🐳 Hyprland in a container: double-tap Shift (uinput keyboard) pauses and resumes | ✅ (CI VM: injected double-taps with another app focused and the pill up → one cut matching them) |
+| Home (cards, import, reveal, trash) | ✅ | 🟡 | 🐳 Hyprland in a container: cards + thumbnails, open by clicking, trash (freedesktop Trash), reveal (folder via xdg-open when there's no FileManager1) · 🟡 import | ✅ cards + thumbnails, open by clicking, reveal (Explorer), trash (Recycle Bin) (CI VM; reveal/trash through the context menu's commands, the native menu itself not clicked) · 🟡 import |
+| Editor preview (same frame as the export) | ✅ | 🟡 (WebGL2 in WebKitGTK: 0.06–0.82/255 vs the Mac's frames; Mac HEVC takes play) | 🟡 (as Linux) · 🐳 Hyprland in a container: the editor runs (WebKitGTK, editor.js 27/27) | ✅ (CI VM, WebView2: 0.04–0.76/255 vs the Mac's frames; an HEVC take plays via the H.264 proxy) |
+| Auto-zoom + zoom editing | ✅ | 🟡 | 🐳 Hyprland in a container: Z, Delete, undo/redo, drag (editor.js) | ✅ (CI VM: auto-zoom from recorded clicks; Z, Delete, undo/redo, drag) |
+| Clips: split, trim, move, add take, undo | ✅ | 🟡 (split/trim/move/undo clicked through in WebKitGTK; add take/footage wired, not clicked through) | 🐳 Hyprland in a container: split, trim, move, undo, add a video, record a new take through the portal (home.js) | ✅ split, trim, move, undo, add a video (its command; the file dialog not driven), record a new take through the picker (CI VM) |
+| Backdrops (colours, 20 paintings, own image, blur) | ✅ | 🟡 | 🐳 Hyprland in a container: colours + paintings · 🟡 own image, blur | ✅ colours + paintings (CI VM) · 🟡 own image, blur |
+| Cursor looks (5) + tints + ripples | ✅ | 🟡 (tag in Inter Bold) | 🐳 Hyprland in a container: Dot look · 🟡 the rest (tag in Inter Bold) | ✅ Dot look in preview + export (CI VM) · 🟡 the rest (tag in Inter Bold) |
+| Hide (blur/pixelate/cover) & crop | ✅ | 🟡 | 🐳 Hyprland in a container: hide box drawn, crop corner dragged | ✅ (CI VM: hide box drawn and in the export; crop corner dragged) |
 | Camera: over video, just me, with screen | ✅ | 🟡 (no live camera yet) | 🟡 (no live camera yet) | 🟡 (no live camera yet) |
 | Music browser + ducking | 🚧 WIP | 🟡 (seen running in WebKitGTK; preview audio via media_url) | 🟡 | 🟡 |
-| Export MP4 | ✅ | 🟡 (matches the Mac's export, run on macOS; in-app export run in the Arch container) | 🟡 | ✅ (CI VM: Ctrl+E in the editor → H.264 1080p, ffprobed) |
-| Install | Homebrew | 🟡 AppImage/deb (config) | 🟡 PKGBUILD (srcinfo ok) + install.sh (tested on real 3.8.4 / 4.x configs) | ✅ NSIS (CI VM: silent install, record with the installed exe and its ffmpeg sidecar, silent uninstall) |
+| Export MP4 | ✅ | 🟡 (matches the Mac's export, run on macOS; in-app export run in the Arch container) | 🐳 Hyprland in a container: Ctrl+E in the editor → H.264 1080p, ffprobed | ✅ (CI VM: Ctrl+E in the editor → H.264 1080p, ffprobed) |
+| Install | Homebrew | 🟡 AppImage/deb (config) | 🐳 Hyprland in a container: install.sh on a live Omarchy 4.0.6 session (rules, SUPER+ALT+R, plugin enabled; the pill floats, pins, 180x34 top centre) and 3.8.4's Waybar module · 🟡 PKGBUILD (srcinfo ok), not installed from | ✅ NSIS (CI VM: silent install, record with the installed exe and its ffmpeg sidecar, silent uninstall) |

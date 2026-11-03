@@ -1,0 +1,250 @@
+== Omarchy v4.0.6, Hyprland 0.57.0 built from branch v0.57.0 at commit 0aa6745f705f2c4b0a5004eb019ef76e5bbdb426 clean (VERSION: bump to 0.57.0).
+     [15:16:42] stop
+     [15:16:42] system_up
+     [15:16:42] user_up
+     [15:16:43] omarchy_config
+     [15:16:43] hypr_up
+Hyprland 0aa6745f705f2c4b0a5004eb019ef76e5bbdb426_1793719003_375029135 on wayland-1 (Omarchy 4)
+{"name":"Virtual-1","width":1600,"height":900,"refreshRate":60.00000,"scale":1,"reserved":[0,26,0,0]}
+ok   Hyprland starts on the vkms card with Omarchy 4's config
+ok   omarchy-shell (Quickshell) answers its IPC
+-- [15:16:46] install 
+ok   install.sh ran without errors on Omarchy 4
+ok   Hyprland has no config errors
+     
+     
+     bind: {"locked":false,"mouse":false,"release":false,"repeat":false,"longPress":false,"non_consuming":false,"auto_consuming":false,"has_description":true,"modmask":72,"submap":"","submap_universal":"false","key":"R","keycode":0,"catch_all":false,"description":"Monet Shot: record or stop","allow_input_capture":false,"dispatcher":"HL.Dispatcher(exec_cmd)","arg":"6"}
+     omarchy-shell plugins: [{"id":"omarchy.active-window","name":"Active window","kinds":["bar-widget"],"enabled":false,"active":false,"canDisable":true,"firstParty":true,"clonedFrom":""},{"id":"omarchy.agents","name":"Agents","kinds":["bar-widget"],"enabled":true,"active":false,"canDisable":true,"firstParty":true,"clonedFrom":""},{"id":"omarchy.audio","name":"Audio","kinds":["bar-widget"],"enabled":true,"active":false,"canDisable":true,"firstParty":true,"clonedFrom":""},{"id":"omarchy.background","name":"Background","kinds":["service"],"enabled":true,"active":false,"canDisable":true,"firstParty":true,"clonedFrom":""},{
+ok   the omarchy-shell plugin is enabled
+ok   the omarchy-shell plugin is on the bar (listPlugins: enabled)
+ok   SUPER+ALT+R is bound (Monet Shot: record or stop)
+-- [15:16:50] desktop 
+     {"class":"foot","title":"clock","at":[12,38],"size":[1576,850],"floating":false}
+     {"class":"foot","title":"mover","at":[600,500],"size":[420,160],"floating":true}
+-- [15:16:59] take o4-take1 WAYLAND_DEBUG=1
+ok   o4-take1: the take starts recording (portal answered)
+ok   o4-take1: a new recording folder
+     picker asked 1 time(s) for this take
+     cursor.json
+     edit.json
+     meta.json
+     screen.mp4
+     {"s":{"codec_name":"h264","width":1600,"height":900,"avg_frame_rate":"60/1","nb_read_frames":"490"},"d":"8.166667"}
+ok   o4-take1: screen.mp4 plays (decodes 490 frames)
+     meta {"pixelWidth":1600,"pixelHeight":900,"pointScale":1,"duration":8.166667,"source":"display","video":"screen.mp4"}
+     19 pointer samples over 7.68 s, 1 click(s); recorded area 1600x900 px at scale 1 = 1600x900 logical
+     spot 600,500: 2 samples at t 0.30–0.81
+     spot 200,150: 2 samples at t 0.97–1.48
+     spot 1400,200: 2 samples at t 1.70–2.22
+     spot 1400,750: 2 samples at t 2.48–3.01
+     spot 300,700: 2 samples at t 3.13–3.64
+     spot 800,450: 8 samples at t 3.90–7.68
+     spots in order: True
+     uinput click at 800,450: logged at t 4.52 (clicks: [(800, 450, 4.52)])
+     frame at t 0.56: window corner seen at 600,500 px, cursor.json says 600,500 px (off by 0,0) ok
+ok   o4-take1: cursor.json lines up with Hyprland's pointer and the picture
+     wl: [15:16:59.884983] {Default Queue}  -> xdg_toplevel#34.set_title("Monet Shot")
+     wl: [15:17:00.069907] {Default Queue}  -> xdg_toplevel#34.set_min_size(620, 440)
+     wl: [15:17:00.069912] {Default Queue}  -> xdg_toplevel#34.set_max_size(0, 0)
+     wl: [15:17:00.069918] {Default Queue}  -> xdg_surface#33.set_window_geometry(0, 0, 980, 680)
+     wl: [15:17:00.087158] {Default Queue}  -> xdg_toplevel#34.set_min_size(620, 440)
+     wl: [15:17:00.087161] {Default Queue}  -> xdg_toplevel#34.set_max_size(0, 0)
+     wl: [15:17:00.087164] {Default Queue}  -> xdg_surface#33.set_window_geometry(0, 0, 980, 680)
+     wl: [15:17:00.453257] {Default Queue}  -> xdg_toplevel#34.set_min_size(620, 440)
+     wl: [15:17:00.453261] {Default Queue}  -> xdg_toplevel#34.set_max_size(0, 0)
+     wl: [15:17:00.453264] {Default Queue}  -> xdg_surface#33.set_window_geometry(0, 0, 980, 680)
+     wl: [15:17:00.529480] {Default Queue}  -> xdg_toplevel#34.set_min_size(620, 440)
+     wl: [15:17:00.529483] {Default Queue}  -> xdg_toplevel#34.set_max_size(0, 0)
+     wl: [15:17:00.529487] {Default Queue}  -> xdg_surface#33.set_window_geometry(0, 0, 980, 680)
+     wl: [15:17:01.075154] {Default Queue}  -> xdg_toplevel#48.set_title("Monet Shot Pill")
+     wl: [15:17:01.078381] {Default Queue}  -> xdg_toplevel#48.set_min_size(0, 0)
+     wl: [15:17:01.078383] {Default Queue}  -> xdg_toplevel#48.set_max_size(0, 0)
+     wl: [15:17:01.078387] {Default Queue}  -> xdg_surface#36.set_window_geometry(0, 0, 180, 34)
+     wl: [15:17:01.085354] {Default Queue}  -> xdg_toplevel#34.set_min_size(620, 440)
+     wl: [15:17:01.085357] {Default Queue}  -> xdg_toplevel#34.set_max_size(0, 0)
+     wl: [15:17:01.085361] {Default Queue}  -> xdg_surface#33.set_window_geometry(0, 0, 980, 680)
+     wl: [15:17:01.133431] {Default Queue}  -> xdg_toplevel#48.set_min_size(0, 0)
+     wl: [15:17:01.133434] {Default Queue}  -> xdg_toplevel#48.set_max_size(0, 0)
+     wl: [15:17:01.133437] {Default Queue}  -> xdg_surface#36.set_window_geometry(0, 0, 180, 34)
+     wl: [15:17:01.234370] {Default Queue}  -> xdg_toplevel#48.set_min_size(0, 0)
+     wl: [15:17:01.234373] {Default Queue}  -> xdg_toplevel#48.set_max_size(0, 0)
+     wl: [15:17:01.234377] {Default Queue}  -> xdg_surface#36.set_window_geometry(0, 0, 180, 34)
+     wl: [15:17:01.291312] {Default Queue}  -> xdg_toplevel#48.set_min_size(0, 0)
+     wl: [15:17:01.291315] {Default Queue}  -> xdg_toplevel#48.set_max_size(0, 0)
+     wl: [15:17:01.291322] {Default Queue}  -> xdg_surface#36.set_window_geometry(0, 0, 180, 34)
+     wl: [15:17:01.640893] {Default Queue}  -> xdg_toplevel#48.set_min_size(0, 0)
+     pill during countdown: {"at":[710,40],"size":[180,34],"floating":true,"pinned":true,"mapped":true,"hidden":false,"workspace":"1"}
+ok   o4-take1: pill floating + pinned during countdown
+ok   o4-take1: pill at the rule's size (180x34) during countdown
+ok   o4-take1: pill at the rule's place (centred, y 40) during countdown
+ok   o4-take1: the portal's picker was asked once
+-- [15:17:16] take o4-take2
+ok   o4-take2: the take starts recording (portal answered)
+ok   o4-take2: a new recording folder
+     picker asked 0 time(s) for this take
+     cursor.json
+     edit.json
+     meta.json
+     screen.mp4
+     {"s":{"codec_name":"h264","width":1600,"height":900,"avg_frame_rate":"60/1","nb_read_frames":"427"},"d":"7.116667"}
+ok   o4-take2: screen.mp4 plays (decodes 427 frames)
+     meta {"pixelWidth":1600,"pixelHeight":900,"pointScale":1,"duration":7.116667,"source":"display","video":"screen.mp4"}
+     17 pointer samples over 6.72 s, 1 click(s); recorded area 1600x900 px at scale 1 = 1600x900 logical
+     spot 600,500: 2 samples at t 0.41–0.92
+     spot 200,150: 2 samples at t 1.19–1.70
+     spot 1400,200: 2 samples at t 1.86–2.39
+     spot 1400,750: 2 samples at t 2.60–3.14
+     spot 300,700: 2 samples at t 3.28–3.78
+     spot 800,450: 6 samples at t 4.10–6.72
+     spots in order: True
+     uinput click at 800,450: logged at t 4.71 (clicks: [(800, 450, 4.71)])
+     frame at t 0.67: window corner seen at 600,500 px, cursor.json says 600,500 px (off by 0,0) ok
+ok   o4-take2: cursor.json lines up with Hyprland's pointer and the picture
+ok   o4-take2: the restore token skips the picker
+-- [15:17:31] bind o4-bind
+     SUPER+ALT+R: {"dispatcher":"HL.Dispatcher(exec_cmd)","arg":"6","description":"Monet Shot: record or stop"}
+     keyboard: ydotoold-virtual-device
+ok   o4-bind: pressing SUPER+ALT+R starts a take
+ok   o4-bind: double-tap Shift pauses (status: paused)
+ok   o4-bind: double-tap Shift again resumes
+ok   o4-bind: pressing SUPER+ALT+R again stops it
+ok   o4-bind: the take is saved
+     picker asked 0 time(s)
+-- [15:17:47] editor /home/run/Videos/MonetShot/2026-11-03 15.17.04.reel o4
+     check: opened check-2026-11-03 15.17.04: 1 take(s), 1 clip(s), 7.68 s
+     check: ok Z adds a selected zoom
+     check: ok Delete removes the selected zoom
+     check: ok Ctrl+Z brings it back
+     check: ok Ctrl+Shift+Z removes it again
+     check: ok S splits the clip at the playhead
+     check: ok undo the split
+     check: ok Shift+→ steps a second (1.00 → 2.00)
+     check: ok ← steps a frame
+     check: ok the ruler scrubs (t = 3.84 of 7.68)
+     check: ok dragging a clip's end shortens it (7.68 → 7.33 s)
+     check: ok undo the trim
+     check: ok a zoom moves when dragged
+     check: ok B opens framing
+     check: ok dragging on the preview draws a hide box
+     check: ok R switches to crop
+     check: ok dragging the crop's corner crops ({"x":0,"y":0,"w":0.9287489597626449,"h":0.915511690574768})
+     check: ok Esc leaves framing
+     check: ok the Paper swatch sets the backdrop
+     check: ok the picture swatch picks a painting (backdrop-monet-water-lilies.jpg)
+     check: ok a painting tile becomes the backdrop (backdrop-monet-parliament-sunset.jpg)
+     check: ok the Padding slider sets the padding
+     check: ok the Dot tile sets the cursor look
+     check: ok Output 1080p
+     check: ok Space plays and pauses (1.74 s after 2 s)
+     check: ok edit.json is saved
+     check: ok Ctrl+E starts the export
+     check: ok the export finishes (/home/run/Videos/check-2026-11-03 15.17.04.mp4 in 66 s)
+     check: done 27 ok, 0 failed
+ok   o4: editor checks all pass (check: done 27 ok, 0 failed)
+     export: /home/run/Videos/check-2026-11-03 15.17.04.mp4 h264,1920,1080 7.683008 
+-- [15:19:13] home /home/run/Videos/MonetShot/2026-11-03 15.17.04.reel o4
+     MESA: error: ZINK: vkCreateInstance failed (VK_ERROR_INCOMPATIBLE_DRIVER)
+     1793719154.699 INFO [home] home: ok Home shows both recordings (2 cards)
+     1793719154.822 INFO [home] home: ok every card shows its thumbnail
+     1793719154.942 INFO [home] home: ok Move to Trash removes the card (/home/run/ms-home/recordings/Trash me.reel)
+     1793719154.966 INFO [home] home: ok Show in folder opens the file manager (/home/run/ms-home/recordings/Open me.reel)
+     1793719155.969 INFO [home] home: clicking the Open me card
+     1793719158.563 INFO [editor-1] home: ok clicking a card opens it in the editor (Open me)
+     1793719158.639 INFO [editor-1] home: ok Add a video adds a take and a clip (1→2 takes, 1→2 clips)
+     1793719159.395 INFO [editor-1] home: recording a new take
+     1793719162.844 INFO recording into /home/run/ms-home/recordings/Open me.reel/take-3
+     1793719167.322 INFO [editor-1] home: ok Record a new take adds its clips (2→3 takes, 2→3 clips)
+     1793719168.226 INFO [editor-1] home: ok dragging a clip's middle reorders it (1,2,0)
+     1793719168.948 INFO [editor-1] home: ok undo the move
+     1793719168.955 INFO [editor-1] home: ok the takes are saved (3 takes)
+     1793719168.956 INFO [editor-1] home: done 6 ok, 0 failed
+     1793719154.699 INFO [home] home: ok Home shows both recordings (2 cards)
+     1793719154.822 INFO [home] home: ok every card shows its thumbnail
+     1793719154.942 INFO [home] home: ok Move to Trash removes the card (/home/run/ms-home/recordings/Trash me.reel)
+     1793719154.966 INFO [home] home: ok Show in folder opens the file manager (/home/run/ms-home/recordings/Open me.reel)
+     1793719155.969 INFO [home] home: clicking the Open me card
+     1793719158.563 INFO [editor-1] home: ok clicking a card opens it in the editor (Open me)
+     1793719158.639 INFO [editor-1] home: ok Add a video adds a take and a clip (1→2 takes, 1→2 clips)
+     1793719159.395 INFO [editor-1] home: recording a new take
+     1793719162.844 INFO recording into /home/run/ms-home/recordings/Open me.reel/take-3
+     1793719167.322 INFO [editor-1] home: ok Record a new take adds its clips (2→3 takes, 2→3 clips)
+     1793719168.226 INFO [editor-1] home: ok dragging a clip's middle reorders it (1,2,0)
+     1793719168.948 INFO [editor-1] home: ok undo the move
+     1793719168.955 INFO [editor-1] home: ok the takes are saved (3 takes)
+     1793719168.956 INFO [editor-1] home: done 6 ok, 0 failed
+     picker asked 1 time(s) for the new take
+ok   o4: home.js, 20 checks ok
+ok   o4: Trash me.reel left the library for the freedesktop Trash
+     xdg-open asked for: 15:19:14 /home/run/ms-home/recordings 
+ok   o4: Show in folder handed the recordings folder to the file manager
+ok   o4: Open me.reel has 2 take folders (the video and the new recording added; Windows checks >= 2)
+-- [15:19:30] take nobar
+ok   nobar: the take starts recording (portal answered)
+ok   nobar: a new recording folder
+     picker asked 0 time(s) for this take
+     cursor.json
+     edit.json
+     meta.json
+     screen.mp4
+     {"s":{"codec_name":"h264","width":1600,"height":900,"avg_frame_rate":"60/1","nb_read_frames":"427"},"d":"7.116667"}
+ok   nobar: screen.mp4 plays (decodes 427 frames)
+     meta {"pixelWidth":1600,"pixelHeight":900,"pointScale":1,"duration":7.116667,"source":"display","video":"screen.mp4"}
+     18 pointer samples over 6.86 s, 1 click(s); recorded area 1600x900 px at scale 1 = 1600x900 logical
+     spot 600,500: 2 samples at t 0.12–0.65
+     spot 200,150: 2 samples at t 0.86–1.38
+     spot 1400,200: 2 samples at t 1.62–2.13
+     spot 1400,750: 2 samples at t 2.32–2.83
+     spot 300,700: 2 samples at t 3.00–3.51
+     spot 800,450: 7 samples at t 3.72–6.86
+     spots in order: True
+     uinput click at 800,450: logged at t 4.34 (clicks: [(800, 450, 4.34)])
+     frame at t 0.38: window corner seen at 600,500 px, cursor.json says 600,500 px (off by 0,0) ok
+ok   nobar: cursor.json lines up with Hyprland's pointer and the picture
+     pill during recording: {"at":[710,40],"size":[180,34],"floating":true,"pinned":true,"mapped":true,"hidden":false,"workspace":"1"}
+ok   nobar: pill floating + pinned during recording
+ok   nobar: pill at the rule's size (180x34) during recording
+ok   nobar: pill at the rule's place (centred, y 40) during recording
+     video where the pill is on screen: mean luma 0.0/255 (pill-in-video.png vs pill-on-screen.png)
+-- [15:19:45] waybar 
+     Omarchy 3: hyprlang + Waybar
+     • Window rules + SUPER ALT R to record / stop
+       added to /home/run3/.config/hypr/hyprland.conf
+     • Waybar module (click: record / stop, right-click: pause)
+       added to /home/run3/.config/waybar/config.jsonc
+       added to /home/run3/.config/waybar/style.css
+     Done.
+ok   install.sh (Omarchy 3) added the Waybar module
+ok   Waybar runs with the module
+     modules-center: ['clock', 'custom/weather', 'custom/update', 'custom/voxtype', 'custom/screenrecording-indicator', 'custom/monet-shot', 'custom/idle-indicator', 'custom/notification-silencing-indicator']
+     Waybar's followers: 12718 timeout 60 monet-shot status --waybar --follow;12722 monet-shot status --waybar --follow;13194 /usr/local/bin/monet-shot status --waybar --follow;14960 /usr/local/bin/monet-shot status --waybar --follow;15572 sh -c monet-shot status --waybar --follow | tee -a /tmp/hypr/waybar-feed.jsonl;15578 monet-shot status --waybar --follow;15880 /usr/local/bin/monet-shot status --waybar --follow;
+-- [15:20:00] take waybar
+ok   waybar: the take starts recording (portal answered)
+ok   waybar: a new recording folder
+     picker asked 0 time(s) for this take
+     cursor.json
+     edit.json
+     meta.json
+     screen.mp4
+     {"s":{"codec_name":"h264","width":1600,"height":900,"avg_frame_rate":"60/1","nb_read_frames":"431"},"d":"7.183333"}
+ok   waybar: screen.mp4 plays (decodes 431 frames)
+     meta {"pixelWidth":1600,"pixelHeight":900,"pointScale":1,"duration":7.183333,"source":"display","video":"screen.mp4"}
+     17 pointer samples over 6.77 s, 1 click(s); recorded area 1600x900 px at scale 1 = 1600x900 logical
+     spot 600,500: 2 samples at t 0.23–0.75
+     spot 200,150: 2 samples at t 0.90–1.41
+     spot 1400,200: 2 samples at t 1.58–2.09
+     spot 1400,750: 2 samples at t 2.38–2.90
+     spot 300,700: 2 samples at t 3.15–3.67
+     spot 800,450: 6 samples at t 4.13–6.77
+     spots in order: True
+     uinput click at 800,450: logged at t 5.16 (clicks: [(800, 450, 5.16)])
+     frame at t 0.49: window corner seen at 600,500 px, cursor.json says 600,500 px (off by 0,0) ok
+ok   waybar: cursor.json lines up with Hyprland's pointer and the picture
+ok   Waybar stayed up through the take
+     Waybar's follower printed 16 line(s): idle off idle countdown recording saving idle 
+ok   Waybar's module got the recording (its own feed)
+     waybar: ** (waybar:15550): WARNING **: 15:20:13.234: Status Notifier Item with bus name ':1.146' and object path '/org/ayatana/NotificationItem/tray_icon_tray_app_monetshot' is already registered
+     waybar: 
+     waybar: ** (waybar:15550): WARNING **: 15:20:16.688: Status Notifier Item with bus name ':1.146' and object path '/org/ayatana/NotificationItem/tray_icon_tray_app_monetshot' is already registered
+     waybar: 
+     waybar: ** (waybar:15550): WARNING **: 15:20:23.708: Status Notifier Item with bus name ':1.146' and object path '/org/ayatana/NotificationItem/tray_icon_tray_app_monetshot' is already registered
+== 45 ok, 0 failed
