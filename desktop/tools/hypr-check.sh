@@ -268,7 +268,8 @@ cmd_waybar() {
   local p3=$h/.local/share/omarchy/bin:/usr/local/bin:/usr/bin:/bin
   u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
   check "install.sh (Omarchy 3) added the Waybar module" grep -q '"custom/monet-shot"' "$h/.config/waybar/config.jsonc"
-  pkill -u run -x quickshell 2>/dev/null || true; sleep 1
+  # One Waybar: install.sh restarted Omarchy's (omarchy-restart-waybar); ours replaces it, with its log.
+  pkill -u run -x quickshell 2>/dev/null || true; pkill -u run -x waybar 2>/dev/null || true; sleep 1
   u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar.log" 2>&1 &
   sleep 6
   check "Waybar runs with the module" pgrep -u run -x waybar
@@ -286,6 +287,7 @@ shot_pill() {
 
 shot_bar() { # shot_bar <name>: the top 40 px, centre half
   u "grim -g '400,0 800x40' $S/$1.png" || true
+  u "grim -s 3 -g '700,0 300x30' $S/$1-zoom.png" || true
 }
 
 cmd_all() {
