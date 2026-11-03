@@ -1,0 +1,3 @@
+#!/bin/bash
+# No systemd in the container; Omarchy's session calls are no-ops here.
+exit 0

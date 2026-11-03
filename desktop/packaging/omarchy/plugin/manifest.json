@@ -15,7 +15,7 @@
     "description": "Click to record or stop; right-click to pause. Shows the 3-2-1 and the recorded time.",
     "category": "Capture",
     "aliases": ["monet-shot", "record", "screen-recorder"],
-    "defaultSection": "centerEnd",
+    "defaultSection": "center",
     "allowMultiple": false
   }
 }

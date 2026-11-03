@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+# Inside the hypr container, as root, with a session up (hypr-session.sh):
+# the proofs, one step per subcommand, results and screenshots in /shots.
+#
+#   hypr-check.sh install        install.sh --yes on the live session; binds/rules loaded
+#   hypr-check.sh desktop        something to record: a terminal and a moving window
+#   hypr-check.sh take <name>    a demo take (MONETSHOT_DEMO_RECORD=1 STOP=5) with
+#                                pointer moves to known spots + a uinput click;
+#                                checks video, cursor.json, picker, pill, bar JSON
+#   hypr-check.sh bind <name>    SUPER+ALT+R (the installed bind) starts and stops a take
+#   hypr-check.sh editor <take>  devchecks/editor.js on a copy of the take, then export
+# No -e: a step that breaks is a FAIL line, and the next step still runs.
+set -uo pipefail
+L=/tmp/hypr S=/shots UH=/home/run
+mkdir -p "$S"
+ok=0 bad=0
+pass() { ok=$((ok+1)); echo "ok   $*" | tee -a "$S/results.txt"; }
+fail() { bad=$((bad+1)); echo "FAIL $*" | tee -a "$S/results.txt"; }
+check() { local name=$1; shift; if "$@"; then pass "$name"; else fail "$name"; fi; }
+note() { echo "     $*" | tee -a "$S/results.txt"; }
+u() { runuser -u run -- bash -c ". $L/env; $1"; }
+hc() { u "hyprctl $*"; }
+library() { echo "$UH/Videos/MonetShot"; }
+newest_take() { ls -td "$(library)"/*/ 2>/dev/null | head -1 | sed 's:/$::'; }
+status_json() { u "monet-shot status" 2>/dev/null; }
+phase() { status_json | jq -r '.phase // "off"' 2>/dev/null; }
+wait_phase() { # wait_phase <regex> <seconds>
+  local t=$(( $2 * 4 ))
+  while (( t-- > 0 )); do [[ $(phase) =~ $1 ]] && return 0; sleep 0.25; done; return 1
+}
+app_running() { pgrep -u run -x monet-shot >/dev/null; }
+
+start_app() { # start_app [VAR=value ...] [-- args]
+  local envs=() args=()
+  while (( $# )) && [[ $1 != -- ]]; do envs+=("$1"); shift; done; [[ ${1:-} == -- ]] && shift; args=("$@")
+  local path='$PATH'; [[ -n ${PATH_NOBAR:-} ]] && path=/usr/local/bin:/usr/bin:/bin
+  u "cd /tmp && PATH=$path exec env ${envs[*]} monet-shot ${args[*]} >>$L/app.log 2>&1" &
+  for _ in $(seq 120); do app_running && return 0; sleep 0.25; done; return 1
+}
+stop_app() { pkill -u run -x monet-shot 2>/dev/null || true; for _ in $(seq 40); do app_running || return 0; sleep 0.25; done; pkill -9 -u run -x monet-shot || true; }
+
+cmd_install() {
+  local share=/src/desktop/packaging/omarchy
+  u "bash $share/install.sh --yes" 2>&1 | tee "$S/install-$(om).txt"
+  check "install.sh ran without errors on Omarchy $(om)" test "${PIPESTATUS[0]}" -eq 0
+  check "Hyprland has no config errors" bash -c "[[ \$(runuser -u run -- bash -c '. $L/env; hyprctl configerrors') =~ ^(|no errors)$'\n'?$ ]]"
+  hc "configerrors" | sed 's/^/     /' | tee -a "$S/results.txt"
+  local b; b=$(hc "binds -j" | jq -c '.[] | select(.key=="R" and .modmask==72)')
+  note "bind: $b"
+  check "SUPER+ALT+R is bound to monet-shot toggle" bash -c "jq -e '.arg | test(\"monet-shot toggle\")' <<<'$b' >/dev/null"
+}
+om() { [[ -f $UH/.config/hypr/hyprland.lua ]] && echo 4 || echo 3; }
+
+cmd_desktop() {
+  # A clock in a terminal (moves every frame) and a second window we slide around.
+  u "cd /tmp && exec foot --title clock -e sh -c 'while :; do printf \"\\r%s \" \$(date +%T.%N); sleep 0.05; done'" >/dev/null 2>&1 &
+  u "cd /tmp && exec foot --title mover -e sh -c 'echo Monet Shot on Hyprland; cat'" >/dev/null 2>&1 &
+  for _ in $(seq 40); do (( $(hc "clients -j" | jq '[.[] | select(.class=="foot")] | length') >= 2 )) && break; sleep 0.5; done
+  hc "dispatch setfloating title:mover" >/dev/null
+  hc "dispatch resizewindowpixel exact 420 160,title:mover" >/dev/null
+  hc "dispatch movewindowpixel exact 600 500,title:mover" >/dev/null
+  hc "clients -j" | jq -c '.[] | {class, title, at, size, floating}' | sed 's/^/     /' | tee -a "$S/results.txt"
+}
+
+# The pointer path for a take: logical layout points, held 0.6 s each. The
+# first is the "mover" window's top-left corner, so the picture can be
+# checked against the log there.
+SPOTS=("600 500" "200 150" "1400 200" "1400 750" "300 700" "800 450")
+
+cmd_take() {
+  local name=$1; shift
+  local before; before=$(cat "$L/picker.log" 2>/dev/null | wc -l)
+  local prev; prev=$(newest_take)
+  stop_app; : > "$L/app.log"
+  start_app MONETSHOT_DEMO_RECORD=1 MONETSHOT_DEMO_STOP="${STOP:-5}" "$@" || { fail "$name: the app starts"; return; }
+  # What the bar (Waybar module / omarchy-shell plugin) is fed, for the whole take.
+  u "exec timeout 60 monet-shot status --waybar --follow" > "$S/$name-bar.jsonl" 2>/dev/null &
+  local follow=$!
+  if wait_phase 'countdown|starting|recording' 30; then
+    sleep 0.4
+    hc "clients -j" > "$S/$name-clients-countdown.json"
+    u "grim $S/$name-countdown.png" || true
+  fi
+  check "$name: the take starts recording (portal answered)" wait_phase recording 40
+  : > "$S/$name-moves.txt"
+  for s in "${SPOTS[@]}"; do
+    hc "dispatch movecursor $s" >/dev/null
+    echo "$(date +%s.%N) $s $(hc 'cursorpos')" >> "$S/$name-moves.txt"
+    sleep 0.6
+  done
+  # A click through uinput at the last spot (evdev sees a real device).
+  YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool click 0xC0 >/dev/null 2>&1 && echo "$(date +%s.%N) click" >> "$S/$name-moves.txt"
+  hc "clients -j" > "$S/$name-clients-recording.json"
+  u "grim $S/$name-recording.png" || true
+  shot_bar "$name-bar"
+  # Slide the mover across, so the video has motion to check.
+  for x in 640 700 760 820 880; do hc "dispatch movewindowpixel exact $x 500,title:mover" >/dev/null; sleep 0.1; done
+  hc "dispatch movewindowpixel exact 600 500,title:mover" >/dev/null
+  wait_phase 'idle' 60 || true
+  kill $follow 2>/dev/null || true
+  local take; take=$(newest_take)
+  check "$name: a new recording folder" test -n "$take" -a "$take" != "$prev"
+  [[ -n $take && $take != "$prev" ]] || return 0
+  echo "$take" > "$S/$name-take.txt"
+  local after; after=$(cat "$L/picker.log" 2>/dev/null | wc -l)
+  note "picker asked $((after - before)) time(s) for this take"
+  echo $((after - before)) > "$S/$name-picker-count.txt"
+  verify_take "$name" "$take"
+}
+
+verify_take() {
+  local name=$1 take=$2 shot=$2
+  ls "$take" | sed 's/^/     /' | tee -a "$S/results.txt"
+  local video; video=$(jq -r '.video // "screen.mp4"' "$take/meta.json")
+  [[ -f $take/$video ]] || video=$(ls "$take" | grep -E 'screen\.(mp4|mov)$' | head -1)
+  local probe; probe=$(ffprobe -v error -count_frames -select_streams v:0 \
+     -show_entries stream=codec_name,width,height,nb_read_frames,avg_frame_rate -show_entries format=duration -of json "$take/$video")
+  echo "$probe" | jq -c '{s: .streams[0], d: .format.duration}' | sed 's/^/     /' | tee -a "$S/results.txt"
+  local frames; frames=$(echo "$probe" | jq -r '.streams[0].nb_read_frames // 0')
+  check "$name: $video plays (decodes $frames frames)" test "$frames" -gt 60
+  jq -c '{pixelWidth, pixelHeight, pointScale, duration, source, video}' "$take/meta.json" | sed 's/^/     meta /' | tee -a "$S/results.txt"
+  cp "$take/meta.json" "$S/$name-meta.json"; cp "$take/cursor.json" "$S/$name-cursor.json"
+  # Frames: start, middle, end.
+  local d; d=$(echo "$probe" | jq -r '.format.duration')
+  ffmpeg -v error -y -ss 1 -i "$take/$video" -frames:v 1 "$S/$name-frame-1s.png"
+  python3 /src/desktop/tools/hypr-cursor-check.py "$take" "$S/$name-moves.txt" "$S/$name" | tee -a "$S/results.txt"
+  [[ ${PIPESTATUS[0]} == 0 ]] && pass "$name: cursor.json lines up with Hyprland's pointer and the picture" || fail "$name: cursor.json lines up with Hyprland's pointer and the picture"
+}
+
+cmd_pill() { # what the rules did to the pill, from a take's clients dump
+  local name=$1 phase=$2 f="$S/$1-clients-$2.json"
+  local p; p=$(jq -c '.[] | select(.title=="Monet Shot Pill") | {at, size, floating, pinned, mapped, hidden, monitor, workspace: .workspace.name}' "$f")
+  note "pill ($phase): ${p:-none}"
+  echo "${p:-}"
+}
+
+# The pill's window, as the rules left it: floating, pinned, top centre, y 40.
+check_pill() {
+  local name=$1 phase=$2 f="$S/$1-clients-$2.json"
+  local p; p=$(jq -c '[.[] | select(.title=="Monet Shot Pill")][0] // empty | {at, size, floating, pinned, mapped, hidden, workspace: .workspace.name}' "$f")
+  note "pill during $phase: ${p:-not mapped}"
+  [[ -n $p ]] || { fail "$name: the pill is mapped during $phase"; return; }
+  local mw; mw=$(hc "monitors -j" | jq '.[0].width / .[0].scale')
+  check "$name: pill floating + pinned during $phase" jq -e '.floating and .pinned' <<<"$p"
+  check "$name: pill at the rule's place (centred, y 40) during $phase" \
+    jq -e --argjson mw "$mw" '((.at[0] + .size[0] / 2) - $mw / 2 | fabs) <= 1 and .at[1] == 40' <<<"$p"
+}
+
+# Is the pill in the recording? The video at the pill's place vs the screenshot.
+pill_in_video() {
+  local name=$1 take; take=$(cat "$S/$name-take.txt")
+  local p; p=$(jq -c '[.[] | select(.title=="Monet Shot Pill")][0] // empty | {at, size}' "$S/$name-clients-recording.json")
+  [[ -n $p ]] || return 0
+  local x y w h; read -r x y w h < <(jq -r '"\(.at[0]) \(.at[1]) \(.size[0]) \(.size[1])"' <<<"$p")
+  ffmpeg -v error -y -ss 2.5 -i "$take/screen.mp4" -frames:v 1 -vf "crop=$((w+40)):$((h+40)):$((x-20)):$((y-20)),scale=iw*3:ih*3:flags=neighbor" "$S/$name-pill-in-video.png"
+  magick "$S/$name-recording.png" -crop "$((w+40))x$((h+40))+$((x-20))+$((y-20))" -scale 300% "$S/$name-pill-on-screen.png" 2>/dev/null || true
+  local mean; mean=$(ffmpeg -v error -ss 2.5 -i "$take/screen.mp4" -frames:v 1 -vf "crop=$w:$h:$x:$y" -f rawvideo -pix_fmt gray - | python3 -c 'import sys; b=sys.stdin.buffer.read(); print(round(sum(b)/max(1,len(b)),1))')
+  note "video where the pill is on screen: mean luma $mean/255 (pill-in-video.png vs pill-on-screen.png)"
+}
+
+cmd_bind() {
+  local name=$1 before prev; before=$(cat "$L/picker.log" 2>/dev/null | wc -l); prev=$(newest_take)
+  stop_app; : > "$L/app.log"
+  start_app || { fail "$name: the app starts"; return; }
+  sleep 4
+  local b; b=$(hc "binds -j" | jq -r '[.[] | select(.key=="R" and .modmask==72)][0] | "\(.dispatcher) \(.arg)"')
+  note "SUPER+ALT+R runs: $b"
+  hc "dispatch $b" >/dev/null
+  check "$name: SUPER+ALT+R starts a take" wait_phase recording 40
+  sleep 3
+  hc "dispatch $b" >/dev/null
+  check "$name: SUPER+ALT+R again stops it" wait_phase 'saving|idle' 20
+  wait_phase idle 60 || true
+  local take; take=$(newest_take)
+  check "$name: the take is saved" test -n "$take" -a "$take" != "$prev"
+  note "picker asked $(( $(cat "$L/picker.log" 2>/dev/null | wc -l) - before )) time(s)"
+  # The real keys through uinput, if Hyprland took the virtual keyboard (udev).
+  if hc "devices -j" | jq -e '.keyboards[] | select(.name | test("ydotool"))' >/dev/null 2>&1; then
+    YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 125:1 56:1 19:1 19:0 56:0 125:0 >/dev/null
+    if wait_phase 'countdown|starting|recording' 20; then pass "$name: pressing SUPER+ALT+R (uinput keyboard) starts a take"
+      sleep 2; YDOTOOL_SOCKET=/tmp/.ydotool_socket ydotool key 125:1 56:1 19:1 19:0 56:0 125:0 >/dev/null; wait_phase idle 60 || true
+    else fail "$name: pressing SUPER+ALT+R (uinput keyboard) starts a take"; fi
+  else
+    note "Hyprland has no uinput keyboard (no udev tags): keys not pressed, only the bind dispatched"
+  fi
+  stop_app
+}
+
+cmd_editor() {
+  local take=$1 name=$2 copy="$UH/Videos/check-$(basename "$1")"
+  rm -rf "$copy"; cp -a "$take" "$copy"; chown -R run:run "$copy"
+  stop_app; : > "$L/app.log"
+  start_app MONETSHOT_DEV_SCRIPT=/work/desktop/app/ui/devchecks/editor.js -- "\"$copy\"" || { fail "$name: the editor opens"; return; }
+  sleep 25; u "grim $S/$name-editor.png" || true
+  local t=0; until grep -q "check: done" "$L/app.log" || (( t++ > 900 )); do sleep 1; done
+  grep -o "check: .*" "$L/app.log" | sed 's/^/     /' | tee "$S/$name-editor-checks.txt" | tee -a "$S/results.txt" >/dev/null
+  local done_line; done_line=$(grep -o "check: done.*" "$L/app.log" | tail -1)
+  check "$name: editor checks all pass ($done_line)" bash -c "[[ '$done_line' =~ \ 0\ failed ]]"
+  local out; out=$(ls -t "$UH"/Videos/MonetShot/*.mp4 "$UH"/Videos/*.mp4 2>/dev/null | head -1)
+  if [[ -n $out ]]; then
+    note "export: $out $(ffprobe -v error -show_entries stream=codec_name,width,height -show_entries format=duration -of csv=p=0 "$out" | tr '\n' ' ')"
+    ffmpeg -v error -y -ss 2 -i "$out" -frames:v 1 "$S/$name-export-2s.png"
+  fi
+  stop_app
+}
+
+summary() { echo "== $ok ok, $bad failed" | tee -a "$S/results.txt"; }
+
+# Omarchy 3's Waybar module. Hyprland 0.57 (Arch, today) reads only Lua
+# configs, so a 3.x hyprlang session can't start any more; instead install.sh
+# runs against a 3.x home (its Waybar path) and that Waybar runs in the live
+# Hyprland session, in place of omarchy-shell's bar.
+cmd_waybar() {
+  local h=/home/run3
+  rm -rf "$h"; mkdir -p "$h/.config" "$h/.local/share"
+  cp -a /opt/omarchy3 "$h/.local/share/omarchy"; cp -R /opt/omarchy3/config/. "$h/.config/"
+  mkdir -p "$h/.config/omarchy/current"; ln -sfn "$h/.local/share/omarchy/themes/$(ls /opt/omarchy3/themes | head -1)" "$h/.config/omarchy/current/theme"
+  chown -R run:run "$h"
+  u "HOME=$h OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH bash /src/desktop/packaging/omarchy/install.sh --yes" 2>&1 | tee "$S/install-3.txt" | sed 's/^/     /' | tee -a "$S/results.txt"
+  check "install.sh (Omarchy 3) added the Waybar module" grep -q '"custom/monet-shot"' "$h/.config/waybar/config.jsonc"
+  pkill -u run -x quickshell 2>/dev/null || true; sleep 1
+  u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$h/.local/share/omarchy/bin:\$PATH waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" >"$L/waybar.log" 2>&1 &
+  sleep 6
+  check "Waybar runs with the module" pgrep -u run -x waybar
+}
+
+shot_bar() { # shot_bar <name>: the top 40 px, centre half
+  u "grim -g '400,0 800x40' $S/$1.png" || true
+}
+
+cmd_all() {
+  echo "== Omarchy $(cd /opt/omarchy4 && git describe --tags 2>/dev/null), $(Hyprland --version | head -1)" | tee -a "$S/results.txt"
+  bash /src/desktop/tools/hypr-session.sh start 4 2>&1 | tee -a "$S/results.txt"
+  if [[ ${PIPESTATUS[0]} != 0 ]]; then fail "Hyprland starts on the vkms card with Omarchy 4's config"; summary; return; fi
+  pass "Hyprland starts on the vkms card with Omarchy 4's config"
+  cmd_install; cmd_desktop
+  sleep 8; u "grim $S/o4-desktop.png" || true
+  STOP=6 cmd_take o4-take1
+  check_pill o4-take1 countdown
+  check "o4-take1: the portal's picker was asked once" test "$(cat "$S/o4-take1-picker-count.txt" 2>/dev/null)" = 1
+  cmd_take o4-take2
+  check "o4-take2: the restore token skips the picker" test "$(cat "$S/o4-take2-picker-count.txt" 2>/dev/null)" = 0
+  cmd_bind o4-bind
+  cmd_editor "$(cat "$S/o4-take1-take.txt")" o4
+  # Hyprland with no bar showing our clock (not Omarchy, or its bar off):
+  # the pill stays up while recording.
+  pkill -u run -x quickshell 2>/dev/null || true
+  PATH_NOBAR=1 cmd_take nobar
+  check_pill nobar recording
+  pill_in_video nobar
+  cmd_waybar
+  cmd_take waybar
+  summary
+}
+
+c=${1:-all}; shift || true
+"cmd_$c" "$@"
+[[ $c == all ]] || summary
+(( bad == 0 ))

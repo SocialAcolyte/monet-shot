@@ -81,11 +81,16 @@ install4() {
     local dest="$HOME/.config/omarchy/plugins/monet-shot"
     mkdir -p "$dest"
     cp "$share/plugin/manifest.json" "$share/plugin/Widget.qml" "$dest/"
-    if command -v omarchy-plugin-validate >/dev/null 2>&1; then omarchy-plugin-validate "$dest" >/dev/null; fi
-    if command -v omarchy-plugin-enable >/dev/null 2>&1; then
-      omarchy-plugin-enable monet-shot --section centerEnd && say "  enabled beside the clock"
+    # Omarchy 4's shell places widgets in left / center / right; ours goes
+    # after the clock. Enabling goes through the running shell (its IPC).
+    if command -v omarchy-plugin-validate >/dev/null 2>&1 && ! omarchy-plugin-validate "$dest" >/dev/null; then
+      say "  omarchy-plugin-validate refused it; not enabling"
+    elif command -v omarchy-plugin-enable >/dev/null 2>&1 &&
+         { omarchy-shell -q shell rescanPlugins; true; } &&
+         omarchy-plugin-enable monet-shot --section center --after omarchy.clock >/dev/null 2>&1; then
+      say "  enabled beside the clock"
     else
-      say "  copied to $dest; enable it with: omarchy plugin enable monet-shot --section centerEnd"
+      say "  copied to $dest; enable it with: omarchy plugin enable monet-shot --section center --after omarchy.clock"
     fi
   fi
   reload_hypr

@@ -1,0 +1,4 @@
+#!/bin/bash
+# No journald in the container: run the command, its output to the session log.
+while [[ ${1:-} == -* ]]; do case $1 in -t|-p|--level-prefix) shift 2 ;; *) shift ;; esac; done
+exec "$@"

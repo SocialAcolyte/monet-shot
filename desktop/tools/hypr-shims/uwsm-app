@@ -1,0 +1,4 @@
+#!/bin/bash
+# No systemd user session in the container: start the app directly.
+[[ ${1:-} == -- ]] && shift
+exec "$@"
