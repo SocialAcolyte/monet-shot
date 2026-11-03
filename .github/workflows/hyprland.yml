@@ -1,0 +1,53 @@
+# The Linux app under real Hyprland: Omarchy 4's own config (and 3's
+# Waybar), xdg-desktop-portal-hyprland's ScreenCast over PipeWire, Hyprland
+# IPC for the cursor, the pill's window rules, install.sh, SUPER+ALT+R, the
+# editor and an export. Hyprland runs on its DRM backend on a vkms virtual
+# display (llvmpipe) inside an Arch container. See desktop/tools/hypr-run.sh.
+# Its own workflow, so it neither waits for nor holds up `desktop`.
+name: hyprland
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "desktop/**"
+      - "shared/**"
+      - "Resources/Backdrops/**"
+      - ".github/workflows/hyprland.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: hyprland-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  hyprland-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: vkms + uinput
+        run: |
+          uname -r
+          desktop/tools/hypr-kmod.sh
+          ls -l /dev/dri /dev/uinput
+      - name: Room for the images
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet
+          df -h / | tail -1
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/target
+          key: hypr-target-${{ hashFiles('desktop/Cargo.lock') }}
+          restore-keys: hypr-target-
+      - name: Hyprland run (images, build, session, checks)
+        env:
+          TARGET: ${{ runner.temp }}/target
+          OUT: ${{ runner.temp }}/omarchy
+        run: desktop/tools/hypr-run.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hyprland-run
+          path: ${{ runner.temp }}/omarchy
+          if-no-files-found: warn
