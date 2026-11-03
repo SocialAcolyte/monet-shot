@@ -273,6 +273,9 @@ cmd_waybar() {
   u "cd $h && exec env OMARCHY_PATH=$h/.local/share/omarchy PATH=$p3 waybar -c $h/.config/waybar/config.jsonc -s $h/.config/waybar/style.css" </dev/null >"$L/waybar.log" 2>&1 &
   sleep 6
   check "Waybar runs with the module" pgrep -u run -x waybar
+  note "modules-center: $(python3 -c 'import json,re,sys; t=open(sys.argv[1]).read(); t=re.sub(r"^\s*//.*$","",t,flags=re.M); print(json.loads(t)["modules-center"])' "$h/.config/waybar/config.jsonc" 2>&1)"
+  note "Waybar's followers: $(pgrep -a -u run -f 'monet-shot status' | tr '\n' ';')"
+  shot_bar waybar-idle
 }
 
 # The pill as a person sees it: grim is a screencopy client, so no_screen_share
