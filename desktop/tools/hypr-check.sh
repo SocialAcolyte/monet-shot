@@ -37,7 +37,10 @@ wait_phase() { # wait_phase <regex> <seconds>
 }
 bar_class() { u "monet-shot status --waybar" 2>/dev/null | jq -r '.class // "off"' 2>/dev/null; }
 wait_class() { local t=$(( $2 * 4 )); while (( t-- > 0 )); do [[ $(bar_class) =~ $1 ]] && return 0; sleep 0.25; done; return 1; }
-app_running() { pgrep -u run -x monet-shot >/dev/null; }
+# The app's processes, not the bar's `monet-shot status --follow` (killing
+# those would freeze Waybar's module: it doesn't restart a dead exec).
+app_pids() { local p; for p in $(pgrep -u run -x monet-shot); do tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null | grep -q ' status' || echo $p; done; }
+app_running() { [[ -n $(app_pids) ]]; }
 
 start_app() { # start_app [VAR=value ...] [-- args]
   local envs=() args=()
@@ -46,7 +49,11 @@ start_app() { # start_app [VAR=value ...] [-- args]
   u "cd /tmp && PATH=$path exec env ${envs[*]} monet-shot ${args[*]} >>$L/app.log 2>&1" </dev/null >/dev/null 2>&1 &
   for _ in $(seq 120); do app_running && return 0; sleep 0.25; done; return 1
 }
-stop_app() { pkill -u run -x monet-shot 2>/dev/null || true; for _ in $(seq 40); do app_running || return 0; sleep 0.25; done; pkill -9 -u run -x monet-shot || true; }
+stop_app() {
+  local p; p=$(app_pids); [[ -n $p ]] && kill $p 2>/dev/null
+  for _ in $(seq 40); do app_running || return 0; sleep 0.25; done
+  p=$(app_pids); [[ -n $p ]] && kill -9 $p 2>/dev/null; return 0
+}
 
 cmd_install() {
   local share=/src/desktop/packaging/omarchy

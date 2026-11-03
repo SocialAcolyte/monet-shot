@@ -4,6 +4,8 @@
 "custom/monet-shot": {
   // One JSON line per change; no polling, no signal needed (7-10 are Omarchy's).
   "exec": "monet-shot status --waybar --follow",
+  // Started again if it ever ends (an upgrade replacing the binary, a crash).
+  "restart-interval": 5,
   "return-type": "json",
   "format": "{icon} {text}",
   "format-icons": {
