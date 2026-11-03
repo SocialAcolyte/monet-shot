@@ -35,8 +35,11 @@ pub fn bar_stop(app: AppHandle) {
     app.state::<Bar>().stop(&app)
 }
 
+// Commands that build a window are async: a sync command runs on the main
+// thread, and building a WebView2 window there deadlocks on Windows (the
+// window comes up blank and the app hangs).
 #[tauri::command]
-pub fn show_home(app: AppHandle) {
+pub async fn show_home(app: AppHandle) {
     windows::show_home(&app)
 }
 
@@ -72,7 +75,7 @@ pub async fn home_thumb(path: PathBuf) -> Option<PathBuf> {
 }
 
 #[tauri::command]
-pub fn open_recording(app: AppHandle, path: PathBuf) {
+pub async fn open_recording(app: AppHandle, path: PathBuf) {
     windows::open_editor(&app, &path)
 }
 
