@@ -22,6 +22,10 @@
 #               dev script clicks the card of a window we opened; the take
 #               must be that window's size and show it. A short click on the
 #               pill's ring must not stop it; holding it (real mouse) must.
+#   8. home     ui/devchecks/home.js on a library of two copies of the take:
+#               Home's cards and thumbnails, Move to Trash, Show in folder,
+#               open by clicking; in the editor, add a video, record a new
+#               take (we stop it), reorder clips, undo, save.
 #
 # Every stage runs even when an earlier one failed; the script exits 1 if
 # any failed. Logs, the take, the export and screenshots go to -Out.
@@ -34,7 +38,7 @@
 # desktop/packaging/windows/bin (fetch-ffmpeg.sh).
 param(
   [string]$Out = $(if ($env:RUNNER_TEMP) { Join-Path $env:RUNNER_TEMP 'ms-run' } else { Join-Path ([IO.Path]::GetTempPath()) 'ms-run' }),
-  [string[]]$Stages = @('record', 'editor', 'fixtures', 'hevc', 'export', 'install', 'window')
+  [string[]]$Stages = @('record', 'editor', 'fixtures', 'hevc', 'export', 'install', 'window', 'home')
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3
@@ -141,11 +145,11 @@ function Stop-App {
 # -Unset drops variables this process has (the installed exe must find its
 # own ffmpeg); -Second leaves the running app alone (a second launch hands
 # its arguments to the first).
-function Start-App([string]$exe, [hashtable]$vars, [string[]]$appArgs = @(), [string[]]$Unset = @(), [switch]$Second) {
+function Start-App([string]$exe, [hashtable]$vars, [string[]]$appArgs = @(), [string[]]$Unset = @(), [switch]$Second, [switch]$NoMinimize) {
   if (-not $Second) {
     Stop-App
     # The runner's own console windows sit on top: put everything away first.
-    try { (New-Object -ComObject Shell.Application).MinimizeAll() } catch {}
+    if (-not $NoMinimize) { try { (New-Object -ComObject Shell.Application).MinimizeAll() } catch {} }
     Start-Sleep -Milliseconds 500
   }
   $psi = [System.Diagnostics.ProcessStartInfo]::new($exe)
@@ -197,6 +201,32 @@ function Copy-Reel([string]$from, [string]$to) {
   if (Test-Path $to) { Remove-Item -Recurse -Force $to }
   Copy-Item -Recurse $from $to
   $to
+}
+
+# A plain window of one colour, in its own process (the app a person is
+# working in, or one to record). Returns the process once the window is up.
+function Start-Form([string]$title, [int]$x, [int]$y, [int]$w, [int]$hgt, [int[]]$rgb, [switch]$TopMost) {
+  $top = if ($TopMost) { '$true' } else { '$false' }
+  $form = @"
+Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+`$f = New-Object System.Windows.Forms.Form
+`$f.Text = '$title'
+`$f.StartPosition = 'Manual'
+`$f.Location = New-Object System.Drawing.Point($x, $y)
+`$f.ClientSize = New-Object System.Drawing.Size($w, $hgt)
+`$f.BackColor = [System.Drawing.Color]::FromArgb($($rgb[0]), $($rgb[1]), $($rgb[2]))
+`$f.TopMost = $top
+[System.Windows.Forms.Application]::Run(`$f)
+"@
+  $enc = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($form))
+  $p = Start-Process pwsh -ArgumentList '-NoProfile', '-EncodedCommand', $enc -PassThru
+  $until = (Get-Date).AddSeconds(30)
+  while ((Get-Date) -lt $until) {
+    if (Window-Rect $title) { Start-Sleep -Milliseconds 300; return $p }
+    Start-Sleep -Milliseconds 200
+  }
+  if (-not $p.HasExited) { $p.Kill() }
+  $null
 }
 
 # Waits for a finished take (its meta.json) under <home>/recordings.
@@ -493,7 +523,10 @@ function Stage-Install {
 
   $h = Join-Path $Out 'home-install'
   New-Item -ItemType Directory -Force $h | Out-Null
-  Start-App $exe @{ MONETSHOT_HOME = $h; MONETSHOT_DEMO_RECORD = '1'; MONETSHOT_DEMO_STOP = '7'; MONETSHOT_DEMO_PROTECT = '1'; MONETSHOT_DEBUG = '1' } -Unset MONETSHOT_FFMPEG, MONETSHOT_FFPROBE | Out-Null
+  # The app the person is working in, below where the pill goes.
+  $userApp = Start-Form 'MS User App' 140 380 460 220 @(60, 120, 200)
+  if (-not $userApp) { Fail 'install: the stand-in user app never appeared' }
+  Start-App -NoMinimize $exe @{ MONETSHOT_HOME = $h; MONETSHOT_DEMO_RECORD = '1'; MONETSHOT_DEMO_STOP = '7'; MONETSHOT_DEMO_PROTECT = '1'; MONETSHOT_DEBUG = '1' } -Unset MONETSHOT_FFMPEG, MONETSHOT_FFPROBE | Out-Null
   $m = Wait-Log $h 'recording into' 40
   $pillOn = $null
   if ($m) {
@@ -502,20 +535,15 @@ function Stage-Install {
     $status = { Get-Content -Raw (Join-Path $h 'run\status.json') -ErrorAction SilentlyContinue }
     $paused = { "$(& $status)" -match '"paused":true' }
     while ((& $at) -lt 1.5) { Start-Sleep -Milliseconds 20 }
-    Write-Host "foreground before the taps: $([MsWin]::Foreground())"
+    # The pill is up: it must not have taken the focus (it did once, and
+    # then double-tap Shift never reached our hook). No help from us here:
+    # the taps go to whatever has the focus.
+    $fg = [MsWin]::Foreground()
+    Write-Host "foreground with the pill up: $fg"
+    if ($fg -match "'Monet Shot Pill'") { Fail "pill: it took the focus ($fg)" } else { Ok "pill: it didn't take the focus (foreground: $fg)" }
     $sent = [MsWin]::DoubleShift(); $pauseAt = & $at
     Start-Sleep -Milliseconds 400
     Write-Host ("double-tapped Shift at {0:N2} s ({1} of 4 events taken): {2}" -f $pauseAt, $sent, (& $status))
-    if (-not (& $paused)) {
-      # Keys go to the foreground window; one that outranks us drops them.
-      # Click the bare desktop (as a person would be somewhere) and retry.
-      [MsWin]::SetCursorPos(600, 520) | Out-Null; [MsWin]::Click() | Out-Null
-      Start-Sleep -Milliseconds 300
-      Write-Host "not paused; clicked the desktop, foreground now: $([MsWin]::Foreground())"
-      $sent = [MsWin]::DoubleShift(); $pauseAt = & $at
-      Start-Sleep -Milliseconds 400
-      Write-Host ("double-tapped Shift again at {0:N2} s ({1} of 4): {2}" -f $pauseAt, $sent, (& $status))
-    }
     $pillOn = Window-Rect 'Monet Shot Pill'
     Write-Host "pill (protection on) at $($pillOn | ConvertTo-Json -Compress)"
     Shot '6-installed-recording-paused' | Out-Null
@@ -526,6 +554,7 @@ function Stage-Install {
   }
   $reel = Wait-Take $h 60
   Stop-App
+  if ($userApp -and -not $userApp.HasExited) { $userApp.Kill() }
   Save-Log $h '6-install'
   Write-Host (Read-Log $h)
   if (-not $m) { Fail 'install: the installed app never started recording' }
@@ -593,24 +622,9 @@ function Stage-Window {
 
   # The window to record: ours, at a known place and size, one flat colour.
   $title = 'MS Target Window'
-  $form = @"
-Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-`$f = New-Object System.Windows.Forms.Form
-`$f.Text = '$title'
-`$f.StartPosition = 'Manual'
-`$f.Location = New-Object System.Drawing.Point(120, 160)
-`$f.ClientSize = New-Object System.Drawing.Size(640, 400)
-`$f.BackColor = [System.Drawing.Color]::FromArgb(200, 90, 60)
-`$f.TopMost = `$true
-[System.Windows.Forms.Application]::Run(`$f)
-"@
-  $enc = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($form))
-  $formProc = Start-Process pwsh -ArgumentList '-NoProfile', '-EncodedCommand', $enc -PassThru
+  $formProc = Start-Form $title 120 160 640 400 @(200, 90, 60) -TopMost
   try {
-    $until = (Get-Date).AddSeconds(30)
-    $win = $null
-    while (-not $win -and (Get-Date) -lt $until) { $win = Window-Rect $title; if (-not $win) { Start-Sleep -Milliseconds 300 } }
-    if (-not $win) { Fail "window: our test window never appeared"; return }
+    if (-not $formProc) { Fail "window: our test window never appeared"; return }
     Start-Sleep 1
     $win = Window-Rect $title
     Write-Host "test window at $($win | ConvertTo-Json -Compress)"
@@ -662,6 +676,61 @@ Add-Type -AssemblyName System.Windows.Forms, System.Drawing
   else { Fail "window: the take's middle is rgb $($c -join ','), not the window's 200,90,60" }
 }
 
+# MARK: 8. home + clips (devchecks/home.js)
+
+function Stage-Home {
+  Section '8. home (Home cards, trash, reveal, open; add a video, record a take, reorder clips)'
+  if (-not $script:take) { Fail 'home: no take to copy (record failed)'; return }
+  Start-Vite
+  # A new folder on C:, where a person's Videos would be (and its Recycle Bin).
+  $h = Join-Path $env:USERPROFILE ('ms-run-home-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+  $rec = Join-Path $h 'recordings'
+  New-Item -ItemType Directory -Force $rec | Out-Null
+  $open = Copy-Reel $script:take (Join-Path $rec 'Open me.reel')
+  $trash = Copy-Reel $script:take (Join-Path $rec 'Trash me.reel')
+  Copy-Item (Join-Path $script:take 'screen.mp4') (Join-Path $h 'footage.mp4')
+  $before = @((New-Object -ComObject Shell.Application).Windows() | ForEach-Object { $_.HWND })
+  $vars = @{ MONETSHOT_HOME = $h; MONETSHOT_DEV_SCRIPT = (Join-Path $desktop 'app\ui\devchecks\home.js') }
+  Start-App $debug $vars | Out-Null
+  $done = $null
+  try {
+    if (Wait-Log $h 'home: (ok|FAIL) Home shows' 60) { Start-Sleep 2; Shot '8-home' | Out-Null }
+    # The new take: stop it once it's recording, as the ring's stop would.
+    if (Wait-Log $h 'recording into' 180) {
+      Start-Sleep 3
+      Shot '8-new-take' | Out-Null
+      Start-App $debug $vars @('toggle') -Second | Out-Null
+    } else { Fail 'home: Record a new take never started recording' }
+    $done = Wait-Log $h 'home: done (\d+) ok, (\d+) failed' 180
+    Start-Sleep 1
+    Shot '8-editor-clips' | Out-Null
+  } finally {
+    Stop-App
+    Save-Log $h '8-home'
+  }
+  $log = Read-Log $h
+  ($log -split "`n" | Where-Object { $_ -match 'home:|recording into|stop|ERROR' }) -join "`n" | Write-Host
+  $fails = @([regex]::Matches($log, 'home: FAIL[^\r\n]*'))
+  foreach ($f in $fails) { Fail $f.Value }
+  if (-not $done) { Fail 'home: the editor part never finished' }
+  elseif ($fails.Count -eq 0) { Ok "home + clips: $([regex]::Matches($log, 'home: ok').Count) checks ok" }
+
+  # What Windows says about it.
+  if (Test-Path $trash) { Fail 'trash: Trash me.reel is still in the library' }
+  else {
+    $bin = @((New-Object -ComObject Shell.Application).Namespace(10).Items() | Where-Object { $_.Name -like 'Trash me*' })
+    if ($bin.Count) { Ok "trash: the recording is in the Recycle Bin ($($bin[0].Name))" } else { Fail 'trash: Trash me.reel is gone but not in the Recycle Bin' }
+  }
+  $shell = @((New-Object -ComObject Shell.Application).Windows() | Where-Object { $before -notcontains $_.HWND })
+  $shown = @($shell | Where-Object { "$($_.LocationURL)" -like '*recordings*' })
+  if ($shown.Count) { Ok "reveal: Explorer opened $($shown[0].LocationURL)" }
+  else { Fail "reveal: no new Explorer window on the recordings folder (new: $(@($shell | ForEach-Object { $_.LocationURL }) -join ', '))" }
+  $shell | ForEach-Object { try { $_.Quit() } catch {} }
+  $takes = @(Get-ChildItem $open -Directory -Filter 'take-*').Count
+  if ($takes -ge 2) { Ok "Open me.reel has $takes more take folders (the video and the new recording)" } else { Fail "home: $takes take folders in Open me.reel (want 2)" }
+  Copy-Item -Recurse $open (Join-Path $Out 'take-home.reel') -Force
+}
+
 # MARK: run
 
 try {
@@ -675,6 +744,7 @@ try {
         'export' { Stage-Export }
         'install' { Stage-Install }
         'window' { Stage-Window }
+        'home' { Stage-Home }
         default { throw "unknown stage $s" }
       }
     } catch {

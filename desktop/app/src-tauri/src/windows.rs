@@ -189,7 +189,7 @@ pub fn pill_follow(app: &AppHandle, s: &BarState) {
             None => return,
         };
         if want {
-            let _ = w.show();
+            show_overlay(&w);
             // GTK (X11 without Hyprland rules) drops the size and position
             // of a window that was hidden when they were set: set them again
             // once it's mapped. The page re-fits its width after this.
@@ -265,12 +265,77 @@ fn make_pill(app: &AppHandle) -> Option<WebviewWindow> {
         .content_protected(std::env::var_os("MONETSHOT_DEMO_RECORD").is_none() || std::env::var_os("MONETSHOT_DEMO_PROTECT").is_some())
         .visible(false);
     match b.build() {
-        Ok(w) => Some(w),
+        Ok(w) => {
+            overlay_style(&w);
+            Some(w)
+        }
         Err(e) => {
             log::error(&format!("pill window: {e}"));
             None
         }
     }
+}
+
+/// An overlay (the pill, the camera bubble) must never take focus from the
+/// app the person is in: Tauri's `focused(false)` isn't enough on Windows,
+/// where showing a window activates it (and keys then went to the pill).
+/// Windows: no-activate + tool window (no taskbar or Alt+Tab entry), kept
+/// topmost; shown with SW_SHOWNOACTIVATE.
+#[cfg(windows)]
+mod overlay {
+    #[link(name = "user32")]
+    extern "system" {
+        fn GetWindowLongPtrW(hwnd: isize, index: i32) -> isize;
+        fn SetWindowLongPtrW(hwnd: isize, index: i32, value: isize) -> isize;
+        fn SetWindowPos(hwnd: isize, after: isize, x: i32, y: i32, cx: i32, cy: i32, flags: u32) -> i32;
+        fn ShowWindow(hwnd: isize, cmd: i32) -> i32;
+    }
+    const GWL_EXSTYLE: i32 = -20;
+    const WS_EX_TOOLWINDOW: isize = 0x0000_0080;
+    const WS_EX_APPWINDOW: isize = 0x0004_0000;
+    const WS_EX_NOACTIVATE: isize = 0x0800_0000;
+    const HWND_TOPMOST: isize = -1;
+    // SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_FRAMECHANGED
+    const SWP: u32 = 0x0001 | 0x0002 | 0x0010 | 0x0020;
+    const SW_SHOWNOACTIVATE: i32 = 4;
+
+    fn hwnd(w: &tauri::WebviewWindow) -> Option<isize> {
+        w.hwnd().ok().map(|h| h.0 as isize)
+    }
+
+    pub fn style(w: &tauri::WebviewWindow) {
+        let Some(h) = hwnd(w) else { return };
+        unsafe {
+            let ex = GetWindowLongPtrW(h, GWL_EXSTYLE);
+            SetWindowLongPtrW(h, GWL_EXSTYLE, (ex | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW) & !WS_EX_APPWINDOW);
+            SetWindowPos(h, HWND_TOPMOST, 0, 0, 0, 0, SWP);
+        }
+    }
+
+    pub fn show(w: &tauri::WebviewWindow) {
+        match hwnd(w) {
+            Some(h) => unsafe {
+                ShowWindow(h, SW_SHOWNOACTIVATE);
+            },
+            None => {
+                let _ = w.show();
+            }
+        }
+    }
+}
+
+fn overlay_style(w: &WebviewWindow) {
+    #[cfg(windows)]
+    overlay::style(w);
+    #[cfg(not(windows))]
+    let _ = w;
+}
+
+fn show_overlay(w: &WebviewWindow) {
+    #[cfg(windows)]
+    overlay::show(w);
+    #[cfg(not(windows))]
+    let _ = w.show();
 }
 
 /// A round window of you in the screen's corner while the 3-2-1 counts in a
@@ -306,10 +371,13 @@ pub fn show_bubble(app: &AppHandle) {
             .always_on_top(true)
             .visible_on_all_workspaces(true)
             .skip_taskbar(true)
-            .focused(false);
+            .focused(false)
+            .visible(false);
         match b.build() {
             Ok(w) => {
                 let _ = w.set_ignore_cursor_events(true);
+                overlay_style(&w);
+                show_overlay(&w);
             }
             Err(e) => log::error(&format!("bubble window: {e}")),
         }
