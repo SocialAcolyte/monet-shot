@@ -10,8 +10,9 @@ use crate::cursor::POINT_HEIGHT;
 use crate::model::{Backdrop, CursorSample, CursorTrack, EditDoc, RecordingMeta, ZoomSegment};
 use crate::privacy::{BlurRegion, BlurStyle, NormRect};
 use crate::project::Project;
+use crate::text::text_motion;
 use crate::timemap::TimeMap;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 pub struct Rect {
@@ -51,14 +52,14 @@ impl Rect {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
 }
 
 /// sRGB-encoded, straight (not premultiplied) alpha, 0...1.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Rgba {
     pub r: f64,
     pub g: f64,
@@ -238,6 +239,35 @@ pub struct FramePlan {
     /// Candidates in priority order: draw the first whose file has a frame
     /// at `time` (and nothing if that one's opacity is ~0).
     pub webcam: Vec<WebcamPlan>,
+    /// A clip fading in or out: draw the backdrop once more over everything
+    /// at this opacity (0 = no fade). Text overlays go on top of it.
+    pub veil: f64,
+    /// The clip's playback speed (take seconds per output second): a
+    /// preview playing the take's video runs it at this rate.
+    pub speed: f64,
+    /// Words on top of everything (the veil too), in drawing order.
+    pub texts: Vec<TextPlan>,
+}
+
+/// One text: draw the picture `text_art(plan)` makes (the export crate's,
+/// in wasm as `textArt`) centred on `center`, scaled by `scale` about its
+/// centre, at `opacity`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TextPlan {
+    pub lines: Vec<String>,
+    pub px: f64,
+    pub tracking: f64,
+    pub center: Point,
+    pub opacity: f64,
+    pub scale: f64,
+    /// One alpha per word in reading order; empty = every word fully shown.
+    pub words: Vec<f64>,
+    pub color: Rgba,
+    /// The box behind the words, if any (padding and radius: `text_motion`).
+    pub backing: Option<Rgba>,
+    /// A soft shadow under unboxed light words (in the picture).
+    pub shadow: bool,
 }
 
 /// One take as the planner needs it.
@@ -454,7 +484,38 @@ impl Planner {
         plan.t = t;
         plan.clip_index = p.index;
         plan.webcam = self.webcam(t, p.take, p.time);
+        plan.veil = 1.0 - self.map.presence(t);
+        plan.speed = self.map.spans.get(p.index).map_or(1.0, |s| s.speed);
+        plan.texts = self.texts(t);
         plan
+    }
+
+    /// Every text showing at output time `t`.
+    pub fn texts(&self, t: f64) -> Vec<TextPlan> {
+        let (w, h) = (self.canvas.width as f64, self.canvas.height as f64);
+        self.doc
+            .overlays()
+            .iter()
+            .filter_map(|o| {
+                let st = text_motion::state(o, t, w, h)?;
+                if st.opacity <= 0.001 {
+                    return None;
+                }
+                let backed = o.has_backing();
+                Some(TextPlan {
+                    lines: st.lines,
+                    px: st.px,
+                    tracking: st.tracking,
+                    center: Point { x: st.center_x, y: st.center_y },
+                    opacity: st.opacity,
+                    scale: st.scale,
+                    words: st.words,
+                    color: Rgba::hex(o.tone.hex(), 1.0),
+                    backing: backed.then(|| Rgba::hex(o.tone.backing_hex(), o.tone.backing_alpha())),
+                    shadow: text_motion::has_shadow(&o.tone, backed),
+                })
+            })
+            .collect()
     }
 
     /// The frame from take `take` at its own time `time` (no webcam).
@@ -484,6 +545,9 @@ impl Planner {
                 ripples: vec![],
                 cursor: None,
                 webcam: vec![],
+                veil: 0.0,
+                speed: 1.0,
+                texts: vec![],
             };
         };
         let cam = camera_math::camera_at(time, &l.segments, &l.focus_track);
@@ -560,6 +624,9 @@ impl Planner {
             ripples,
             cursor,
             webcam: vec![],
+            veil: 0.0,
+            speed: 1.0,
+            texts: vec![],
         }
     }
 

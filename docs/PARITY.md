@@ -92,5 +92,8 @@ Windows Server 2025 VM, a real desktop without a GPU
 | Hide (blur/pixelate/cover) & crop | ✅ | 🟡 | 🐳 Hyprland in a container: hide box drawn, crop corner dragged | ✅ (CI VM: hide box drawn and in the export; crop corner dragged) |
 | Camera: over video, just me, with screen | ✅ | 🟡 (no live camera yet) | 🟡 (no live camera yet) | 🟡 (no live camera yet) |
 | Music browser + ducking | 🚧 WIP | 🟡 (seen running in WebKitGTK; preview audio via media_url) | 🟡 | 🟡 |
+| Clip speed (¼×–4×) + fades | ✅ (2026-11-03: preview, export 11.87 s at 0.85× as planned) | 🟡 (fixtures `clip_speed.json`; export matches the Mac's frame for frame, 38 dB PSNR, run on macOS; preview checked in a browser) | 🟡 | 🟡 (cross-compiled) |
+| Text overlays (title / caption / label; fade, rise, pop, word by word) | ✅ | 🟡 (fixtures `text.json`; layout matches CoreText to 0.05 px; reference frames `charcoal-texts*`; preview checked in a browser) | 🟡 | 🟡 (cross-compiled) |
+| Formats (clean, fast, melancholic, cinematic) | ✅ (`--format`) | 🟡 (fixtures `formats.json`: byte-identical edit.json) | 🟡 | 🟡 (cross-compiled) |
 | Export MP4 | ✅ | 🟡 (matches the Mac's export, run on macOS; in-app export run in the Arch container) | 🐳 Hyprland in a container: Ctrl+E in the editor → H.264 1080p, ffprobed | ✅ (CI VM: Ctrl+E in the editor → H.264 1080p, ffprobed) |
 | Install | Homebrew | 🟡 AppImage/deb (config) | 🐳 Hyprland in a container: install.sh on a live Omarchy 4.0.6 session (rules, SUPER+ALT+R, plugin enabled; the pill floats, pins, 180x34 top centre) and 3.8.4's Waybar module · 🟡 PKGBUILD (srcinfo ok), not installed from | ✅ NSIS (CI VM: silent install, record with the installed exe and its ffmpeg sidecar, silent uninstall) |

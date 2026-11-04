@@ -71,7 +71,21 @@ interface FramePlan {
   ripples: RipplePlan[];     // under the cursor
   cursor: CursorPlan | null;
   webcam: WebcamPlan[];      // candidates, priority order
+  veil: number;              // a clip fading: the backdrop again over everything at this opacity (0 = none)
+  speed: number;             // the clip's speed: play the take's video (and its own camera) at this rate
+  texts: TextPlan[];         // words, drawn last (over the veil), in order
 }
+
+interface TextPlan {
+  lines: string[]; px: number; tracking: number;   // what textArt(plan) draws
+  center: Point; scale: number; opacity: number;   // where and how: centred, scaled about its centre
+  words: number[];             // per-word alpha (word by word); [] = all shown
+  color: Rgba; backing: Rgba | null; shadow: boolean;
+}
+// textArt(plan) (core-wasm, the export crate's text_art) gives the picture,
+// premultiplied sRGB, the same bytes the export draws; cache on everything
+// but center/scale/opacity. Inter Bold from Resources/Fonts, laid out with
+// text_motion's fixed em metrics, so it matches CoreText to 0.05 px.
 
 type BackdropPlan =
   | { kind: "solid"; color: Rgba; grain: number }
@@ -158,6 +172,13 @@ interface WebcamPlan {
    (rounded rect fill) under the face (camera picture cover-fitted into
    `rect`, mirrored if `mirror`, clipped to `rect`/`radius`). Full-frame
    candidates have no rim or shadow.
+5. **Veil**: if `veil > 0.001`, the backdrop (same picture as step 1)
+   again over everything at opacity `veil`, in linear light. This is a
+   clip fading in or out (`TimeMap.presence`).
+6. **Texts**, in order: `textArt(text)` centred on `center`, scaled by
+   `scale` about its centre (bilinear), at `opacity`, decoded to linear
+   light and composited over. They sit on top of the veil, so a title can
+   stand on the backdrop while the footage fades up.
 
 ### Hides (in raw source pixels, before anything else)
 

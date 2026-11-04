@@ -42,6 +42,20 @@ crop away anything private before you share it. The look follows
     zooms). You can also drop videos onto the timeline. Takes can be
     different sizes; each is framed at its own shape. Zooms belong to the
     footage they were made on and travel with it.
+  - **Speed.** Select a clip: *Speed* plays it from ¼× to 4× (chips for
+    0.5×, 1×, 1.5×, 2×, 4×; *All clips* sets every clip). The timeline
+    shows each clip at its played length with a speed badge; zooms, the
+    cursor and hides stay on their footage. *Fade in* / *Fade out* dissolve
+    the clip from and into the backdrop.
+  - **Text.** *Title*, *Caption* or *Label* (or **T** for a title) puts
+    words at the playhead, on their own lane: drag to move, drag an end to
+    retime. Each comes in by *Fade*, *Rise*, *Pop* or *Word by word*, in
+    light, dark or clay, at the top, middle or bottom, with an optional box.
+  - **Format.** *Clean*, *Fast pace* (1.5×, hard cuts, deep zooms, words
+    that pop), *Melancholic* (0.85×, every clip fading through dusk, soft
+    zooms) or *Cinematic* (long fades in and out, titles in capitals) sets
+    the pace and look in one go, and suggests a music mood. Everything
+    stays adjustable; ⌘Z undoes it.
   - **Space** plays,
     **←/→** step a frame (with Shift, a second), **A** re-runs auto-zoom.
 - **Hide & crop.** *Hide* (or **B**) shows the take whole, so you can
@@ -118,6 +132,7 @@ MonetShot --auto   <rec.reel>                 # (re)make auto zooms from the cli
 MonetShot --frame  <rec.reel> <s> <out.png>   # one finished frame
 MonetShot --render <rec.reel> <out.mp4>       # the full export
 MonetShot --add    <rec.reel> <video|rec.reel>…  # add footage as clips at the end
+MonetShot --format <rec.reel> fast              # clean | fast | melancholic | cinematic
 ```
 
 ## What it changes on your Mac

@@ -15,8 +15,23 @@ struct MonetShotTimeline: View {
     private let trackY: CGFloat = 96
     private let trackH: CGFloat = 32
     static let cameraH: CGFloat = 22
+    static let textH: CGFloat = 22
     /// Height for the editor to give the timeline.
-    static func height(camera: Bool) -> CGFloat { camera ? 186 : 158 }
+    static func height(camera: Bool, textRows: Int = 0) -> CGFloat { 158 + (camera ? 28 : 0) + CGFloat(min(textRows, maxTextRows)) * 28 }
+    static let maxTextRows = 3
+
+    /// The lane row of each text: texts that overlap in time stack, each in
+    /// the first row free when it starts (at most `maxTextRows`).
+    static func textRows(_ texts: [TextOverlay]) -> [UUID: Int] {
+        var ends: [Double] = []
+        var out: [UUID: Int] = [:]
+        for o in texts.sorted(by: { $0.at < $1.at }) {
+            let row = ends.firstIndex { $0 <= o.at + 1e-6 } ?? (ends.count < maxTextRows ? ends.count : maxTextRows - 1)
+            if row < ends.count { ends[row] = max(ends[row], o.end) } else { ends.append(o.end) }
+            out[o.id] = row
+        }
+        return out
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -40,7 +55,7 @@ struct MonetShotTimeline: View {
 
                 ForEach(Array(model.clips.enumerated()), id: \.offset) { i, c in
                     let lifted = model.moving?.index == i
-                    ClipBlock(model: model, index: i, clip: c, width: max(6, CGFloat(c.duration) * pps), height: stripH,
+                    ClipBlock(model: model, index: i, clip: c, width: max(6, CGFloat(c.outputDuration) * pps), height: stripH,
                               pxPerSecond: pps, showTake: model.project.takes.count > 1,
                               seek: { localX in model.seek(to: starts[i] + Double(localX / pps)) })
                         .offset(x: x(starts[i]) + (lifted ? CGFloat(model.moving?.offset ?? 0) * pps : 0), y: stripY)
@@ -75,6 +90,15 @@ struct MonetShotTimeline: View {
                 ForEach(model.doc.cameraClips) { c in
                     CameraPill(model: model, clip: c, width: max(8, CGFloat(min(c.end, d) - c.at) * pps), height: Self.cameraH)
                         .offset(x: x(c.at), y: trackY + trackH + 6)
+                        .zIndex(3)
+                }
+
+                // Words over the video, on their own lane (under the camera's).
+                let textY = trackY + trackH + 6 + (model.doc.cameraClips.isEmpty ? 0 : Self.cameraH + 6)
+                let rows = Self.textRows(model.doc.overlays)
+                ForEach(model.doc.overlays) { o in
+                    TextPill(model: model, text: o, width: max(10, CGFloat(min(o.end, d) - o.at) * pps), height: Self.textH, pxPerSecond: pps)
+                        .offset(x: x(o.at), y: textY + CGFloat(rows[o.id] ?? 0) * (Self.textH + 6))
                         .zIndex(3)
                 }
 
@@ -162,6 +186,21 @@ struct ClipBlock: View {
                         .padding(.top, 5)
                 }
             }
+            .overlay(alignment: .topTrailing) {
+                if clip.rate != 1 && width > 40 {
+                    Text(ClipBlock.speedLabel(clip.rate))
+                        .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .padding(.horizontal, 6)
+                        .frame(height: 15)
+                        .background(Capsule().fill(Palette.violet.opacity(0.92)))
+                        .foregroundStyle(Palette.charcoal)
+                        .padding(.trailing, 14)
+                        .padding(.top, 5)
+                        .allowsHitTesting(false)
+                }
+            }
+            .overlay { fades.allowsHitTesting(false) }
             .overlay(
                 // A light frame inside a dark hairline: legible on light and dark footage alike.
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -191,6 +230,23 @@ struct ClipBlock: View {
             .animation(Motion.snappy(), value: selected)
             .animation(Motion.snappy(), value: lifted)
             .padding(.horizontal, 1)
+    }
+
+    /// "2×", "0.5×".
+    static func speedLabel(_ rate: Double) -> String {
+        (rate == rate.rounded() ? String(Int(rate)) : String(format: "%g", rate)) + "×"
+    }
+
+    /// The fades as soft wedges at the clip's ends.
+    private var fades: some View {
+        let d = max(clip.outputDuration, 0.01)
+        let a = CGFloat(min(clip.fadeIn, d / 2)) * pxPerSecond, b = CGFloat(min(clip.fadeOut, d / 2)) * pxPerSecond
+        return HStack(spacing: 0) {
+            LinearGradient(colors: [Palette.charcoal.opacity(0.75), .clear], startPoint: .leading, endPoint: .trailing).frame(width: a)
+            Spacer(minLength: 0)
+            LinearGradient(colors: [.clear, Palette.charcoal.opacity(0.75)], startPoint: .leading, endPoint: .trailing).frame(width: b)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     /// Frames from this clip's own stretch of its take, one tile per ~86 pt.
@@ -299,6 +355,62 @@ struct ZoomPill: View {
                 model.drag(seg.id, edge: edge, by: Double(v.translation.width / pxPerSecond))
             }
             .onEnded { _ in model.endDrag() }
+    }
+}
+
+/// A text on its lane: click to edit it, drag to move it, drag an end to
+/// change when it comes in or goes.
+private struct TextPill: View {
+    let model: EditorModel
+    let text: TextOverlay
+    let width: CGFloat
+    let height: CGFloat
+    let pxPerSecond: CGFloat
+
+    private var selected: Bool { model.selectedTextID == text.id }
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 6, style: .continuous)
+            .fill(selected ? Palette.clay.opacity(0.4) : Palette.clay.opacity(0.2))
+            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(Palette.clay.opacity(selected ? 1 : 0.55), lineWidth: selected ? 1.5 : 1))
+            .overlay(alignment: .leading) {
+                Label(text.text.split(separator: "\n").first.map(String.init) ?? "Text", systemImage: "textformat")
+                    .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Palette.moonWhite.opacity(0.9))
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .opacity(width > 44 ? 1 : 0)
+            }
+            .frame(width: width, height: height)
+            .clipped()
+            .contentShape(Rectangle())
+            .onTapGesture { model.selectText(text.id); model.seek(to: text.at + 0.05) }
+            .gesture(drag(edge: nil))
+            .overlay(alignment: .leading) { handle(.leading) }
+            .overlay(alignment: .trailing) { handle(.trailing) }
+            .contextMenu { Button("Delete", role: .destructive) { model.deleteText(text.id) } }
+            .animation(Motion.snappy(), value: selected)
+            .help("Text: click to edit, drag to move")
+    }
+
+    private func handle(_ edge: TimelineEdge) -> some View {
+        Rectangle()
+            .fill(Color.clear)
+            .frame(width: min(9, width / 3), height: height)
+            .contentShape(Rectangle())
+            .gesture(drag(edge: edge))
+            .onHover { inside in
+                if inside { NSCursor.resizeLeftRight.push() } else { NSCursor.pop() }
+            }
+    }
+
+    private func drag(edge: TimelineEdge?) -> some Gesture {
+        DragGesture(minimumDistance: 2, coordinateSpace: .named("timeline"))
+            .onChanged { v in
+                if model.textOrigin?.id != text.id { model.beginTextDrag(text.id) }
+                model.dragText(text.id, edge: edge, by: Double(v.translation.width / pxPerSecond))
+            }
+            .onEnded { _ in model.endTextDrag() }
     }
 }
 

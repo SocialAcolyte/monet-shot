@@ -2,7 +2,7 @@
 //! encoded, with the sound the Mac's `Composer` lays under it (camera voices
 //! and the music, faded and ducked).
 
-use crate::ffmpeg::{self, command, decode_audio, pick_encoder, probe, tools, ExportError, VideoReader, FPS, RATE};
+use crate::ffmpeg::{self, command, decode_audio, decode_audio_at, pick_encoder, probe, tools, ExportError, VideoReader, FPS, RATE};
 use crate::paint::{shrink, Painter, Rgba8};
 use monetshot_core::camera::music_envelope;
 use monetshot_core::plan::Planner;
@@ -19,9 +19,13 @@ use std::sync::Arc;
 /// Where someone is talking, and the sound itself, laid on the output timeline.
 struct Placed {
     file: PathBuf,
+    /// Source seconds into the file.
     from: f64,
+    /// Output seconds it lasts (source seconds = duration * speed).
     duration: f64,
     at: f64,
+    /// The clip's speed: the sound is played at it, pitch kept.
+    speed: f64,
 }
 
 /// The camera sound pieces, as `Composer.addCamera` places them: clips
@@ -35,7 +39,7 @@ fn camera_audio(project: &Project, map: &TimeMap) -> Vec<Placed> {
         let Ok(p) = probe(&file) else { continue };
         let to = c.duration.min(p.duration).min(map.duration() - c.at);
         if to > 0.05 && p.has_audio {
-            out.push(Placed { file, from: 0.0, duration: to, at: c.at });
+            out.push(Placed { file, from: 0.0, duration: to, at: c.at, speed: 1.0 });
         }
     }
     for s in &map.spans {
@@ -46,7 +50,13 @@ fn camera_audio(project: &Project, map: &TimeMap) -> Vec<Placed> {
         let from = (s.start - off).max(0.0);
         let to = p.duration.min(s.end - off);
         if to - from > 0.05 && p.has_audio {
-            out.push(Placed { file, from, duration: to - from, at: s.at + (from - (s.start - off)) });
+            out.push(Placed {
+                file,
+                from,
+                duration: (to - from) / s.speed,
+                at: s.at + (from - (s.start - off)) / s.speed,
+                speed: s.speed,
+            });
         }
     }
     out
@@ -82,7 +92,8 @@ fn mix_audio(project: &Project, map: &TimeMap) -> Result<Option<Vec<f32>>, Expor
     let mut any = false;
     let pieces = camera_audio(project, map);
     for p in &pieces {
-        let pcm = decode_audio(&p.file, p.from, Some(p.duration), 2, RATE)?;
+        let pcm = decode_audio_at(&p.file, p.from, p.duration * p.speed, p.speed, 2, RATE)?;
+        let pcm = &pcm[..pcm.len().min(((p.duration * RATE as f64).round() as usize) * 2)];
         let start = (p.at * RATE as f64).round() as usize * 2;
         for (i, s) in pcm.iter().enumerate() {
             if let Some(m) = mix.get_mut(start + i) {

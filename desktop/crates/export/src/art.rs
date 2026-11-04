@@ -9,7 +9,7 @@ use tiny_skia::{
     Color, FillRule, LineCap, LineJoin, Mask, Paint, Path, PathBuilder, Pixmap, Rect, Stroke, Transform,
 };
 
-static FONT: &[u8] = include_bytes!("../assets/Inter-Bold.ttf");
+pub(crate) static FONT: &[u8] = include_bytes!("../../../../Resources/Fonts/Inter-Bold.ttf");
 
 /// A rendered cursor: premultiplied sRGB RGBA8, and the hotspot (the tip,
 /// or the dot's centre) in pixels from the top-left.
@@ -26,11 +26,11 @@ const GRID_HEIGHT: f32 = 22.0;
 const OUTLINE: [(f32, f32); 7] = [(0.0, 0.0), (0.0, 18.2), (4.3, 14.1), (7.4, 21.0), (10.6, 19.6), (7.6, 12.8), (13.4, 12.8)];
 const SOFT_OUTLINE: [(f32, f32); 7] = [(0.0, 0.0), (0.0, 16.4), (4.6, 12.6), (7.2, 18.4), (10.4, 17.0), (7.9, 11.4), (13.6, 11.4)];
 
-fn rgb(hex: u32, a: f32) -> Color {
+pub(crate) fn rgb(hex: u32, a: f32) -> Color {
     Color::from_rgba(((hex >> 16) & 0xFF) as f32 / 255.0, ((hex >> 8) & 0xFF) as f32 / 255.0, (hex & 0xFF) as f32 / 255.0, a).unwrap()
 }
 
-fn paint(c: Color) -> Paint<'static> {
+pub(crate) fn paint(c: Color) -> Paint<'static> {
     let mut p = Paint::default();
     p.set_color(c);
     p.anti_alias = true;
@@ -51,7 +51,7 @@ fn polygon(pts: &[(f32, f32)], s: f32) -> Path {
     b.finish().unwrap()
 }
 
-fn rounded(r: Rect, radius: f32) -> Path {
+pub(crate) fn rounded(r: Rect, radius: f32) -> Path {
     let radius = radius.min(r.width() / 2.0).min(r.height() / 2.0).max(0.0);
     let k = 0.552_284_8 * radius;
     let (x0, y0, x1, y1) = (r.left(), r.top(), r.right(), r.bottom());
@@ -112,12 +112,12 @@ fn with_shadow(pm: &mut Pixmap, t: Transform, what: &Draw, shadow: Color, caster
     }
 }
 
-fn q(v: f32) -> u8 {
+pub(crate) fn q(v: f32) -> u8 {
     (v.clamp(0.0, 1.0) * 255.0 + 0.5) as u8
 }
 
 /// Gaussian blur of a single channel, edges transparent (three box passes).
-fn blur_alpha(a: &mut [f32], w: usize, h: usize, sigma: f32) {
+pub(crate) fn blur_alpha(a: &mut [f32], w: usize, h: usize, sigma: f32) {
     if sigma < 0.3 {
         return;
     }
@@ -169,7 +169,7 @@ fn box_pass(a: &mut [f32], w: usize, h: usize, r: usize, horizontal: bool) {
 
 /// Lays out `text` in the bundled bold font at `size` px: (glyphs, width).
 /// CoreText sizes are em sizes; ab_glyph scales by ascent-to-descent.
-fn em_scale(font: &FontRef, size: f32) -> ab_glyph::PxScale {
+pub(crate) fn em_scale(font: &FontRef, size: f32) -> ab_glyph::PxScale {
     let upem = font.units_per_em().unwrap_or(1000.0);
     ab_glyph::PxScale::from(size * font.height_unscaled() / upem)
 }

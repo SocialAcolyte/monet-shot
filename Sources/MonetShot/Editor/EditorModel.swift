@@ -39,6 +39,9 @@ final class EditorModel {
     /// The segment as it was when a drag began, so a drag is always relative
     /// to where it started (no drift from accumulating small moves).
     @ObservationIgnored private var dragOrigin: ZoomSegment?
+    /// The text being edited in the inspector, and one being dragged on the timeline.
+    var selectedTextID: UUID?
+    @ObservationIgnored var textOrigin: TextOverlay?
 
     /// The music browser, shown over the editor.
     let musicBrowser = MusicBrowserModel()
@@ -196,7 +199,7 @@ final class EditorModel {
 
     func select(_ id: UUID?) {
         selectedID = id
-        if id != nil { selectedClip = nil; selectedBlurID = nil }
+        if id != nil { selectedClip = nil; selectedBlurID = nil; selectedTextID = nil }
     }
 
     /// Adds a zoom at output time `t` (default: the playhead), on the footage there.
@@ -209,6 +212,7 @@ final class EditorModel {
 
     func deleteSelected() {
         if let id = selectedBlurID { deleteBlur(id); return }
+        if let id = selectedTextID { deleteText(id); return }
         if selectedID == nil, let i = selectedClip { deleteClip(i); return }
         guard let id = selectedID else { return }
         update { $0.segments.removeAll { $0.id == id } }
@@ -241,7 +245,8 @@ final class EditorModel {
         for (i, span) in renderer.map.spans.enumerated() {
             for seg in doc.segments where seg.take == span.take && seg.end > span.start && seg.start < span.end {
                 let a = max(seg.start, span.start), b = min(seg.end, span.end)
-                out.append(ZoomPlacement(segment: seg, start: span.at + (a - span.start), end: span.at + (b - span.start), clip: i))
+                out.append(ZoomPlacement(segment: seg, start: span.at + (a - span.start) / span.speed,
+                                         end: span.at + (b - span.start) / span.speed, clip: i))
             }
         }
         return out
@@ -262,7 +267,7 @@ final class EditorModel {
 
     func selectClip(_ i: Int?) {
         selectedClip = i
-        if i != nil { selectedID = nil; selectedBlurID = nil }
+        if i != nil { selectedID = nil; selectedBlurID = nil; selectedTextID = nil }
     }
 
     /// Selects the clip playing at output time `t`.
@@ -289,6 +294,31 @@ final class EditorModel {
         seek(to: min(time, duration))
     }
 
+    /// Sets clip `i`'s speed, keeping the playhead on the same footage.
+    func setSpeed(_ speed: Double, clip i: Int) {
+        guard clips.indices.contains(i) else { return }
+        let here = renderer.map.locate(time)
+        setClips(ClipEdits.setSpeed(clips, at: i, to: speed))
+        seek(to: renderer.map.output(take: here.take, time: here.time) ?? ClipEdits.starts(clips)[i])
+        Log.info(String(format: "clip %d speed %.2fx", i, clips[i].rate))
+    }
+
+    /// Plays every clip at `speed`.
+    func setSpeedForAll(_ speed: Double) {
+        let here = renderer.map.locate(time)
+        setClips(clips.indices.reduce(clips) { ClipEdits.setSpeed($0, at: $1, to: speed) })
+        seek(to: renderer.map.output(take: here.take, time: here.time) ?? 0)
+    }
+
+    /// Sets clip `i`'s fade in and out (output seconds).
+    func setFades(clip i: Int, fadeIn: Double? = nil, fadeOut: Double? = nil) {
+        guard clips.indices.contains(i) else { return }
+        var next = clips
+        if let fadeIn { next[i].fadeIn = max(0, fadeIn) }
+        if let fadeOut { next[i].fadeOut = max(0, fadeOut) }
+        setClips(next)
+    }
+
     // Edge drags (shorten / lengthen).
 
     @ObservationIgnored private var clipOrigin: (index: Int, leading: Bool, clips: [Clip])?
@@ -306,10 +336,11 @@ final class EditorModel {
         guard let o = clipOrigin, o.clips.indices.contains(o.index) else { return }
         let c0 = o.clips[o.index]
         let edge = o.leading ? c0.start : c0.end
-        let next = ClipEdits.resize(o.clips, at: o.index, leading: o.leading, to: edge + seconds, takeDuration: takeDuration(c0.take))
+        // The drag is in output seconds; the edge moves in take time.
+        let next = ClipEdits.resize(o.clips, at: o.index, leading: o.leading, to: edge + seconds * c0.rate, takeDuration: takeDuration(c0.take))
         setClips(next)
         let st = ClipEdits.starts(next)
-        seek(to: o.leading ? st[o.index] : st[o.index] + next[o.index].duration - 0.02)
+        seek(to: o.leading ? st[o.index] : st[o.index] + next[o.index].outputDuration - 0.02)
     }
 
     func endClipDrag() { clipOrigin = nil }
@@ -333,7 +364,7 @@ final class EditorModel {
         guard let m = moving, clips.indices.contains(m.index) else { moving = nil; return }
         moving = nil
         let st = ClipEdits.starts(clips)
-        let centre = st[m.index] + clips[m.index].duration / 2 + m.offset
+        let centre = st[m.index] + clips[m.index].outputDuration / 2 + m.offset
         let to = ClipEdits.dropIndex(clips, dragging: m.index, centreAt: centre)
         guard to != m.index else { return }
         setClips(ClipEdits.move(clips, from: m.index, to: to))
@@ -731,6 +762,9 @@ final class EditorModel {
     func drag(_ id: UUID, edge: TimelineEdge?, by seconds: Double) {
         guard let o = dragOrigin, o.id == id else { return }
         let length = takeDuration(o.take)
+        // The drag is in output seconds; a zoom lives in take time, on footage that may play faster or slower.
+        let rate = renderer.map.spans.first { $0.take == o.take && o.start < $0.end && o.end > $0.start }?.speed ?? 1
+        let seconds = seconds * rate
         let moved: ZoomSegment
         switch edge {
         case nil: moved = SegmentEdits.move(o, by: seconds, duration: length)
@@ -794,7 +828,7 @@ final class EditorModel {
 
     func selectBlur(_ id: UUID?) {
         selectedBlurID = id
-        if id != nil { selectedID = nil; selectedClip = nil }
+        if id != nil { selectedID = nil; selectedClip = nil; selectedTextID = nil }
     }
 
     /// Hides `rect` of the take at the playhead, for the whole take.
@@ -935,13 +969,15 @@ final class EditorModel {
     private func rebuildComposition() async {
         let r = renderer
         do {
-            if let item, itemMap == r.map, itemMusic == doc.music, itemCamera == doc.cameraClips, itemDuck == doc.cameraLook.duckMusic {
+            if let item, itemMap?.sameTiming(r.map) == true, itemMusic == doc.music, itemCamera == doc.cameraClips, itemDuck == doc.cameraLook.duckMusic {
                 // Only the look changed: swap the rendering, keep the item.
                 item.videoComposition = try await Composer.videoComposition(asset: item.asset, renderer: r)
             } else {
                 // Trim or cuts changed: rebuild the edited asset.
                 let p = try await Composer.prepare(project, renderer: r)
                 let item = AVPlayerItem(asset: p.asset)
+                // Sped-up or slowed voices keep their pitch.
+                item.audioTimePitchAlgorithm = .spectral
                 item.videoComposition = p.video
                 item.audioMix = p.audio
                 self.item = item
@@ -992,3 +1028,81 @@ final class EditorModel {
 }
 
 enum TimelineEdge { case leading, trailing }
+
+// MARK: texts
+
+extension EditorModel {
+    var selectedText: TextOverlay? { doc.overlays.first { $0.id == selectedTextID } }
+
+    func selectText(_ id: UUID?) {
+        selectedTextID = id
+        if id != nil { selectedID = nil; selectedClip = nil; selectedBlurID = nil }
+    }
+
+    /// Adds a text at the playhead (T adds a title), and selects it for typing.
+    func addText(_ style: TextStyle = .title) {
+        let words = style == .title ? "Your title" : style == .caption ? "Say what's happening" : "Look here"
+        var o = TextEdits.insert(words, style: style, animation: style == .caption ? .words : style == .label ? .pop : .rise,
+                                 at: time, videoLength: duration)
+        if let f = EditFormat.named(doc.format) { o = f.styled(o) }
+        update { $0.texts = ($0.texts ?? []) + [o] }
+        selectText(o.id)
+        Log.info(String(format: "text (%@) at %.2fs", style.rawValue, o.at))
+    }
+
+    func setText(_ id: UUID, _ change: (inout TextOverlay) -> Void) {
+        update { d in
+            guard var list = d.texts, let i = list.firstIndex(where: { $0.id == id }) else { return }
+            change(&list[i])
+            d.texts = list
+        }
+    }
+
+    func deleteText(_ id: UUID) {
+        update { d in d.texts?.removeAll { $0.id == id } }
+        if selectedTextID == id { selectedTextID = nil }
+    }
+
+    /// Starts the selected text at the playhead, or ends it there.
+    func textStartsHere(_ id: UUID) { setText(id) { $0 = TextEdits.resize($0, leading: true, to: self.time, videoLength: self.duration) } }
+    func textEndsHere(_ id: UUID) { setText(id) { $0 = TextEdits.resize($0, leading: false, to: self.time, videoLength: self.duration) } }
+
+    func beginTextDrag(_ id: UUID) {
+        textOrigin = doc.overlays.first { $0.id == id }
+        selectText(id)
+    }
+
+    /// Drags a text (or one end of it) by `seconds` of output time.
+    func dragText(_ id: UUID, edge: TimelineEdge?, by seconds: Double) {
+        guard let o = textOrigin, o.id == id else { return }
+        let moved: TextOverlay
+        switch edge {
+        case nil: moved = TextEdits.move(o, to: o.at + seconds, videoLength: duration)
+        case .leading: moved = TextEdits.resize(o, leading: true, to: o.at + seconds, videoLength: duration)
+        case .trailing: moved = TextEdits.resize(o, leading: false, to: o.end + seconds, videoLength: duration)
+        }
+        setText(id) { $0 = moved }
+        seek(to: edge == .trailing ? moved.end - 0.02 : moved.at + 0.02)
+    }
+
+    func endTextDrag() { textOrigin = nil }
+
+    // MARK: formats
+
+    var format: EditFormat? { EditFormat.named(doc.format) }
+
+    /// Puts the whole edit in `f`'s pace and look (one undo step), keeping
+    /// the playhead on the same footage.
+    func applyFormat(_ f: EditFormat) {
+        let here = renderer.map.locate(time)
+        update { $0 = f.apply(to: $0, duration: project.meta.duration) }
+        seek(to: renderer.map.output(take: here.take, time: here.time) ?? 0)
+        Log.info("format: \(f.id)")
+    }
+
+    /// Opens the music browser on the format's mood.
+    func findMusic(for f: EditFormat) {
+        if let mood = MusicMood.all.first(where: { $0.id == f.musicMood }) { musicBrowser.choose(mood) }
+        openMusic()
+    }
+}

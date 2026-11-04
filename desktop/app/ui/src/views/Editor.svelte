@@ -134,6 +134,7 @@
         case "Escape":
           s.select(null);
           s.selectClip(null);
+          s.selectText(null);
           return true;
       }
       switch (k.toLowerCase()) {
@@ -154,6 +155,9 @@
           return true;
         case "b":
           s.openFraming();
+          return true;
+        case "t":
+          s.addText("title");
           return true;
       }
       return false;

@@ -36,7 +36,7 @@ struct EditorView: View {
             }
             Rectangle().fill(Palette.line.opacity(0.6)).frame(height: 1)
             MonetShotTimeline(model: model)
-                .frame(height: MonetShotTimeline.height(camera: !model.doc.cameraClips.isEmpty))
+                .frame(height: MonetShotTimeline.height(camera: !model.doc.cameraClips.isEmpty, textRows: Set(MonetShotTimeline.textRows(model.doc.overlays).values).count))
         }
         .background(Palette.charcoal)
         .foregroundStyle(Palette.moonWhite)

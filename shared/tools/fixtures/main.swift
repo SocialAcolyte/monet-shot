@@ -50,7 +50,14 @@ func n(_ v: Double) -> J { .n(v) }
 func n(_ v: CGFloat) -> J { .n(Double(v)) }
 func sample(_ s: CursorSample) -> J { .o(["t": n(s.t), "x": n(s.x), "y": n(s.y)]) }
 func samples(_ s: [CursorSample]) -> J { .a(s.map(sample)) }
-func clip(_ c: Clip) -> J { .o(["start": n(c.start), "end": n(c.end), "take": .i(c.take)]) }
+func clip(_ c: Clip) -> J {
+    var o: [String: J] = ["start": n(c.start), "end": n(c.end), "take": .i(c.take)]
+    // Only when set, as edit.json writes them, so older fixtures are unchanged.
+    if c.speed != 1 { o["speed"] = n(c.speed) }
+    if c.fadeIn != 0 { o["fadeIn"] = n(c.fadeIn) }
+    if c.fadeOut != 0 { o["fadeOut"] = n(c.fadeOut) }
+    return .o(o)
+}
 func clips(_ c: [Clip]) -> J { .a(c.map(clip)) }
 func seg(_ s: ZoomSegment) -> J {
     .o(["start": n(s.start), "end": n(s.end), "scale": n(s.scale), "auto": .b(s.auto), "take": .i(s.take),
@@ -766,7 +773,169 @@ do {
     two.append((m2, CursorTrack()))
     render("two-takes-second", d, two, at: 2.4)
     render("two-takes-first", d, two, at: 0.7)
+    // A clip at 1.5x, half way through fading up from the backdrop.
+    d = EditDoc(); d.outputWidth = 960; d.backdrop = .dusk
+    var fast = Clip(start: 0.5, end: 3.5, speed: 1.5); fast.fadeIn = 1
+    d.clips = [fast]
+    render("dusk-fast-fading-in", d, one(), at: 0.45)
+    // Texts: a title rising in over a fade, a caption with its words arriving, a label.
+    d = EditDoc(); d.outputWidth = 960; d.backdrop = .charcoal
+    var first = Clip(start: 0, end: 4); first.fadeIn = 1.2
+    d.clips = [first]
+    var title = TextOverlay(id: UUID(uuidString: "00000000-0000-4000-8000-0000000000A1")!, text: "Monet Shot", at: 0, duration: 3, style: .title, animation: .rise)
+    title.uppercase = true
+    let caption = TextOverlay(id: UUID(uuidString: "00000000-0000-4000-8000-0000000000A2")!, text: "Zooms decided\nafter recording", at: 0.1, duration: 3.5, style: .caption, animation: .words)
+    var label = TextOverlay(id: UUID(uuidString: "00000000-0000-4000-8000-0000000000A3")!, text: "Click here", at: 0, duration: 4, style: .label, animation: .pop)
+    label.tone = .dark; label.x = 0.3; label.y = 0.25
+    d.texts = [title, caption, label]
+    render("charcoal-texts", d, one(), at: 0.4)
+    render("charcoal-texts-settled", d, one(), at: 1.9)
     write("render/cases.json", .o(["cases": .a(cases)]))
+}
+
+// MARK: - Clip speed and fades
+// Their own random stream, so adding them left every older fixture as it was.
+
+do {
+    var sr = LCG(state: 0x5BEED)
+    func speedClips(_ rng: inout LCG, takes: [Double]) -> [Clip] {
+        randomClips(&rng, takes: takes).map { c in
+            var c = c
+            c.speed = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 0.1, 9][rng.int(0, 9)]
+            if rng.next() < 0.5 { c.fadeIn = rng.range(0, 1.5) }
+            if rng.next() < 0.5 { c.fadeOut = rng.range(0, 1.5) }
+            return c
+        }
+    }
+    var cases: [J] = []
+    var lists: [[Clip]] = [[Clip(start: 1, end: 3, take: 0, speed: 2), Clip(start: 5, end: 9, take: 1, speed: 0.5), Clip(start: 0, end: 1, take: 0)]]
+    for _ in 0..<14 { lists.append(speedClips(&sr, takes: [10, 6])) }
+    for list in lists {
+        let m = TimeMap(clips: list)
+        var q: [J] = []
+        var t = -0.5
+        while t < m.duration + 0.6 {
+            let l = m.locate(t)
+            q.append(.o(["t": n(t), "index": .i(l.index), "take": .i(l.take), "time": n(l.time), "presence": n(m.presence(t))]))
+            t += 0.29
+        }
+        var o: [J] = []
+        for take in 0..<2 {
+            for k in stride(from: -0.5, through: 10.5, by: 0.61) {
+                o.append(.o(["take": .i(take), "time": n(k), "output": m.output(take: take, time: k).map(J.n) ?? .null]))
+            }
+        }
+        let total = m.duration
+        var splits: [J] = [], drops: [J] = [], speeds: [J] = []
+        for k in 0..<9 {
+            let t = total * Double(k) / 8 + (k % 2 == 0 ? 0.05 : 0)
+            splits.append(.o(["t": n(t), "result": ClipEdits.split(list, atOutput: t).map(clips) ?? .null]))
+        }
+        for i in -1...list.count {
+            for c in [-1.0, 0.4, total / 2, total + 1] {
+                drops.append(.o(["dragging": .i(i), "centreAt": n(c), "result": .i(ClipEdits.dropIndex(list, dragging: i, centreAt: c))]))
+            }
+            for v in [0.1, 0.5, 1, 2.5, 4, 7] {
+                speeds.append(.o(["i": .i(i), "speed": n(v), "result": clips(ClipEdits.setSpeed(list, at: i, to: v))]))
+            }
+        }
+        cases.append(.o(["clips": clips(list), "duration": n(m.duration),
+                         "spans": .a(m.spans.map { .o(["take": .i($0.take), "start": n($0.start), "end": n($0.end), "at": n($0.at),
+                                                        "speed": n($0.speed), "fadeIn": n($0.fadeIn), "fadeOut": n($0.fadeOut)]) }),
+                         "starts": .a(ClipEdits.starts(list).map(J.n)),
+                         "locate": .a(q), "output": .a(o), "split": .a(splits), "dropIndex": .a(drops), "setSpeed": .a(speeds)]))
+    }
+    write("clip_speed.json", .o(["cases": .a(cases)]))
+}
+
+// MARK: - Text overlays
+
+func fixedID(_ k: Int) -> UUID { UUID(uuidString: String(format: "00000000-0000-4000-8000-%012X", k))! }
+
+do {
+    var tr = LCG(state: 0x7E47)
+    let texts = ["Monet Shot", "Hello there", "Fast\nand clean", "  two  spaces ", "Ça va? Ünïcode", "", "One more line\nthen two\nthen three", "word"]
+    var cases: [J] = []
+    for k in 0..<40 {
+        var o = TextOverlay(id: fixedID(k), text: texts[k % texts.count], at: tr.range(0, 5), duration: [0.3, 1, 2.5, 4, 0.005][tr.int(0, 4)],
+                            style: TextStyle.allCases[tr.int(0, 2)], animation: TextAnimation.allCases[tr.int(0, 3)])
+        o.x = tr.range(0, 1); o.y = tr.range(0, 1)
+        o.size = [1, 0.5, 2, 0.1, 6][tr.int(0, 4)]
+        o.tone = TextTone.allCases[tr.int(0, 2)]
+        o.uppercase = tr.next() < 0.3
+        if tr.next() < 0.3 { o.backing = tr.next() < 0.5 }
+        let (w, h): (Double, Double) = [(2560, 1440), (960, 540), (1080, 1920), (641, 641)][tr.int(0, 3)]
+        var q: [J] = []
+        var t = o.at - 0.2
+        while t < o.end + 0.2 {
+            if let st = TextMotion.state(o, at: t, width: w, height: h) {
+                q.append(.o(["t": n(t), "lines": .a(st.lines.map(J.s)), "px": n(st.px), "tracking": n(st.tracking), "centerX": n(st.centerX),
+                             "centerY": n(st.centerY), "opacity": n(st.opacity), "scale": n(st.scale), "words": .a(st.words.map(J.n))]))
+            } else {
+                q.append(.o(["t": n(t), "state": .null]))
+            }
+            t += max(0.013, o.duration / 23)
+        }
+        cases.append(.o(["overlay": jsonString(o), "width": n(w), "height": n(h), "backing": .b(o.hasBacking), "states": .a(q)]))
+    }
+    var edits: [J] = []
+    for _ in 0..<30 {
+        let length = tr.range(0.2, 20)
+        let (at, duration) = (tr.range(-2, 22), tr.range(0.1, 6))
+        let (moveTo, leadTo, trailTo) = (tr.range(-3, 25), tr.range(-3, 25), tr.range(-3, 25))
+        let o = TextEdits.insert("x", style: .caption, animation: .fade, at: at, videoLength: length, duration: duration)
+        let moved = TextEdits.move(o, to: moveTo, videoLength: length)
+        let lead = TextEdits.resize(o, leading: true, to: leadTo, videoLength: length)
+        let trail = TextEdits.resize(o, leading: false, to: trailTo, videoLength: length)
+        func span(_ o: TextOverlay) -> J { .o(["at": n(o.at), "duration": n(o.duration)]) }
+        edits.append(.o(["videoLength": n(length), "at": n(at), "duration": n(duration), "moveTo": n(moveTo), "leadTo": n(leadTo),
+                         "trailTo": n(trailTo), "inserted": span(o), "moved": span(moved), "lead": span(lead), "trail": span(trail)]))
+    }
+    // The Mac's layout of whole lines (pen advance and tracking), for the
+    // desktop's own layout to match.
+    var widths: [J] = []
+    for (line, px, tracking) in [("Monet Shot", 40.0, -0.01), ("Hello there", 18.0, 0.02), ("ÇA VA? ÜNÏCODE", 77.0, 0), ("WWW iii", 31.0, 0)] {
+        let l = TextArt.layout(line, font: TextArt.font(px), tracking: tracking)
+        widths.append(.o(["line": .s(line), "px": n(px), "tracking": n(tracking), "width": n(Double(l.width)), "xs": .a(l.xs.map { n(Double($0)) })]))
+    }
+    // Edits mixing old keys with texts and a format, as the Mac writes them.
+    var doc = EditDoc()
+    doc.texts = [TextOverlay(id: fixedID(1), text: "Hi\nthere", at: 1, duration: 2, style: .caption, animation: .words)]
+    doc.format = "fast"
+    write("text.json", .o(["cases": .a(cases), "edits": .a(edits), "widths": .a(widths), "edit": jsonString(doc)]))
+}
+
+// MARK: - Formats
+
+do {
+    var fr = LCG(state: 0xF0F0)
+    var docs: [(EditDoc, Double)] = []
+    var d = EditDoc(); d.cuts = [Cut(start: 3, end: 5)]; d.trimStart = 1; d.trimEnd = 9
+    d.segments = [ZoomSegment(id: fixedID(10), start: 1, end: 2.5, scale: 2, auto: true), ZoomSegment(id: fixedID(11), start: 6, end: 8, scale: 3.1)]
+    docs.append((d, 10))
+    d = EditDoc(); d.backdrop = .image; d.backdropImage = "backdrop-x.jpg"
+    d.clips = [Clip(start: 0, end: 2, take: 0), Clip(start: 1, end: 4, take: 1, speed: 3)]
+    d.texts = [TextOverlay(id: fixedID(20), text: "Title", at: 0, style: .title), TextOverlay(id: fixedID(21), text: "a caption", at: 1, style: .caption, animation: .rise),
+               TextOverlay(id: fixedID(22), text: "label", at: 2, style: .label, animation: .words)]
+    docs.append((d, 4))
+    docs.append((EditDoc(), 7.5))
+    for _ in 0..<5 {
+        var doc = EditDoc()
+        doc.clips = randomClips(&fr, takes: [10, 6])
+        doc.segments = (0..<fr.int(0, 3)).map { k in ZoomSegment(id: fixedID(30 + k), start: fr.range(0, 4), end: fr.range(4, 8), scale: fr.range(1.2, 4), auto: fr.next() < 0.5) }
+        doc.format = "clean"
+        docs.append((doc, 10))
+    }
+    var cases: [J] = []
+    for (doc, duration) in docs {
+        for f in EditFormat.all {
+            cases.append(.o(["format": .s(f.id), "duration": n(duration), "edit": jsonString(doc), "result": jsonString(f.apply(to: doc, duration: duration))]))
+        }
+    }
+    let list: [J] = EditFormat.all.map { f in
+        .o(["id": .s(f.id), "name": .s(f.name), "blurb": .s(f.blurb), "speed": n(f.speed), "musicMood": .s(f.musicMood)])
+    }
+    write("formats.json", .o(["formats": .a(list), "cases": .a(cases)]))
 }
 
 // MARK: - Sync stamp

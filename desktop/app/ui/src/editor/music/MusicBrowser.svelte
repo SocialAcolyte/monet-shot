@@ -13,7 +13,8 @@
   let { store }: { store: EditorStore } = $props();
 
   let query = $state("");
-  let mood = $state<Mood | null>(moods[0]);
+  // A format can ask for its kind of music; otherwise the first mood.
+  let mood = $state<Mood | null>(moods.find((m) => m.id === store.musicMood) ?? moods[0]);
   let tracks = $state<Song[]>([]);
   let loading = $state(false);
   let problem = $state<string | null>(null);

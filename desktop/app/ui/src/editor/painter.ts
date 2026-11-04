@@ -15,7 +15,7 @@
 // The canvas is drawn at its on-screen size, not the plan's: every plan
 // coordinate (and blur sigma) is scaled by k = drawn / canvas.
 
-import type { BackdropPlan, CursorArt, FramePlan, HidePlan, Rect, Rgba, ShadowPlan, WebcamPlan } from "./plan";
+import type { BackdropPlan, CursorArt, FramePlan, HidePlan, Rect, Rgba, ShadowPlan, TextArt, TextPlan, WebcamPlan } from "./plan";
 
 export interface Sources {
   /** The take's video, with a decoded frame at the plan's takeTime. */
@@ -25,6 +25,8 @@ export interface Sources {
   /** A picture in the recording (backdrop), or null while it loads / if it can't. */
   image(file: string): HTMLImageElement | ImageBitmap | null | "failed";
   cursorArt(style: string, tint: string, label: string, artHeight: number): CursorArt | null;
+  /** core-wasm's picture of a text (the export's own). */
+  textArt(text: TextPlan): TextArt | null;
 }
 
 // MARK: shaders
@@ -161,11 +163,12 @@ void main() {
 const BACKDROP = `${COMMON}
 uniform sampler2D uTex;   // GL-oriented, any size (bilinear up)
 uniform float uGrain;
+uniform float uOpacity;   // 1 underneath; a fading clip's veil draws it again over everything
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void main() {
   vec4 c = texture(uTex, vec2(vPos.x / uTarget.x, 1.0 - vPos.y / uTarget.y));
   if (uGrain > 0.0) c.rgb *= (1.0 - uGrain) + uGrain * hash(floor(vPos));
-  outColor = c;
+  outColor = c * uOpacity;
 }`;
 
 const SHADOW = `${COMMON}
@@ -320,6 +323,17 @@ void main() {
   outColor = vec4(rgb, c.a) * rrect(vPos, uFrame, uRadius);
 }`;
 
+/** A text's picture (premultiplied sRGB), faded by uOpacity. */
+const TEXT = `${COMMON}
+uniform sampler2D uTex;
+uniform vec4 uDst;
+uniform float uOpacity;
+void main() {
+  vec4 c = texture(uTex, (vPos - uDst.xy) / uDst.zw);
+  vec3 rgb = c.a > 0.0 ? srgbToLinear(c.rgb / c.a) * c.a : vec3(0.0);
+  outColor = vec4(rgb, c.a) * uOpacity;
+}`;
+
 /** The camera as one group: shadow under rim under face, then opacity. */
 const WEBCAM = `${COMMON}
 uniform sampler2D uTex;          // camera frame, 8-bit gamma (bilinear, decoded after)
@@ -383,6 +397,7 @@ export class Painter {
   private videoTex = new Map<string, { tex: WebGLTexture; w: number; h: number; gamma: boolean }>();
   private imageTex = new Map<string, { tex: WebGLTexture; w: number; h: number }>();
   private cursorTex = new Map<string, { tex: WebGLTexture; art: CursorArt }>();
+  private textTex = new Map<string, { tex: WebGLTexture; art: TextArt }>();
   private backdrop: { key: string; t: Target } | null = null;
   /** Drawn px per canvas px. */
   private k = 1;
@@ -610,6 +625,33 @@ export class Painter {
     return out;
   }
 
+  /** A text's picture as a texture, made once while it stays the same. */
+  private text(src: Sources, t: TextPlan) {
+    const words = t.words.map((w) => Math.round(w * 255));
+    const key = JSON.stringify([t.lines, t.px, t.tracking, words, t.color, t.backing, t.shadow]);
+    const hit = this.textTex.get(key);
+    if (hit) return hit;
+    const art = src.textArt(t);
+    if (!art) return null;
+    const gl = this.gl;
+    const tex = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, art.width, art.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, art.rgba);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    this.clampLinear(true);
+    const out = { tex, art };
+    // Word-by-word texts make a picture per step; keep only the recent ones.
+    if (this.textTex.size > 32) {
+      const [k0, v0] = this.textTex.entries().next().value!;
+      gl.deleteTexture(v0.tex);
+      this.textTex.delete(k0);
+    }
+    this.textTex.set(key, out);
+    return out;
+  }
+
   /** Separable gaussian of `t` in place (uses scratch 3 as the other half). */
   private blurTarget(t: Target, sigma: number) {
     if (sigma < 0.3) return;
@@ -656,7 +698,7 @@ export class Painter {
     // 1. Backdrop.
     this.blend(false);
     const bd = this.backdropTexture(plan.backdrop, src);
-    this.draw(work, "backdrop", BACKDROP, full, { uGrain: grain(plan.backdrop, src) }, { uTex: bd.tex });
+    this.draw(work, "backdrop", BACKDROP, full, { uGrain: grain(plan.backdrop, src), uOpacity: 1 }, { uTex: bd.tex });
     this.blend(true);
 
     // 2. Shadow under the frame.
@@ -715,6 +757,21 @@ export class Painter {
       if (!el) continue;
       if (wc.opacity > 0.001) this.webcam(work, wc, el, S);
       break;
+    }
+
+    // 5. A clip fading in or out: the backdrop again, over everything.
+    if (plan.veil > 0.001) {
+      this.draw(work, "backdrop", BACKDROP, full, { uGrain: grain(plan.backdrop, src), uOpacity: plan.veil }, { uTex: bd.tex });
+    }
+
+    // 6. Words, on top: each picture centred, scaled about its centre.
+    for (const t of plan.texts) {
+      const pic = this.text(src, t);
+      if (!pic) continue;
+      const s = t.scale * k;
+      const w = pic.art.width * s, h = pic.art.height * s;
+      const dst = { x: t.center.x * k - w / 2, y: t.center.y * k - h / 2, w, h };
+      this.draw(work, "text", TEXT, dst, { uDst: v4(dst), uOpacity: t.opacity }, { uTex: pic.tex });
     }
 
     // Present.

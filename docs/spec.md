@@ -23,5 +23,15 @@ it follows the take's clips). Camera or microphone access denied: the
 editor says so and offers System Settings; nothing is recorded. If the
 camera fails to start with a screen recording, the screen still records.
 
+**Pace and words.** Each clip has a `speed` (¼× to 4×; take seconds per
+output second, so a 2× clip lasts half as long and its own camera sound
+keeps its pitch) and `fadeIn`/`fadeOut` (output seconds: the finished frame
+dissolves into the backdrop). Texts (`texts` in edit.json: title, caption
+or label, in output time, centred on the canvas) come in by fade, rise,
+pop or word by word, in Inter Bold (`Resources/Fonts`) on every platform.
+A format (`format`: clean, fast, melancholic, cinematic) writes a pace and
+a look into the edit in one go; nothing it sets is locked. These keys are
+written only when used, so older edits are unchanged byte for byte.
+
 **Non-goals.** System audio, keystroke overlays, multi-display takes,
 cloud upload.

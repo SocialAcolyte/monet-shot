@@ -80,3 +80,20 @@ fn diff_crop(a: &[u8], aw: u32, b: &[u8], bw: u32, w: u32, h: u32) -> (f64, u8) 
     };
     diff(&pick(a, aw), w, h, &pick(b, bw), w, h)
 }
+
+/// Text lines are laid out where the Mac lays them (pen positions from
+/// `shared/fixtures/text.json`, made with CoreText and the same font).
+#[test]
+fn text_layout_matches_the_mac() {
+    let p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../shared/fixtures/text.json");
+    let fx: serde_json::Value = serde_json::from_slice(&std::fs::read(p).unwrap()).unwrap();
+    for c in fx["widths"].as_array().unwrap() {
+        let (line, px, tracking) = (c["line"].as_str().unwrap(), c["px"].as_f64().unwrap() as f32, c["tracking"].as_f64().unwrap() as f32);
+        let (glyphs, width) = monetshot_export::text_art::line_layout(line, px, tracking);
+        let mac_w = c["width"].as_f64().unwrap() as f32;
+        assert!((width - mac_w).abs() < 0.05, "{line} at {px}px: width {width} vs mac {mac_w}");
+        for ((_, _, x), m) in glyphs.iter().zip(c["xs"].as_array().unwrap()) {
+            assert!((x - m.as_f64().unwrap() as f32).abs() < 0.05, "{line}: pen {x} vs mac {m}");
+        }
+    }
+}

@@ -99,6 +99,7 @@ final class EditorWindow: NSObject, NSWindowDelegate {
         case "a": model.reAuto(); return true
         case "c": model.openCamera(); return true
         case "b": model.openFraming(); return true
+        case "t": model.addText(.title); return true
         default: return false
         }
     }

@@ -50,7 +50,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Developer aid: MONETSHOT_SNAPSHOT=<out.png> MONETSHOT_SNAPSHOT_OPEN=<rec.reel>
-    /// [MONETSHOT_SNAPSHOT_TIME=<s>] [MONETSHOT_SNAPSHOT_SELECT=<index>] opens the
+    /// [MONETSHOT_SNAPSHOT_TIME=<s>] [MONETSHOT_SNAPSHOT_SELECT=<index>]
+    /// [MONETSHOT_SNAPSHOT_CLIP=<index>] [MONETSHOT_SNAPSHOT_TEXT=<index>] opens the
     /// editor, draws its window into a PNG and quits. The preview shows a
     /// rendered still, since an offscreen capture can't see a player layer.
     private func snapshot(to out: String) {
@@ -71,6 +72,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 editor.model.select(editor.model.doc.segments[i].id)
             }
             if let i = Int(env["MONETSHOT_SNAPSHOT_CLIP"] ?? "") { editor.model.selectClip(i) }
+            if let i = Int(env["MONETSHOT_SNAPSHOT_TEXT"] ?? ""), editor.model.doc.overlays.indices.contains(i) {
+                editor.model.selectText(editor.model.doc.overlays[i].id)
+            }
             // MONETSHOT_SNAPSHOT_FRAMING=blur|crop opens framing (selecting the last blur).
             if let tool = env["MONETSHOT_SNAPSHOT_FRAMING"] {
                 editor.model.openFraming(tool == "crop" ? .crop : .blur)

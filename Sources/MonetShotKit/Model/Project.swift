@@ -150,14 +150,49 @@ public struct Clip: Codable, Equatable, Sendable {
     public var start: Double
     public var end: Double
     public var take: Int
-    public init(start: Double, end: Double, take: Int = 0) { self.start = start; self.end = end; self.take = take }
+    /// How fast the footage plays: 2 is twice as fast (the clip lasts half
+    /// as long in the video), 0.5 is slow motion.
+    public var speed: Double = 1
+    /// Seconds over which the clip fades up from the backdrop at its start,
+    /// and back down at its end (output time). 0 = a straight cut.
+    public var fadeIn: Double = 0
+    public var fadeOut: Double = 0
+
+    public static let speeds: [Double] = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4]
+    public static let speedRange: ClosedRange<Double> = 0.25...4
+
+    public init(start: Double, end: Double, take: Int = 0, speed: Double = 1) {
+        self.start = start; self.end = end; self.take = take; self.speed = speed
+    }
+    /// Length of footage, in take time.
     public var duration: Double { end - start }
+    /// The speed actually used (kept inside `speedRange`).
+    public var rate: Double { speed.isFinite ? min(max(speed, Clip.speedRange.lowerBound), Clip.speedRange.upperBound) : 1 }
+    /// How long the clip lasts in the video.
+    public var outputDuration: Double { duration / rate }
+
+    enum CodingKeys: String, CodingKey { case start, end, take, speed, fadeIn, fadeOut }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         start = try c.decode(Double.self, forKey: .start)
         end = try c.decode(Double.self, forKey: .end)
         take = try c.decodeIfPresent(Int.self, forKey: .take) ?? 0
+        speed = try c.decodeIfPresent(Double.self, forKey: .speed) ?? 1
+        fadeIn = try c.decodeIfPresent(Double.self, forKey: .fadeIn) ?? 0
+        fadeOut = try c.decodeIfPresent(Double.self, forKey: .fadeOut) ?? 0
+    }
+
+    /// Speed and fades are written only when set, so an edit that uses
+    /// neither is byte-for-byte what it was before they existed.
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(start, forKey: .start)
+        try c.encode(end, forKey: .end)
+        try c.encode(take, forKey: .take)
+        if speed != 1 { try c.encode(speed, forKey: .speed) }
+        if fadeIn != 0 { try c.encode(fadeIn, forKey: .fadeIn) }
+        if fadeOut != 0 { try c.encode(fadeOut, forKey: .fadeOut) }
     }
 }
 
@@ -214,8 +249,17 @@ public struct EditDoc: Codable, Equatable, Sendable {
     public var blurs: [BlurRegion] = []
     /// Per take, the part of the frame kept (the rest is cut away).
     public var crops: [TakeCrop] = []
+    /// Words on the video (nil until the first is added, so older edits
+    /// stay byte-for-byte as they were).
+    public var texts: [TextOverlay]?
+    /// The format last applied (`EditFormat.id`), for the picker to show; the
+    /// edit itself carries everything the format set.
+    public var format: String?
 
     public init() {}
+
+    /// The texts, in drawing order (later ones on top).
+    public var overlays: [TextOverlay] { texts ?? [] }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -245,6 +289,8 @@ public struct EditDoc: Codable, Equatable, Sendable {
         backdropBlur = try c.decodeIfPresent(Double.self, forKey: .backdropBlur) ?? d.backdropBlur
         blurs = try c.decodeIfPresent([BlurRegion].self, forKey: .blurs) ?? d.blurs
         crops = try c.decodeIfPresent([TakeCrop].self, forKey: .crops) ?? d.crops
+        texts = try c.decodeIfPresent([TextOverlay].self, forKey: .texts)
+        format = try c.decodeIfPresent(String.self, forKey: .format)
     }
 
     /// The clips that make the video: the explicit list, or (for a recording

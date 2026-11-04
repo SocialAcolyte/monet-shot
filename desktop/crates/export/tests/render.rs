@@ -92,7 +92,11 @@ fn painter_matches_the_macs_renderer() {
                 .collect();
             image::RgbaImage::from_raw(ours.width, ours.height, diff).unwrap().save(dir.join(format!("{name}-diff.png"))).unwrap();
         }
-        if !(mean < 1.5 && bad < 0.005) {
+        // Text is rasterised by CoreText on the Mac and ab_glyph here (same
+        // font, same layout to 0.05 px; see art.rs): glyph edges anti-alias
+        // a little differently, so frames with words get more room there.
+        let edges = if doc.overlays().is_empty() { 0.005 } else { 0.008 };
+        if !(mean < 1.5 && bad < edges) {
             failures.push(name.to_string());
         }
     }

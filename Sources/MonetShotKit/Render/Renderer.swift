@@ -399,14 +399,53 @@ extension Renderer {
     /// the frame and fades at its ends) rather than with the take.
     public func render(source: CIImage, webcam: CIImage?, overlay: Bool, at t: Double) -> CIImage {
         let out = render(source: source, at: t)
-        guard doc.cameraLook.visible, let webcam else { return out }
+        guard doc.cameraLook.visible, let webcam else { return finished(out, at: t) }
         var full = false, presence = 1.0
         if overlay, let c = doc.cameraClips.first(where: { $0.covers(t) }) {
             full = c.full
             presence = CameraEdits.presence(c, at: t)
         }
-        guard presence > 0.001 else { return out }
-        return drawWebcam(webcam, over: out, full: full, presence: presence, take: map.locate(t).take)
+        guard presence > 0.001 else { return finished(out, at: t) }
+        return finished(drawWebcam(webcam, over: out, full: full, presence: presence, take: map.locate(t).take), at: t)
+    }
+
+    /// The last layers: a fading clip's veil, then the texts over everything.
+    func finished(_ frame: CIImage, at t: Double) -> CIImage {
+        withTexts(fadedIn(frame, at: t), at: t)
+    }
+
+    /// Every text showing at output time `t`, in list order (later on top).
+    func withTexts(_ frame: CIImage, at t: Double) -> CIImage {
+        var out = frame
+        for o in doc.overlays {
+            guard let st = TextMotion.state(o, at: t, width: canvas.width, height: canvas.height), st.opacity > 0.001,
+                  let art = TextArt.image(st, tone: o.tone, backing: o.hasBacking) else { continue }
+            let s = CGFloat(st.scale)
+            let w = CGFloat(art.width) * s, h = CGFloat(art.height) * s
+            // Centred on the state's centre (top-left canvas pixels; CoreImage is y-up).
+            var img = CIImage(cgImage: art.image)
+                .transformed(by: CGAffineTransform(scaleX: s, y: s))
+                .transformed(by: CGAffineTransform(translationX: CGFloat(st.centerX) - w / 2, y: canvas.height - CGFloat(st.centerY) - h / 2))
+            if st.opacity < 0.999 {
+                img = img.applyingFilter("CIColorMatrix", parameters: [
+                    "inputRVector": CIVector(x: CGFloat(st.opacity), y: 0, z: 0, w: 0),
+                    "inputGVector": CIVector(x: 0, y: CGFloat(st.opacity), z: 0, w: 0),
+                    "inputBVector": CIVector(x: 0, y: 0, z: CGFloat(st.opacity), w: 0),
+                    "inputAVector": CIVector(x: 0, y: 0, z: 0, w: CGFloat(st.opacity)),
+                ])
+            }
+            out = img.composited(over: out)
+        }
+        return out.cropped(to: CGRect(origin: .zero, size: canvas))
+    }
+
+    /// While a clip fades in or out, the finished frame dissolves into the
+    /// backdrop: the backdrop laid back over it at `1 - presence`.
+    func fadedIn(_ frame: CIImage, at t: Double) -> CIImage {
+        let p = map.presence(t)
+        guard p < 0.999 else { return frame }
+        let veil = backdrop.applyingFilter("CIColorMatrix", parameters: ["inputAVector": CIVector(x: 0, y: 0, z: 0, w: 1 - p)])
+        return veil.composited(over: frame).cropped(to: CGRect(origin: .zero, size: canvas))
     }
 
     private func drawWebcam(_ webcam: CIImage, over out: CIImage, full: Bool, presence: Double, take: Int) -> CIImage {

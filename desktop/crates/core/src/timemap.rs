@@ -4,6 +4,7 @@ use crate::model::{Clip, EditDoc};
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Span {
     pub take: i64,
     /// Take time.
@@ -11,11 +12,24 @@ pub struct Span {
     pub end: f64,
     /// Where it begins in output time.
     pub at: f64,
+    /// Take seconds per output second.
+    pub speed: f64,
+    pub fade_in: f64,
+    pub fade_out: f64,
 }
 
 impl Span {
+    /// Footage length, in take time.
     pub fn duration(&self) -> f64 {
         self.end - self.start
+    }
+    /// How long it plays, in output time.
+    pub fn length(&self) -> f64 {
+        self.duration() / self.speed
+    }
+    /// Take time `into` output seconds after the span begins.
+    pub fn take_time(&self, into: f64) -> f64 {
+        self.start + into * self.speed
     }
 }
 
@@ -41,8 +55,16 @@ impl TimeMap {
         let mut spans = Vec::new();
         for c in clips {
             if c.duration() > 1e-3 {
-                spans.push(Span { take: c.take, start: c.start, end: c.end, at });
-                at += c.duration();
+                spans.push(Span {
+                    take: c.take,
+                    start: c.start,
+                    end: c.end,
+                    at,
+                    speed: c.rate(),
+                    fade_in: c.fade_in.max(0.0),
+                    fade_out: c.fade_out.max(0.0),
+                });
+                at += c.output_duration();
             }
         }
         TimeMap { spans }
@@ -53,7 +75,7 @@ impl TimeMap {
     }
 
     pub fn duration(&self) -> f64 {
-        self.spans.last().map_or(0.0, |s| s.at + s.duration())
+        self.spans.last().map_or(0.0, |s| s.at + s.length())
     }
 
     pub fn locate(&self, t: f64) -> Located {
@@ -62,8 +84,8 @@ impl TimeMap {
             return Located { index: 0, take: self.spans[0].take, time: self.spans[0].start };
         }
         for (i, s) in self.spans.iter().enumerate() {
-            if t < s.at + s.duration() {
-                return Located { index: i, take: s.take, time: s.start + (t - s.at) };
+            if t < s.at + s.length() {
+                return Located { index: i, take: s.take, time: s.take_time(t - s.at).min(s.end) };
             }
         }
         Located { index: self.spans.len() - 1, take: last.take, time: last.end }
@@ -74,11 +96,43 @@ impl TimeMap {
         self.spans
             .iter()
             .find(|s| s.take == take && time >= s.start && time <= s.end)
-            .map(|s| s.at + (time - s.start))
+            .map(|s| s.at + (time - s.start) / s.speed)
     }
 
     pub fn keeps(&self, take: i64, time: f64) -> bool {
         self.output(take, time).is_some()
+    }
+
+    /// The same clips at the same speeds (fades may differ).
+    pub fn same_timing(&self, o: &TimeMap) -> bool {
+        self.spans.len() == o.spans.len()
+            && self.spans.iter().zip(&o.spans).all(|(a, b)| {
+                a.take == b.take && a.start == b.start && a.end == b.end && a.at == b.at && a.speed == b.speed
+            })
+    }
+
+    /// How much of the picture shows at output time `t`: 1, or less while a
+    /// clip fades up from the backdrop at its start or down at its end.
+    pub fn presence(&self, t: f64) -> f64 {
+        if self.spans.is_empty() {
+            return 1.0;
+        }
+        let s = &self.spans[self.locate(t).index];
+        let (into, left) = (t - s.at, s.at + s.length() - t);
+        // A fade never takes more than half its clip.
+        let (fi, fo) = (s.fade_in.min(s.length() / 2.0), s.fade_out.min(s.length() / 2.0));
+        let smooth = |x: f64| {
+            let u = x.clamp(0.0, 1.0);
+            u * u * (3.0 - 2.0 * u)
+        };
+        let mut p = 1.0f64;
+        if fi > 1e-3 {
+            p = p.min(smooth(into / fi));
+        }
+        if fo > 1e-3 {
+            p = p.min(smooth(left / fo));
+        }
+        p
     }
 }
 
@@ -95,7 +149,7 @@ pub mod clip_edits {
             .iter()
             .map(|c| {
                 let s = at;
-                at += c.duration();
+                at += c.output_duration();
                 s
             })
             .collect()
@@ -106,18 +160,21 @@ pub mod clip_edits {
         let st = starts(clips);
         for (i, c) in clips.iter().enumerate() {
             let into = t - st[i];
-            if !(into > 0.0 && into < c.duration()) {
+            if !(into > 0.0 && into < c.output_duration()) {
                 continue;
             }
-            if !(into >= MIN_LENGTH / 2.0 && c.duration() - into >= MIN_LENGTH / 2.0) {
+            if !(into >= MIN_LENGTH / 2.0 && c.output_duration() - into >= MIN_LENGTH / 2.0) {
                 return None;
             }
             let mut out = clips.to_vec();
-            let cut = c.start + into;
+            let cut = c.start + into * c.rate();
+            // Both halves keep the speed; the fade in stays at the start, the fade out at the end.
             let mut a = c.clone();
             a.end = cut;
+            a.fade_out = 0.0;
             let mut b = c.clone();
             b.start = cut;
+            b.fade_in = 0.0;
             out.splice(i..=i, [a, b]);
             return Some(out);
         }
@@ -148,6 +205,17 @@ pub mod clip_edits {
         out
     }
 
+    /// Sets clip `i`'s speed (kept inside the speed range).
+    pub fn set_speed(clips: &[Clip], i: i64, speed: f64) -> Vec<Clip> {
+        let Some(i) = index(clips, i) else { return clips.to_vec() };
+        if !speed.is_finite() {
+            return clips.to_vec();
+        }
+        let mut out = clips.to_vec();
+        out[i].speed = speed.clamp(Clip::SPEED_MIN, Clip::SPEED_MAX);
+        out
+    }
+
     /// Moves clip `from` so it plays at position `to`.
     pub fn move_clip(clips: &[Clip], from: i64, to: i64) -> Vec<Clip> {
         let Some(from) = index(clips, from) else { return clips.to_vec() };
@@ -165,7 +233,7 @@ pub mod clip_edits {
         others.remove(i);
         let st = starts(&others);
         for (k, c) in others.iter().enumerate() {
-            if centre_at < st[k] + c.duration() / 2.0 {
+            if centre_at < st[k] + c.output_duration() / 2.0 {
                 return k as i64;
             }
         }

@@ -4,8 +4,9 @@
 //! rules: `docs/porting/contracts/frame-plan.md`.
 
 use crate::art::cursor_art;
+use crate::text_art::text_art;
 use monetshot_core::cursor::{CursorStyle, CursorTint};
-use monetshot_core::plan::{BackdropPlan, FramePlan, HideStyle, Planner, Rect, Rgba, WebcamPlan};
+use monetshot_core::plan::{BackdropPlan, FramePlan, HideStyle, Planner, Rect, Rgba, TextPlan, WebcamPlan};
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
@@ -563,6 +564,30 @@ fn super_lin(c: &Rgba) -> [f32; 3] {
     lin(c)
 }
 
+/// Premultiplied sRGB RGBA8 as premultiplied linear light (how CoreImage
+/// reads a picture before compositing it).
+fn linear_premultiplied(rgba: &[u8]) -> Vec<[f32; 4]> {
+    let lut = to_linear_lut();
+    rgba.chunks(4)
+        .map(|p| {
+            let al = p[3] as f32 / 255.0;
+            if al <= 0.0 {
+                return [0.0; 4];
+            }
+            let un = |v: u8| lut[((v as f32 / al).round().min(255.0)) as usize];
+            [un(p[0]) * al, un(p[1]) * al, un(p[2]) * al, al]
+        })
+        .collect()
+}
+
+/// A text's picture, kept while it doesn't change (all but word reveals).
+struct TextSprite {
+    key: String,
+    w: usize,
+    h: usize,
+    px: Vec<[f32; 4]>,
+}
+
 struct Base {
     key: Option<ShadowKey>,
     lin: Vec<[f32; 3]>,
@@ -586,6 +611,7 @@ pub struct Painter {
     shadows: Vec<ShadowMask>,
     bases: Vec<Base>,
     sprite: Option<Sprite>,
+    texts: Vec<TextSprite>,
     folder: Option<PathBuf>,
 }
 
@@ -600,6 +626,7 @@ impl Painter {
             shadows: vec![],
             bases: vec![],
             sprite: None,
+            texts: vec![],
             folder: folder.map(Path::to_path_buf),
         }
     }
@@ -657,19 +684,7 @@ impl Painter {
         let key = (style.to_string(), tint.to_string(), label.to_string(), height);
         if self.sprite.as_ref().map(|s| &s.key) != Some(&key) {
             let a = cursor_art(&CursorStyle::parse(style), &CursorTint::parse(tint), label, height);
-            let lut = to_linear_lut();
-            let px = a
-                .rgba
-                .chunks(4)
-                .map(|p| {
-                    let al = p[3] as f32 / 255.0;
-                    if al <= 0.0 {
-                        return [0.0; 4];
-                    }
-                    let un = |v: u8| lut[((v as f32 / al).round().min(255.0)) as usize];
-                    [un(p[0]) * al, un(p[1]) * al, un(p[2]) * al, al]
-                })
-                .collect();
+            let px = linear_premultiplied(&a.rgba);
             self.sprite = Some(Sprite { key, w: a.width as usize, h: a.height as usize, tip: (a.tip_x, a.tip_y), px });
         }
         self.sprite.as_ref().unwrap()
@@ -807,7 +822,71 @@ impl Painter {
             }
         }
         lap("webcam");
+
+        // A clip fading in or out: the backdrop again over everything, in linear light.
+        if plan.veil > 0.001 {
+            let v = plan.veil.min(1.0) as f32;
+            let lut = to_linear_lut();
+            data.par_chunks_mut(cw * 4).zip(self.backdrop.par_chunks(cw)).for_each(|(row, under)| {
+                for (o, b) in row.chunks_mut(4).zip(under) {
+                    for c in 0..3 {
+                        o[c] = enc8(lut[o[c] as usize] * (1.0 - v) + b[c] * v);
+                    }
+                }
+            });
+        }
+        lap("veil");
+
+        // Words, over everything: each picture centred, scaled about its
+        // centre (bilinear, as CoreImage's transform) and faded.
+        for tp in &plan.texts {
+            let i = self.text_sprite(tp);
+            let spr = &self.texts[i];
+            let s = tp.scale.max(0.01);
+            let (sw, sh) = (spr.w as f64 * s, spr.h as f64 * s);
+            let (sx0, sy0) = (tp.center.x - sw / 2.0, tp.center.y - sh / 2.0);
+            let (x0, y0, x1, y1) = pixel_box(&Rect::new(sx0, sy0, sw, sh), cw, ch);
+            if x1 <= x0 || y1 <= y0 {
+                continue;
+            }
+            let ax = Axis { origin: (x0 as f64 - sx0) / s, step: 1.0 / s, lo: 0, hi: spr.w as i64, clamp: false, bilinear: true };
+            let ay = Axis { origin: (y0 as f64 - sy0) / s, step: 1.0 / s, lo: 0, hi: spr.h as i64, clamp: false, bilinear: true };
+            let tw = spr.w as i64;
+            let px = &spr.px;
+            let art = resample(x1 - x0, y1 - y0, ax, ay, |x, y| px[(y * tw + x) as usize]);
+            let o = tp.opacity.clamp(0.0, 1.0) as f32;
+            let lut = to_linear_lut();
+            for y in y0..y1 {
+                for x in x0..x1 {
+                    let a = art[(y - y0) * (x1 - x0) + (x - x0)];
+                    let al = a[3].clamp(0.0, 1.0) * o;
+                    if al <= 0.0 {
+                        continue;
+                    }
+                    let p = &mut data[(y * cw + x) * 4..(y * cw + x) * 4 + 3];
+                    for c in 0..3 {
+                        p[c] = enc8(a[c].max(0.0) * o + lut[p[c] as usize] * (1.0 - al));
+                    }
+                }
+            }
+        }
+        lap("texts");
         Rgba8::new(cw as u32, ch as u32, data)
+    }
+
+    /// The picture for a text, drawn once and kept while it stays the same.
+    fn text_sprite(&mut self, tp: &TextPlan) -> usize {
+        let words: Vec<u8> = tp.words.iter().map(|w| (w.clamp(0.0, 1.0) * 255.0).round() as u8).collect();
+        let key = format!("{:?}|{}|{}|{:?}|{:?}|{:?}|{}", tp.lines, tp.px, tp.tracking, words, tp.color, tp.backing, tp.shadow);
+        if let Some(i) = self.texts.iter().position(|t| t.key == key) {
+            return i;
+        }
+        let art = text_art(tp);
+        if self.texts.len() >= 16 {
+            self.texts.remove(0);
+        }
+        self.texts.push(TextSprite { key, w: art.width as usize, h: art.height as usize, px: linear_premultiplied(&art.rgba) });
+        self.texts.len() - 1
     }
 
     fn paint_webcam(&mut self, data: &mut [u8], wp: &WebcamPlan, cam: &Rgba8) {

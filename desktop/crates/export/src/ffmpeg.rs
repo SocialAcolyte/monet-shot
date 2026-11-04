@@ -266,9 +266,43 @@ pub fn decode_audio(path: &Path, from: f64, duration: Option<f64>, channels: u32
     if let Some(d) = duration {
         c.args(["-t", &format!("{:.6}", d.max(0.0))]);
     }
+    c.arg("-i").arg(path);
+    run_audio(c, channels, rate)
+}
+
+/// As `decode_audio`, played at `speed` with its pitch kept (ffmpeg's
+/// atempo, as the Mac's spectral time-pitch): `duration` is of the source,
+/// the result lasts `duration / speed`.
+pub fn decode_audio_at(path: &Path, from: f64, duration: f64, speed: f64, channels: u32, rate: u32) -> Result<Vec<f32>, ExportError> {
+    if (speed - 1.0).abs() < 1e-6 {
+        return decode_audio(path, from, Some(duration), channels, rate);
+    }
+    let t = tools()?;
+    let mut c = command(&t.ffmpeg);
+    c.args(["-v", "error", "-nostdin", "-ss", &format!("{:.6}", from.max(0.0)), "-t", &format!("{:.6}", duration.max(0.0))]);
+    c.arg("-i").arg(path).args(["-af", &atempo(speed)]);
+    run_audio(c, channels, rate)
+}
+
+/// An atempo chain for `speed`: one filter takes 0.5...2, so slower or
+/// faster speeds chain several.
+pub fn atempo(speed: f64) -> String {
+    let mut left = speed.clamp(0.0625, 16.0);
+    let mut parts = vec![];
+    while left > 2.0 {
+        parts.push("atempo=2".to_string());
+        left /= 2.0;
+    }
+    while left < 0.5 {
+        parts.push("atempo=0.5".to_string());
+        left /= 0.5;
+    }
+    parts.push(format!("atempo={left:.6}"));
+    parts.join(",")
+}
+
+fn run_audio(mut c: Command, channels: u32, rate: u32) -> Result<Vec<f32>, ExportError> {
     let out = c
-        .arg("-i")
-        .arg(path)
         .args(["-vn", "-sn", "-ac", &channels.to_string(), "-ar", &rate.to_string(), "-f", "f32le", "-"])
         .stdin(Stdio::null())
         .output()?;

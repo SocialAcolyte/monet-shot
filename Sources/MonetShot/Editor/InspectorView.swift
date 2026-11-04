@@ -11,7 +11,9 @@ struct InspectorView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
+                    formatSection
                     if let i = model.selectedClip, model.clips.indices.contains(i) { clipSection(i) }
+                    textSection
                     zoomSection
                     privacySection
                     musicSection
@@ -125,7 +127,12 @@ struct InspectorView: View {
     private func clipSection(_ i: Int) -> some View {
         let c = model.clips[i]
         return Section("Clip \(i + 1) of \(model.clips.count)") {
-            Hint("\(model.project.takes.count > 1 ? "Take \(c.take + 1), " : "")\(TransportBar.stamp(c.start)) to \(TransportBar.stamp(c.end)), \(String(format: "%.1f", c.duration)) s. Drag its ends to trim it, or its middle to move it. ⌘Z undoes.")
+            Hint("\(model.project.takes.count > 1 ? "Take \(c.take + 1), " : "")\(TransportBar.stamp(c.start)) to \(TransportBar.stamp(c.end)), \(String(format: "%.1f", c.outputDuration)) s\(c.rate != 1 ? " at \(ClipBlock.speedLabel(c.rate))" : ""). Drag its ends to trim it, or its middle to move it. ⌘Z undoes.")
+            speedRow(i, c)
+            SliderRow("Fade in", value: Binding(get: { c.fadeIn }, set: { v in model.setFades(clip: i, fadeIn: v < 0.05 ? 0 : v) }),
+                      range: 0...2, format: { $0 == 0 ? "Cut" : String(format: "%.1f s", $0) })
+            SliderRow("Fade out", value: Binding(get: { c.fadeOut }, set: { v in model.setFades(clip: i, fadeOut: v < 0.05 ? 0 : v) }),
+                      range: 0...2, format: { $0 == 0 ? "Cut" : String(format: "%.1f s", $0) })
             HStack(spacing: 8) {
                 Button { model.split() } label: { Label("Split", systemImage: "scissors") }
                     .buttonStyle(PillButtonStyle())
@@ -134,6 +141,125 @@ struct InspectorView: View {
                     .buttonStyle(PillButtonStyle())
                     .disabled(model.clips.count < 2)
                     .help("Leave this clip out (Delete)")
+            }
+        }
+    }
+
+    /// The formats, two by two; the one the edit came from is lit.
+    private var formatSection: some View {
+        Section("Format") {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                ForEach(EditFormat.all) { f in
+                    Button { model.applyFormat(f) } label: { FormatCard(format: f, on: model.doc.format == f.id) }
+                        .buttonStyle(.plain)
+                        .help(f.blurb)
+                }
+            }
+            if let f = model.format {
+                Hint(f.blurb)
+                if let mood = MusicMood.all.first(where: { $0.id == f.musicMood }) {
+                    Button { model.findMusic(for: f) } label: { Label("Find \(mood.name.lowercased()) music", systemImage: "music.note") }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Palette.violet)
+                }
+            } else {
+                Hint("Sets the pace and the look in one go: speed, cuts or fades, zooms, backdrop and how words come in. Everything stays adjustable.")
+            }
+        }
+    }
+
+    @ViewBuilder private var textSection: some View {
+        Section("Text") {
+            if let o = model.selectedText {
+                let id = o.id
+                TextField("Words", text: Binding(get: { o.text }, set: { v in model.setText(id) { $0.text = v } }), axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(1...4)
+                    .font(.system(size: 12.5, design: .rounded))
+                Picker("", selection: Binding(get: { o.style }, set: { v in model.setText(id) { $0.style = v; $0.backing = nil } })) {
+                    ForEach(TextStyle.allCases, id: \.self) { Text($0.label).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                HStack {
+                    Text("Comes in").font(.system(size: 12, design: .rounded)).foregroundStyle(Palette.moonWhite)
+                    Spacer()
+                    Picker("", selection: Binding(get: { o.animation }, set: { v in model.setText(id) { $0.animation = v } })) {
+                        ForEach(TextAnimation.allCases, id: \.self) { Text($0.label).tag($0) }
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                }
+                HStack(spacing: 6) {
+                    ForEach(TextTone.allCases, id: \.self) { t in
+                        Button(t.label) { model.setText(id) { $0.tone = t } }
+                            .buttonStyle(ChipStyle(on: o.tone == t))
+                            .fixedSize()
+                    }
+                    Spacer(minLength: 0)
+                }
+                Picker("", selection: Binding(
+                    get: { o.y < 0.33 ? 0 : o.y < 0.7 ? 1 : 2 },
+                    set: { v in model.setText(id) { $0.x = 0.5; $0.y = [0.16, 0.45, 0.86][v] } })) {
+                    Text("Top").tag(0)
+                    Text("Middle").tag(1)
+                    Text("Bottom").tag(2)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                SliderRow("Size", value: Binding(get: { o.size }, set: { v in model.setText(id) { $0.size = v } }),
+                          range: 0.5...2.5, format: { String(format: "%.1f×", $0) })
+                ToggleRow("Capitals", isOn: Binding(get: { o.uppercase }, set: { v in model.setText(id) { $0.uppercase = v } }))
+                ToggleRow("Box behind", isOn: Binding(get: { o.hasBacking }, set: { v in model.setText(id) { $0.backing = v } }))
+                Hint("\(TransportBar.stamp(o.at)) to \(TransportBar.stamp(o.end)). Drag it on the timeline, or move the playhead and set an end.")
+                HStack(spacing: 8) {
+                    Button("Start here") { model.textStartsHere(id) }.buttonStyle(PillButtonStyle())
+                    Button("End here") { model.textEndsHere(id) }.buttonStyle(PillButtonStyle())
+                    Spacer(minLength: 0)
+                    Button(role: .destructive) { model.deleteText(id) } label: { Image(systemName: "trash") }
+                        .buttonStyle(PillButtonStyle())
+                        .help("Delete this text (Delete)")
+                }
+            } else {
+                Hint("Words over the video, on its own lane. T adds a title at the playhead.")
+                HStack(spacing: 8) {
+                    ForEach(TextStyle.allCases, id: \.self) { st in
+                        Button { model.addText(st) } label: { Label(st.label, systemImage: st == .title ? "textformat.size" : st == .caption ? "captions.bubble" : "tag") }
+                            .buttonStyle(PillButtonStyle())
+                            .fixedSize()
+                    }
+                }
+            }
+        }
+    }
+
+    /// Speed in steps (¼× to 4×); the chips are the common ones.
+    private func speedRow(_ i: Int, _ c: Clip) -> some View {
+        let steps = Clip.speeds
+        let index = Binding<Double>(
+            get: { Double(steps.indices.min { abs(steps[$0] - c.rate) < abs(steps[$1] - c.rate) } ?? 3) },
+            set: { v in
+                let k = min(max(Int(v.rounded()), 0), steps.count - 1)
+                if steps[k] != c.rate { model.setSpeed(steps[k], clip: i) }
+            })
+        return VStack(alignment: .leading, spacing: 8) {
+            // The readout is the clip's own speed (a format's 0.85× sits between steps).
+            SliderRow("Speed", value: index, range: 0...Double(steps.count - 1), format: { _ in ClipBlock.speedLabel(c.rate) })
+            HStack(spacing: 6) {
+                ForEach([0.5, 1, 1.5, 2, 4], id: \.self) { v in
+                    Button(ClipBlock.speedLabel(v)) { model.setSpeed(v, clip: i) }
+                        .buttonStyle(ChipStyle(on: c.rate == v))
+                        .fixedSize()
+                }
+                Spacer(minLength: 0)
+                if model.clips.count > 1 {
+                    Button("All clips") { model.setSpeedForAll(c.rate) }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Palette.violet)
+                        .help("Play every clip at \(ClipBlock.speedLabel(c.rate))")
+                }
             }
         }
     }
@@ -389,6 +515,66 @@ private struct SliderRow: View {
             Slider(value: value, in: range)
                 .controlSize(.small)
         }
+    }
+}
+
+/// One format: its name over a strip that hints at its pace and backdrop.
+private struct FormatCard: View {
+    let format: EditFormat
+    let on: Bool
+
+    private var fill: Color {
+        switch format.backdrop {
+        case .paper: Color(hex: 0xE9E4D8)
+        case .charcoal: Color(hex: 0x26292C)
+        case .dusk: Color(hex: 0x7A4A36)
+        case .slate: Color(hex: 0x46555C)
+        default: Palette.midnight
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // Pace: more, shorter bars for a faster format; soft ends for fades.
+            HStack(spacing: 2) {
+                ForEach(0..<Int((4 * format.speed).rounded()), id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(format.backdrop == .paper ? Palette.charcoal.opacity(0.5) : Palette.moonWhite.opacity(0.6))
+                        .opacity(format.clipFade > 0 ? 0.55 : 1)
+                }
+            }
+            .frame(height: 10)
+            Text(format.name)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(format.backdrop == .paper ? Palette.charcoal : Palette.moonWhite)
+            Text(format.speed == 1 ? "1× · \(format.clipFade > 0 ? "fades" : "cuts")" : "\(ClipBlock.speedLabel(format.speed)) · \(format.clipFade > 0 ? "fades" : "cuts")")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle((format.backdrop == .paper ? Palette.charcoal : Palette.moonWhite).opacity(0.65))
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(fill))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Palette.violet, lineWidth: 1.8).opacity(on ? 1 : 0))
+        .scaleEffect(on && !Motion.reduceMotion ? 1.02 : 1)
+        .animation(Motion.snappy(), value: on)
+        .contentShape(Rectangle())
+    }
+}
+
+/// A small rounded choice, filled when it's the one in use.
+private struct ChipStyle: ButtonStyle {
+    let on: Bool
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 11, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .padding(.horizontal, 8)
+            .frame(height: 22)
+            .background(Capsule().fill(on ? Palette.violet : Palette.midnight))
+            .foregroundStyle(on ? Palette.charcoal : Palette.moonWhite)
+            .opacity(configuration.isPressed ? 0.7 : 1)
+            .contentShape(Capsule())
     }
 }
 

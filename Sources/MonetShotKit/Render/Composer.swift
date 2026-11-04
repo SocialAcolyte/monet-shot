@@ -24,7 +24,12 @@ public enum Composer {
             let range = CMTimeRange(start: CMTime(seconds: s.start, preferredTimescale: 6000),
                                     end: CMTime(seconds: s.end, preferredTimescale: 6000))
             try track.insertTimeRange(range, of: source, at: at)
-            at = at + range.duration
+            // A clip at another speed: its footage stretched or squeezed to its length.
+            let length = abs(s.speed - 1) > 1e-6 ? CMTime(seconds: s.length, preferredTimescale: 6000) : range.duration
+            if length != range.duration {
+                track.scaleTimeRange(CMTimeRange(start: at, duration: range.duration), toDuration: length)
+            }
+            at = at + length
         }
         try await addCamera(project, map: map, to: comp)
         return comp
@@ -34,12 +39,17 @@ public enum Composer {
     /// own camera (following its clips) on another, their sound beside them.
     static func addCamera(_ project: Project, map: TimeMap, to comp: AVMutableComposition) async throws {
         let ts: CMTimeScale = 6000
-        func place(_ source: AVAssetTrack, from: Double, to: Double, at: Double, in track: AVMutableCompositionTrack) throws {
+        func place(_ source: AVAssetTrack, from: Double, to: Double, at: Double, speed: Double = 1, in track: AVMutableCompositionTrack) throws {
             let end = track.timeRange.end
             let start = CMTime(seconds: at, preferredTimescale: ts)
             if start > end { track.insertEmptyTimeRange(CMTimeRange(start: end, end: start)) }
-            try track.insertTimeRange(CMTimeRange(start: CMTime(seconds: from, preferredTimescale: ts), end: CMTime(seconds: to, preferredTimescale: ts)),
-                                      of: source, at: max(start, track.timeRange.end))
+            let range = CMTimeRange(start: CMTime(seconds: from, preferredTimescale: ts), end: CMTime(seconds: to, preferredTimescale: ts))
+            let slot = max(start, track.timeRange.end)
+            try track.insertTimeRange(range, of: source, at: slot)
+            if abs(speed - 1) > 1e-6 {
+                track.scaleTimeRange(CMTimeRange(start: slot, duration: range.duration),
+                                     toDuration: CMTime(seconds: (to - from) / speed, preferredTimescale: ts))
+            }
         }
         func tracks(_ v: CMPersistentTrackID, _ a: CMPersistentTrackID) -> (AVMutableCompositionTrack, AVMutableCompositionTrack)? {
             guard let vt = comp.addMutableTrack(withMediaType: .video, preferredTrackID: v),
@@ -66,9 +76,9 @@ public enum Composer {
                   let length = try? await asset.load(.duration).seconds else { continue }
             let from = max(0, s.start - off), to = min(length, s.end - off)
             guard to - from > 0.05 else { continue }
-            let at = s.at + (from - (s.start - off))
-            try place(v, from: from, to: to, at: at, in: takeV)
-            if let a = try? await asset.loadTracks(withMediaType: .audio).first { try place(a, from: from, to: to, at: at, in: takeA) }
+            let at = s.at + (from - (s.start - off)) / s.speed
+            try place(v, from: from, to: to, at: at, speed: s.speed, in: takeV)
+            if let a = try? await asset.loadTracks(withMediaType: .audio).first { try place(a, from: from, to: to, at: at, speed: s.speed, in: takeA) }
         }
         for t in [overlayV, overlayA, takeV, takeA] where t.segments.isEmpty { comp.removeTrack(t) }
     }
@@ -187,6 +197,8 @@ public enum Composer {
         guard let session = AVAssetExportSession(asset: asset, presetName: preset) else { throw ExportError.noSession }
         session.videoComposition = comp
         session.audioMix = audio
+        // Sped-up or slowed voices keep their pitch.
+        session.audioTimePitchAlgorithm = .spectral
         try? FileManager.default.removeItem(at: url)
         // The session isn't Sendable; this task only reads its state stream.
         nonisolated(unsafe) let watched = session

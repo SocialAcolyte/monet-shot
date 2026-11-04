@@ -213,23 +213,57 @@ impl Backdrop {
     }
 }
 
+fn one() -> f64 {
+    1.0
+}
+fn is_one(v: &f64) -> bool {
+    *v == 1.0
+}
+fn is_zero(v: &f64) -> bool {
+    *v == 0.0
+}
+
 /// A stretch of one take, in that take's own time.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Clip {
     pub start: f64,
     pub end: f64,
     #[serde(default, deserialize_with = "swift_int")]
     pub take: i64,
+    /// How fast the footage plays: 2 is twice as fast, 0.5 slow motion.
+    /// Written only when set, as on the Mac.
+    #[serde(default = "one", skip_serializing_if = "is_one")]
+    pub speed: f64,
+    /// Seconds (output time) over which the clip fades up from the backdrop
+    /// at its start, and down at its end. 0 = a straight cut.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub fade_in: f64,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub fade_out: f64,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
 
 impl Clip {
+    pub const SPEEDS: [f64; 9] = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0];
+    pub const SPEED_MIN: f64 = 0.25;
+    pub const SPEED_MAX: f64 = 4.0;
+
     pub fn new(start: f64, end: f64, take: i64) -> Self {
-        Clip { start, end, take, extra: Extra::new() }
+        Clip { start, end, take, speed: 1.0, fade_in: 0.0, fade_out: 0.0, extra: Extra::new() }
     }
+    /// Length of footage, in take time.
     pub fn duration(&self) -> f64 {
         self.end - self.start
+    }
+    /// The speed actually used (kept inside SPEED_MIN...SPEED_MAX).
+    pub fn rate(&self) -> f64 {
+        if self.speed.is_finite() { self.speed.clamp(Clip::SPEED_MIN, Clip::SPEED_MAX) } else { 1.0 }
+    }
+    /// How long the clip lasts in the video.
+    pub fn output_duration(&self) -> f64 {
+        self.duration() / self.rate()
     }
 }
 
@@ -252,6 +286,7 @@ pub use crate::camera::{CameraClip, CameraCorner, CameraLook, CameraShape};
 pub use crate::cursor::{CursorStyle, CursorTint};
 pub use crate::music::MusicChoice;
 pub use crate::privacy::{BlurRegion, NormRect, TakeCrop};
+pub use crate::text::TextOverlay;
 
 macro_rules! edit_defaults {
     ($($f:ident: $t:ty = $v:expr),* $(,)?) => {
@@ -323,6 +358,13 @@ pub struct EditDoc {
     pub blurs: Vec<BlurRegion>,
     #[serde(default)]
     pub crops: Vec<TakeCrop>,
+    /// Words on the video (None until the first is added, so older edits
+    /// stay byte-for-byte as they were).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub texts: Option<Vec<TextOverlay>>,
+    /// The format last applied (`formats::Format::id`), for the picker.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub format: Option<String>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
@@ -368,6 +410,11 @@ impl EditDoc {
         let w = self.output_width.max(2);
         let h = ((w as f64 / aspect / 2.0).round() as i64) * 2;
         (w, h.max(2))
+    }
+
+    /// The texts, in drawing order (later ones on top).
+    pub fn overlays(&self) -> &[TextOverlay] {
+        self.texts.as_deref().unwrap_or(&[])
     }
 
     /// Take `take`'s crop (the whole frame when it has none).

@@ -8,6 +8,7 @@ import MonetShotKit
 ///   MonetShot --auto   <rec.reel>                  replace auto zooms from the clicks
 ///   MonetShot --frame  <rec.reel> <seconds> <out.png>
 ///   MonetShot --render <rec.reel> <out.mp4>
+///   MonetShot --format <rec.reel> <clean|fast|melancholic|cinematic>
 ///   MonetShot --version
 enum CommandLineMode {
     struct Output { let text: String; let status: Int32 }
@@ -26,6 +27,8 @@ enum CommandLineMode {
             return blocking { try await music(URL(fileURLWithPath: args[1]), query: args[2]) }
         case "--add" where args.count >= 3:
             return blocking { try await add(URL(fileURLWithPath: args[1]), Array(args.dropFirst(2)).map { URL(fileURLWithPath: $0) }) }
+        case "--format" where args.count == 3:
+            return blocking { try format(URL(fileURLWithPath: args[1]), args[2]) }
         case "--render" where args.count == 3:
             return blocking { try await render(URL(fileURLWithPath: args[1]), to: URL(fileURLWithPath: args[2])) }
         case let flag? where flag.hasPrefix("--"):
@@ -42,6 +45,7 @@ enum CommandLineMode {
                MonetShot --render <rec.reel> <out.mp4>
                MonetShot --music <rec.reel> <search>     put the first search result under the video
                MonetShot --add <rec.reel> <video|rec.reel>…  add footage as clips at the end
+               MonetShot --format <rec.reel> <\(EditFormat.all.map(\.id).joined(separator: "|"))>  pace and look in one go
                MonetShot --version
         """, status: 2)
 
@@ -56,6 +60,14 @@ enum CommandLineMode {
         }
         done.wait()
         return result
+    }
+
+    private static func format(_ folder: URL, _ id: String) throws -> String {
+        guard let f = EditFormat.named(id) else { return "no format \"\(id)\"; try \(EditFormat.all.map(\.id).joined(separator: ", "))" }
+        var p = try Project.load(folder)
+        p.edit = f.apply(to: p.edit, duration: p.meta.duration)
+        try p.saveEdit()
+        return "\(f.name): \(p.clips.count) clips at \(String(format: "%g", f.speed))x, \(String(format: "%.1f", TimeMap(clips: p.clips).duration))s"
     }
 
     private static func auto(_ folder: URL) throws -> String {

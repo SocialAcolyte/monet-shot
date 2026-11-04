@@ -5,6 +5,7 @@
 pub mod camera;
 pub mod camera_math;
 pub mod cursor;
+pub mod formats;
 pub mod json;
 pub mod model;
 pub mod music;
@@ -13,6 +14,7 @@ pub mod paths;
 pub mod plan;
 pub mod privacy;
 pub mod project;
+pub mod text;
 pub mod timemap;
 
 pub use camera::{music_envelope, CameraClip, CameraCorner, CameraLook, CameraShape};
@@ -23,4 +25,5 @@ pub use music::{MusicChoice, MusicGrid, Song};
 pub use plan::{FramePlan, Planner};
 pub use privacy::{BlurRegion, BlurStyle, NormRect, TakeCrop};
 pub use project::{Project, Take};
+pub use text::{text_edits, text_motion, TextAnimation, TextOverlay, TextState, TextStyle, TextTone};
 pub use timemap::{clip_edits, TimeMap};

@@ -7,7 +7,7 @@ import { fileUrl, mediaUrl } from "../lib/files";
 import { call, inTauri } from "../lib/ipc";
 import { isLinux } from "../lib/platform";
 import type { Sources } from "./painter";
-import type { CursorArt, FramePlan } from "./plan";
+import type { CursorArt, FramePlan, TextArt, TextPlan } from "./plan";
 import type { EditorStore } from "./store.svelte";
 
 const join = (folder: string, file: string) => `${folder.replace(/[\\/]+$/, "")}/${file}`;
@@ -28,6 +28,8 @@ export class Playback implements Sources {
   onNotice: (text: string | null) => void = () => {};
   /** The clip being played (index into spans) while playing. */
   private span = -1;
+  /** The plan `tick` last returned (the one being painted). */
+  private current: FramePlan | null = null;
 
   constructor(private store: EditorStore) {
     // Off-screen but in the document, so every engine keeps decoding frames.
@@ -141,7 +143,10 @@ export class Playback implements Sources {
       this.cams.set(file, v);
     }
     if (time < 0 || (v.duration && time > v.duration)) return null;
-    this.follow(v, time);
+    // A take's own camera runs with its clip; one recorded over the edit, in real time.
+    const plan = this.current;
+    const own = plan?.webcam.find((w) => w.file === file)?.kind === "take";
+    this.follow(v, time, own && plan ? plan.speed : 1);
     return this.ready(v) ? v : null;
   }
 
@@ -169,11 +174,17 @@ export class Playback implements Sources {
     return this.store.cursorArt(style, tint, label, artHeight);
   }
 
+  textArt(text: TextPlan): TextArt | null {
+    return this.store.textArt(text);
+  }
+
   // MARK: clock
 
-  /** Keeps a video near `time`: seeks when far off, plays along while playing. */
-  private follow(v: HTMLVideoElement, time: number) {
+  /** Keeps a video near `time`: seeks when far off, plays along while
+   *  playing at `rate` (a clip's speed; the browser keeps the pitch). */
+  private follow(v: HTMLVideoElement, time: number, rate = 1) {
     const playing = this.store.playing;
+    if (v.playbackRate !== rate) v.playbackRate = rate;
     if (playing) {
       if (Math.abs(v.currentTime - time) > 0.25) v.currentTime = time;
       if (v.paused) v.play().catch(() => {});
@@ -207,7 +218,7 @@ export class Playback implements Sources {
             s.time = spans[this.span].at;
           }
         } else if (vt >= sp.start - 0.1) {
-          s.time = Math.min(d, sp.at + Math.max(0, vt - sp.start));
+          s.time = Math.min(d, sp.at + Math.max(0, vt - sp.start) / sp.speed);
         }
       }
       this.dirty = true;
@@ -217,11 +228,12 @@ export class Playback implements Sources {
     if (!this.dirty) return null;
     this.dirty = s.playing;
     const plan = ed.plan(Math.min(s.time, Math.max(0, d - 0.0005)));
+    this.current = plan;
     // Every take but the one on screen rests.
     this.takes.forEach((v, i) => {
       if (i === plan.take) {
         v.muted = this.store.muted;
-        this.follow(v, plan.takeTime);
+        this.follow(v, plan.takeTime, plan.speed);
       } else if (!v.paused) v.pause();
     });
     for (const [file, v] of this.cams) {

@@ -203,6 +203,49 @@ await check("clip edits: split, resize, delete, reorder") { _ in
     expect(ClipEdits.starts(three) == [0, 2, 4], "output starts")
 }
 
+await check("clip speed: a fast clip is shorter, edits stay on the footage") { _ in
+    let m = TimeMap(clips: [Clip(start: 0, end: 4, speed: 2), Clip(start: 4, end: 6, take: 0, speed: 0.5)])
+    expect(near(m.duration, 6), "2 s at 2x plus 4 s at 0.5x (got \(m.duration))")
+    expect(near(m.locate(1).time, 2) && near(m.locate(3).time, 4.5), "output -> take time at each clip's speed")
+    expect(near(m.output(take: 0, time: 5) ?? -1, 4), "take time -> output at 0.5x")
+    let halves = ClipEdits.split([Clip(start: 0, end: 4, speed: 2)], atOutput: 1)
+    expect(halves?.map(\.end) == [2, 4] && halves?.allSatisfy { $0.speed == 2 } == true, "a split cuts at the footage under the playhead and keeps the speed")
+    expect(ClipEdits.setSpeed([Clip(start: 0, end: 1)], at: 0, to: 99)[0].speed == 4, "speed stays in range")
+}
+
+await check("new edit fields are written only when set") { _ in
+    let plain = String(data: try JSONEncoder.app.encode(EditDoc()), encoding: .utf8)!
+    expect(!plain.contains("texts") && !plain.contains("format"), "an edit without texts or a format writes neither key")
+    let clip = String(data: try JSONEncoder.app.encode(Clip(start: 0, end: 1)), encoding: .utf8)!
+    expect(!clip.contains("speed") && !clip.contains("fade"), "a plain clip writes no speed or fades")
+    var c = Clip(start: 0, end: 1, speed: 1.5); c.fadeIn = 0.5
+    let back = try JSONDecoder.app.decode(Clip.self, from: JSONEncoder.app.encode(c))
+    expect(back == c, "speed and fades round-trip")
+}
+
+await check("formats set the pace and the look, texts follow them") { _ in
+    var d = EditDoc(); d.cuts = [Cut(start: 2, end: 3)]; d.backdrop = .image
+    d.texts = [TextOverlay(text: "Hi", at: 0, style: .title, animation: .rise)]
+    let f = EditFormat.fast.apply(to: d, duration: 6)
+    expect(f.clips?.count == 2 && f.clips?.allSatisfy { $0.speed == 1.5 } == true, "every clip at the format's speed")
+    expect(f.backdrop == .image, "a picture of your own stays")
+    expect(f.overlays.first?.animation == .pop && f.overlays.first?.uppercase == true, "titles pop, in capitals")
+    let m = EditFormat.melancholic.apply(to: d, duration: 6)
+    expect(m.clips?.first?.fadeIn == 1.6 && m.clips?.last?.fadeOut == 2 && m.format == "melancholic", "melancholic fades open and close")
+    expect(TimeMap(clips: m.clips ?? []).presence(0) < 0.01, "a fading clip starts on the backdrop")
+}
+
+await check("texts come in, and are drawn") { _ in
+    var o = TextOverlay(text: "One two three", at: 1, duration: 3, style: .caption, animation: .words)
+    expect(TextMotion.state(o, at: 0.5, width: 1920, height: 1080) == nil, "not before it starts")
+    let early = TextMotion.state(o, at: 1.05, width: 1920, height: 1080)
+    expect(early?.words.count == 3 && (early?.words[2] ?? 1) < 0.01, "words arrive one by one")
+    o.animation = .pop
+    let st = TextMotion.state(o, at: 2, width: 1920, height: 1080)
+    expect(st.map { abs($0.scale - 1) < 0.01 && $0.opacity > 0.99 } == true, "settled after coming in")
+    expect(st.flatMap { TextArt.image($0, tone: .light, backing: true) } != nil, "the text draws (font found)")
+}
+
 await check("takes: a second take loads, and zooms stay on their take") { dir in
     let folder = dir.appendingPathComponent("b.reel")
     try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

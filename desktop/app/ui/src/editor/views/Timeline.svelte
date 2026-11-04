@@ -4,13 +4,14 @@
   // to scrub, the clips end to end (each a filmstrip of its own take, with
   // handles to shorten or lengthen it; drag one to reorder), the zoom track,
   // where zooms ride on the footage they were made on, and the camera lane.
-  import { ScanEye, MousePointer2, CircleUserRound, RectangleHorizontal } from "@lucide/svelte";
+  import { ScanEye, MousePointer2, CircleUserRound, RectangleHorizontal, Type } from "@lucide/svelte";
   import type { EditorStore } from "../store.svelte";
   import { stamp } from "../format";
   import { call, inTauri } from "../../lib/ipc";
   import { fileUrl } from "../../lib/files";
-  import type { ZoomSegment } from "../core";
+  import { outputDuration, rate, speedLabel, type ZoomSegment } from "../core";
   import { laneMenu } from "../camera/laneMenu";
+  import { laneHeight, textRows } from "./lanes";
 
   let { store }: { store: EditorStore } = $props();
 
@@ -121,9 +122,13 @@
   }
 
   const follows = (s: ZoomSegment) => s.focusX == null;
+  // Words over the video, on their own lane (under the camera's).
+  const textH = 22;
+  const textY = $derived(trackY + trackH + 6 + (store.edit.cameraClips.length ? cameraH + 6 : 0));
+  const rows = $derived(textRows(store.texts));
 </script>
 
-<div class="timeline" bind:clientWidth={width} style:height="{store.edit.cameraClips.length ? 186 - 20 : 158 - 20}px">
+<div class="timeline" bind:clientWidth={width} style:height="{laneHeight(store) - 20}px">
   <!-- Ruler -->
   <div class="ruler" style:height="{rulerH}px" onpointerdown={scrub} role="slider" aria-label="Playhead" aria-valuenow={store.time} tabindex="-1">
     {#each ticks as t (t.t)}
@@ -135,7 +140,8 @@
   <div class="lane" style:left="{inset}px" style:top="{stripY}px" style:width="{w}px" style:height="{stripH}px"></div>
 
   {#each store.clips as clip, i (i)}
-    {@const cw = Math.max(6, (clip.end - clip.start) * pps)}
+    {@const cw = Math.max(6, outputDuration(clip) * pps)}
+    {@const od = Math.max(outputDuration(clip), 0.01)}
     {@const lifted = store.moving?.index === i}
     {@const selected = store.selectedClip === i}
     {@const n = Math.max(1, Math.ceil(cw / (stripH * 1.6)))}
@@ -167,6 +173,9 @@
         {/each}
       </div>
       {#if store.takes.length > 1 && cw > 54}<span class="badge">Take {clip.take + 1}</span>{/if}
+      {#if rate(clip) !== 1 && cw > 40}<span class="badge speed tabular">{speedLabel(rate(clip))}</span>{/if}
+      {#if clip.fadeIn}<span class="fade in" style:width="{Math.min(clip.fadeIn, od / 2) * pps}px"></span>{/if}
+      {#if clip.fadeOut}<span class="fade out" style:width="{Math.min(clip.fadeOut, od / 2) * pps}px"></span>{/if}
       <div class="rim"></div>
       {#each [true, false] as leading (leading)}
         <div
@@ -271,6 +280,46 @@
     </div>
   {/each}
 
+  {#each store.texts as o (o.id)}
+    {@const tw = Math.max(10, (Math.min(o.at + o.duration, d) - o.at) * pps)}
+    {@const sel = store.selectedTextID === o.id}
+    <div
+      class="txt"
+      class:sel
+      style:left="{X(o.at)}px"
+      style:top="{textY + (rows.get(o.id) ?? 0) * (textH + 6)}px"
+      style:width="{tw}px"
+      style:height="{textH}px"
+      onpointerdown={dragger({
+        begin: () => store.beginTextDrag(o.id),
+        change: (s) => store.dragText(o.id, null, s),
+        end: () => store.endTextDrag(),
+        click: () => {
+          store.selectText(o.id);
+          store.seek(o.at + 0.05);
+        },
+      })}
+      title="Text: click to edit, drag to move"
+      role="button"
+      tabindex="-1"
+    >
+      {#if tw > 44}<span class="clabel"><Type size={11} />{o.text.split("\n")[0] || "Text"}</span>{/if}
+      {#each ["leading", "trailing"] as const as edge (edge)}
+        <div
+          class="zhandle"
+          class:leading={edge === "leading"}
+          style:width="{Math.min(9, tw / 3)}px"
+          onpointerdown={dragger({
+            begin: () => store.beginTextDrag(o.id),
+            change: (s) => store.dragText(o.id, edge, s),
+            end: () => store.endTextDrag(),
+          })}
+          role="separator"
+        ></div>
+      {/each}
+    </div>
+  {/each}
+
   <div class="playhead" style:left="{X(store.time) - 4.5}px">
     <span class="knob"></span>
     <span class="line"></span>
@@ -368,6 +417,27 @@
     font-weight: 700;
     line-height: 15px;
     pointer-events: none;
+  }
+  .badge.speed {
+    left: auto;
+    right: 14px;
+    background: var(--violet);
+    color: #17191b;
+  }
+  /* The fades, as soft wedges at the clip's ends. */
+  .fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+  .fade.in {
+    left: 0;
+    background: linear-gradient(to right, rgba(23, 25, 27, 0.75), transparent);
+  }
+  .fade.out {
+    right: 0;
+    background: linear-gradient(to left, rgba(23, 25, 27, 0.75), transparent);
   }
   /* A light frame inside a dark hairline: legible on light and dark footage. */
   .rim {
@@ -486,6 +556,19 @@
     background: rgba(166, 187, 195, 0.22);
     box-shadow: inset 0 0 0 1px rgba(166, 187, 195, 0.5);
     overflow: hidden;
+  }
+  .txt {
+    position: absolute;
+    z-index: 3;
+    border-radius: 6px;
+    background: rgba(201, 111, 74, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(201, 111, 74, 0.55);
+    overflow: hidden;
+    cursor: grab;
+  }
+  .txt.sel {
+    background: rgba(201, 111, 74, 0.4);
+    box-shadow: inset 0 0 0 1.5px var(--clay);
   }
   .clabel {
     position: absolute;

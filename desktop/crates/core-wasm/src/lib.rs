@@ -252,6 +252,12 @@ pub fn clip_move(clips: JsValue, from: i32, to: i32) -> R<JsValue> {
     to_js(&clip_edits::move_clip(&from_js::<Vec<Clip>>(&clips)?, from.into(), to.into()))
 }
 
+/// ClipEdits.setSpeed(clips, at:, to:)
+#[wasm_bindgen(js_name = clipSetSpeed)]
+pub fn clip_set_speed(clips: JsValue, i: i32, speed: f64) -> R<JsValue> {
+    to_js(&clip_edits::set_speed(&from_js::<Vec<Clip>>(&clips)?, i.into(), speed))
+}
+
 #[wasm_bindgen(js_name = clipDropIndex)]
 pub fn clip_drop_index(clips: JsValue, dragging: i32, centre_at: f64) -> R<i32> {
     Ok(clip_edits::drop_index(&from_js::<Vec<Clip>>(&clips)?, dragging.into(), centre_at) as i32)
@@ -261,6 +267,46 @@ pub fn clip_drop_index(clips: JsValue, dragging: i32, centre_at: f64) -> R<i32> 
 #[wasm_bindgen(js_name = keptClips)]
 pub fn kept_clips(edit: JsValue, duration: f64) -> R<JsValue> {
     to_js(&from_js::<EditDoc>(&edit)?.kept_clips(duration))
+}
+
+// MARK: formats and texts
+
+/// EditFormat.all: id, name, blurb, speed, fades, zoom depth, music mood.
+#[wasm_bindgen]
+pub fn formats() -> R<JsValue> {
+    to_js(&monetshot_core::formats::all())
+}
+
+/// EditFormat.apply(to:duration:): the edit in that format (null for an unknown id).
+#[wasm_bindgen(js_name = formatApply)]
+pub fn format_apply(edit: JsValue, id: &str, duration: f64) -> R<JsValue> {
+    match monetshot_core::formats::named(id) {
+        Some(f) => to_js(&f.apply(&from_js::<EditDoc>(&edit)?, duration)),
+        None => Ok(JsValue::NULL),
+    }
+}
+
+/// EditFormat.styled: a text as the format brings it in (unchanged for an unknown id).
+#[wasm_bindgen(js_name = formatStyled)]
+pub fn format_styled(id: &str, text: JsValue) -> R<JsValue> {
+    let o: TextOverlay = from_js(&text)?;
+    to_js(&monetshot_core::formats::named(id).map_or(o.clone(), |f| f.styled(&o)))
+}
+
+/// TextEdits.insert: a new text with a fresh id, inside the video.
+#[wasm_bindgen(js_name = textInsert)]
+pub fn text_insert(text: &str, style: &str, animation: &str, at: f64, video_length: f64, duration: Option<f64>) -> R<JsValue> {
+    to_js(&text_edits::insert(text, TextStyle::parse(style), TextAnimation::parse(animation), at, video_length, duration.unwrap_or(3.0)))
+}
+
+#[wasm_bindgen(js_name = textMove)]
+pub fn text_move(text: JsValue, at: f64, video_length: f64) -> R<JsValue> {
+    to_js(&text_edits::move_to(&from_js(&text)?, at, video_length))
+}
+
+#[wasm_bindgen(js_name = textResize)]
+pub fn text_resize(text: JsValue, leading: bool, to: f64, video_length: f64) -> R<JsValue> {
+    to_js(&text_edits::resize(&from_js(&text)?, leading, to, video_length))
 }
 
 // MARK: zooms (CameraMath, SegmentEdits)
@@ -395,6 +441,22 @@ pub struct CursorSprite {
     #[wasm_bindgen(js_name = tipY)]
     pub tip_y: f64,
     pub rgba: Vec<u8>,
+}
+
+#[wasm_bindgen(getter_with_clone)]
+pub struct TextSprite {
+    pub width: u32,
+    pub height: u32,
+    pub rgba: Vec<u8>,
+}
+
+/// A text's picture as the export draws it, for one of the plan's `texts`
+/// (draw it centred on `center`, scaled by `scale`, at `opacity`). The same
+/// lines, size, words and colours give the same picture: cache on those.
+#[wasm_bindgen(js_name = textArt)]
+pub fn text_art(text: JsValue) -> R<TextSprite> {
+    let a = monetshot_export::text_art(&from_js::<plan::TextPlan>(&text)?);
+    Ok(TextSprite { width: a.width, height: a.height, rgba: a.rgba })
 }
 
 /// The cursor as the export draws it, `pixelHeight` tall (use the plan's

@@ -46,7 +46,11 @@ fn near_tol(a: f64, b: f64, tol: f64, what: &str) {
 }
 
 fn clip(v: &Value) -> Clip {
-    Clip::new(f(&v["start"]), f(&v["end"]), i(&v["take"]))
+    let mut c = Clip::new(f(&v["start"]), f(&v["end"]), i(&v["take"]));
+    c.speed = v.get("speed").map_or(1.0, f);
+    c.fade_in = v.get("fadeIn").map_or(0.0, f);
+    c.fade_out = v.get("fadeOut").map_or(0.0, f);
+    c
 }
 fn clips(v: &Value) -> Vec<Clip> {
     arr(v).iter().map(clip).collect()
@@ -59,6 +63,9 @@ fn same_clips(a: &[Clip], b: &Value, what: &str) {
         near(x.start, y.start, what);
         near(x.end, y.end, what);
         assert_eq!(x.take, y.take, "{what}");
+        near(x.speed, y.speed, what);
+        near(x.fade_in, y.fade_in, what);
+        near(x.fade_out, y.fade_out, what);
     }
 }
 fn sample(v: &Value) -> CursorSample {
@@ -188,6 +195,111 @@ fn clip_edits() {
         for q in arr(&c["dropIndex"]) {
             assert_eq!(clip_edits::drop_index(&list, i(&q["dragging"]), f(&q["centreAt"])), i(&q["result"]), "dropIndex {q}");
         }
+    }
+}
+
+#[test]
+fn clip_speed_and_fades() {
+    for c in arr(&fixture("clip_speed.json")["cases"]) {
+        let list = clips(&c["clips"]);
+        let m = TimeMap::from_clips(&list);
+        near(m.duration(), f(&c["duration"]), "duration");
+        assert_eq!(m.spans.len(), arr(&c["spans"]).len());
+        for (s, w) in m.spans.iter().zip(arr(&c["spans"])) {
+            assert_eq!(s.take, i(&w["take"]));
+            near(s.at, f(&w["at"]), "span at");
+            near(s.speed, f(&w["speed"]), "span speed");
+            near(s.fade_in, f(&w["fadeIn"]), "span fade in");
+            near(s.fade_out, f(&w["fadeOut"]), "span fade out");
+        }
+        for (a, b) in clip_edits::starts(&list).iter().zip(arr(&c["starts"])) {
+            near(*a, f(b), "starts");
+        }
+        for q in arr(&c["locate"]) {
+            let l = m.locate(f(&q["t"]));
+            assert_eq!((l.index as i64, l.take), (i(&q["index"]), i(&q["take"])), "locate {}", q["t"]);
+            near(l.time, f(&q["time"]), "locate time");
+            near(m.presence(f(&q["t"])), f(&q["presence"]), "presence");
+        }
+        for q in arr(&c["output"]) {
+            let o = m.output(i(&q["take"]), f(&q["time"]));
+            assert_eq!(o.is_some(), !q["output"].is_null(), "output {q}");
+            if let Some(o) = o {
+                near(o, f(&q["output"]), "output");
+            }
+        }
+        for q in arr(&c["split"]) {
+            let r = clip_edits::split(&list, f(&q["t"]));
+            assert_eq!(r.is_some(), !q["result"].is_null(), "split at {}", q["t"]);
+            if let Some(r) = r {
+                same_clips(&r, &q["result"], "split");
+            }
+        }
+        for q in arr(&c["dropIndex"]) {
+            assert_eq!(clip_edits::drop_index(&list, i(&q["dragging"]), f(&q["centreAt"])), i(&q["result"]), "dropIndex {q}");
+        }
+        for q in arr(&c["setSpeed"]) {
+            same_clips(&clip_edits::set_speed(&list, i(&q["i"]), f(&q["speed"])), &q["result"], "setSpeed");
+        }
+    }
+}
+
+#[test]
+fn text_overlays() {
+    let fx = fixture("text.json");
+    for c in arr(&fx["cases"]) {
+        let o: TextOverlay = from_json(c["overlay"].as_str().unwrap().as_bytes()).unwrap();
+        assert_eq!(o.has_backing(), c["backing"].as_bool().unwrap(), "backing {o:?}");
+        // The overlay re-encodes to the Mac's exact bytes.
+        assert_eq!(to_swift_json(&o).unwrap(), c["overlay"].as_str().unwrap(), "overlay json");
+        let (w, h) = (f(&c["width"]), f(&c["height"]));
+        for q in arr(&c["states"]) {
+            let t = f(&q["t"]);
+            let st = text_motion::state(&o, t, w, h);
+            assert_eq!(st.is_some(), q.get("state").is_none(), "shown at {t} {o:?}");
+            let Some(st) = st else { continue };
+            let lines: Vec<&str> = arr(&q["lines"]).iter().map(|l| l.as_str().unwrap()).collect();
+            assert_eq!(st.lines, lines, "lines");
+            for (a, k) in [(st.px, "px"), (st.tracking, "tracking"), (st.center_x, "centerX"), (st.center_y, "centerY"), (st.opacity, "opacity"), (st.scale, "scale")] {
+                near(a, f(&q[k]), &format!("{k} at {t}"));
+            }
+            assert_eq!(st.words.len(), arr(&q["words"]).len(), "word count");
+            for (a, b) in st.words.iter().zip(arr(&q["words"])) {
+                near(*a, f(b), "word alpha");
+            }
+        }
+    }
+    for e in arr(&fx["edits"]) {
+        let len = f(&e["videoLength"]);
+        let span = |o: &TextOverlay, v: &Value, what: &str| {
+            near(o.at, f(&v["at"]), what);
+            near(o.duration, f(&v["duration"]), what);
+        };
+        let o = text_edits::insert("x", TextStyle::Caption, TextAnimation::Fade, f(&e["at"]), len, f(&e["duration"]));
+        span(&o, &e["inserted"], "insert");
+        span(&text_edits::move_to(&o, f(&e["moveTo"]), len), &e["moved"], "move");
+        span(&text_edits::resize(&o, true, f(&e["leadTo"]), len), &e["lead"], "resize leading");
+        span(&text_edits::resize(&o, false, f(&e["trailTo"]), len), &e["trail"], "resize trailing");
+    }
+    let doc: EditDoc = from_json(fx["edit"].as_str().unwrap().as_bytes()).unwrap();
+    assert_eq!(doc.overlays().len(), 1);
+    assert_eq!(doc.format.as_deref(), Some("fast"));
+    assert_eq!(to_swift_json(&doc).unwrap(), fx["edit"].as_str().unwrap(), "edit with texts and a format");
+}
+
+#[test]
+fn formats() {
+    let fx = fixture("formats.json");
+    let ours = monetshot_core::formats::all();
+    assert_eq!(ours.len(), arr(&fx["formats"]).len());
+    for (fm, m) in ours.iter().zip(arr(&fx["formats"])) {
+        assert_eq!((fm.id, fm.name, fm.blurb, fm.music_mood), (m["id"].as_str().unwrap(), m["name"].as_str().unwrap(), m["blurb"].as_str().unwrap(), m["musicMood"].as_str().unwrap()));
+        near(fm.speed, f(&m["speed"]), "format speed");
+    }
+    for c in arr(&fx["cases"]) {
+        let fm = monetshot_core::formats::named(c["format"].as_str().unwrap()).unwrap();
+        let out = fm.apply(&edit(&c["edit"]), f(&c["duration"]));
+        assert_eq!(to_swift_json(&out).unwrap(), c["result"].as_str().unwrap(), "{} applied", fm.id);
     }
 }
 

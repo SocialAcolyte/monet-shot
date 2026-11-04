@@ -3,7 +3,7 @@
   // crop, music, the frame, the cursor, the camera, the output, and Export at
   // the foot. Every control writes straight to the edit.
   import { onMount } from "svelte";
-  import { Trash2, Scissors, EyeOff, Crop, Image as ImageIcon, ImagePlus, Check } from "@lucide/svelte";
+  import { Trash2, Scissors, EyeOff, Crop, Image as ImageIcon, ImagePlus, Check, Music, Type, Captions, Tag } from "@lucide/svelte";
   import Section from "../parts/Section.svelte";
   import Hint from "../parts/Hint.svelte";
   import SliderRow from "../parts/SliderRow.svelte";
@@ -13,7 +13,8 @@
   import MusicSection from "../music/MusicSection.svelte";
   import CameraSection from "../camera/CameraSection.svelte";
   import type { EditorStore } from "../store.svelte";
-  import type { Edit } from "../core";
+  import { SPEEDS, TEXT_ANIMATIONS, TEXT_STYLES, TEXT_TONES, hasBacking, outputDuration, rate, speedLabel, type Edit, type Format } from "../core";
+  import { moods } from "../music/music";
   import type { CursorArt } from "../plan";
   import { stamp, percent } from "../format";
   import { call, inTauri } from "../../lib/ipc";
@@ -62,8 +63,20 @@
   function clipHint(i: number) {
     const c = store.clips[i];
     const take = store.takes.length > 1 ? `Take ${c.take + 1}, ` : "";
-    return `${take}${stamp(c.start)} to ${stamp(c.end)}, ${(c.end - c.start).toFixed(1)} s. Drag its ends to trim it, or its middle to move it. ${navigator.platform.includes("Mac") ? "⌘Z" : "Ctrl+Z"} undoes.`;
+    const at = rate(c) !== 1 ? ` at ${speedLabel(rate(c))}` : "";
+    return `${take}${stamp(c.start)} to ${stamp(c.end)}, ${outputDuration(c).toFixed(1)} s${at}. Drag its ends to trim it, or its middle to move it. ${navigator.platform.includes("Mac") ? "⌘Z" : "Ctrl+Z"} undoes.`;
   }
+
+  /** The step nearest a speed (the Speed slider runs over SPEEDS). */
+  const speedStep = (r: number) => SPEEDS.reduce((best, v, k) => (Math.abs(v - r) < Math.abs(SPEEDS[best] - r) ? k : best), 0);
+  const fadeLabel = (v: number) => (v === 0 ? "Cut" : `${v.toFixed(1)} s`);
+
+  // Formats: each card hints at its backdrop and its pace (FormatCard).
+  const cardFill: Record<string, string> = { paper: "#e9e4d8", charcoal: "#26292c", dusk: "#7a4a36", slate: "#46555c" };
+  const formatBackdrop: Record<string, string> = { clean: "paper", fast: "slate", melancholic: "dusk", cinematic: "charcoal" };
+  const paceLine = (f: Format) => `${speedLabel(f.speed)} · ${f.clipFade > 0 ? "fades" : "cuts"}`;
+  const moodName = (f: Format) => moods.find((m) => m.id === f.musicMood)?.name.toLowerCase();
+  const textPlace = (y: number) => (y < 0.33 ? 0 : y < 0.7 ? 1 : 2);
 
   function privacyHint() {
     const n = e.blurs.length;
@@ -103,16 +116,98 @@
 
 <div class="inspector">
   <div class="scroll">
+    <Section title="Format">
+      <div class="formats">
+        {#each store.formats as f (f.id)}
+          {@const paper = formatBackdrop[f.id] === "paper"}
+          <button class="format" class:on={e.format === f.id} class:paper style:background={cardFill[formatBackdrop[f.id]]} title={f.blurb} onclick={() => store.applyFormat(f.id)}>
+            <span class="pace">{#each Array(Math.round(4 * f.speed)) as _, k (k)}<span class:soft={f.clipFade > 0}></span>{/each}</span>
+            <span class="fname">{f.name}</span>
+            <span class="fline tabular">{paceLine(f)}</span>
+          </button>
+        {/each}
+      </div>
+      {#if store.format}
+        {@const f = store.format}
+        <Hint text={f.blurb} />
+        {#if moodName(f)}<button class="link" onclick={() => store.findMusic(f)}><Music size={13} /> Find {moodName(f)} music</button>{/if}
+      {:else}
+        <Hint text="Sets the pace and the look in one go: speed, cuts or fades, zooms, backdrop and how words come in. Everything stays adjustable." />
+      {/if}
+    </Section>
+
     {#if store.selectedClip != null && store.clips[store.selectedClip]}
       {@const i = store.selectedClip}
       <Section title="Clip {i + 1} of {store.clips.length}">
+        {@const c = store.clips[i]}
         <Hint text={clipHint(i)} />
+        <SliderRow
+          label="Speed"
+          value={speedStep(rate(c))}
+          min={0}
+          max={SPEEDS.length - 1}
+          format={() => speedLabel(rate(c))}
+          onchange={(v) => {
+            const s = SPEEDS[Math.round(v)];
+            if (s !== rate(c)) store.setSpeed(s, i);
+          }}
+        />
+        <div class="row chips">
+          {#each [0.5, 1, 1.5, 2, 4] as v (v)}
+            <button class="chip tabular" class:on={rate(c) === v} onclick={() => store.setSpeed(v, i)}>{speedLabel(v)}</button>
+          {/each}
+          {#if store.clips.length > 1}
+            <button class="link" onclick={() => store.setSpeedForAll(rate(c))} title="Play every clip at {speedLabel(rate(c))}">All clips</button>
+          {/if}
+        </div>
+        <SliderRow label="Fade in" value={c.fadeIn ?? 0} min={0} max={2} format={fadeLabel} onchange={(v) => store.setFades(i, { fadeIn: v < 0.05 ? 0 : v })} />
+        <SliderRow label="Fade out" value={c.fadeOut ?? 0} min={0} max={2} format={fadeLabel} onchange={(v) => store.setFades(i, { fadeOut: v < 0.05 ? 0 : v })} />
         <div class="row">
           <button class="pill-button" onclick={() => store.split()} title="Split at the playhead (S)"><Scissors /> Split</button>
           <button class="pill-button" onclick={() => store.deleteClip(i)} disabled={store.clips.length < 2} title="Leave this clip out (Delete)"><Trash2 /> Delete</button>
         </div>
       </Section>
     {/if}
+
+    <Section title="Text">
+      {#if store.selectedText}
+        {@const o = store.selectedText}
+        <textarea class="words" rows={Math.min(4, Math.max(1, o.text.split("\n").length))} value={o.text} oninput={(ev) => store.setText(o.id, (x) => (x.text = ev.currentTarget.value))}></textarea>
+        <Segmented options={TEXT_STYLES.map((t) => ({ ...t }))} value={o.style} onchange={(v) => store.setText(o.id, (x) => { x.style = v; delete x.backing; })} />
+        <div class="row between">
+          <span class="label">Comes in</span>
+          <select value={o.animation} onchange={(ev) => store.setText(o.id, (x) => (x.animation = ev.currentTarget.value as typeof x.animation))}>
+            {#each TEXT_ANIMATIONS as a (a.value)}<option value={a.value}>{a.label}</option>{/each}
+          </select>
+        </div>
+        <div class="row chips">
+          {#each TEXT_TONES as t (t.value)}
+            <button class="chip" class:on={o.tone === t.value} onclick={() => store.setText(o.id, (x) => (x.tone = t.value))}>{t.label}</button>
+          {/each}
+        </div>
+        <Segmented
+          options={[{ value: 0, label: "Top" }, { value: 1, label: "Middle" }, { value: 2, label: "Bottom" }]}
+          value={textPlace(o.y)}
+          onchange={(v) => store.setText(o.id, (x) => { x.x = 0.5; x.y = [0.16, 0.45, 0.86][v]; })}
+        />
+        <SliderRow label="Size" value={o.size} min={0.5} max={2.5} format={(v) => `${v.toFixed(1)}×`} onchange={(v) => store.setText(o.id, (x) => (x.size = v))} />
+        <ToggleRow label="Capitals" on={o.uppercase} onchange={(v) => store.setText(o.id, (x) => (x.uppercase = v))} />
+        <ToggleRow label="Box behind" on={hasBacking(o)} onchange={(v) => store.setText(o.id, (x) => (x.backing = v))} />
+        <Hint text="{stamp(o.at)} to {stamp(o.at + o.duration)}. Drag it on the timeline, or move the playhead and set an end." />
+        <div class="row">
+          <button class="pill-button" onclick={() => store.textStartsHere(o.id)}>Start here</button>
+          <button class="pill-button" onclick={() => store.textEndsHere(o.id)}>End here</button>
+          <button class="pill-button push" onclick={() => store.deleteText(o.id)} title="Delete this text (Delete)" aria-label="Delete this text"><Trash2 /></button>
+        </div>
+      {:else}
+        <Hint text="Words over the video, on their own lane. T adds a title at the playhead." />
+        <div class="row">
+          <button class="pill-button" onclick={() => store.addText("title")}><Type /> Title</button>
+          <button class="pill-button" onclick={() => store.addText("caption")}><Captions /> Caption</button>
+          <button class="pill-button" onclick={() => store.addText("label")}><Tag /> Label</button>
+        </div>
+      {/if}
+    </Section>
 
     <Section title="Zoom">
       {#if store.selected}
@@ -313,6 +408,113 @@
   .wide {
     width: 100%;
     justify-content: center;
+  }
+  .chips {
+    gap: 6px;
+  }
+  .between {
+    justify-content: space-between;
+  }
+  .push {
+    margin-left: auto;
+  }
+  .label {
+    font-size: 12px;
+    color: var(--moon-white);
+  }
+  select {
+    background: var(--midnight);
+    color: var(--moon-white);
+    border: none;
+    border-radius: 6px;
+    height: 24px;
+    padding: 0 6px;
+    font: inherit;
+    font-size: 12px;
+  }
+  .words {
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+    background: var(--midnight);
+    color: var(--moon-white);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 6px 8px;
+    font: inherit;
+    font-size: 12.5px;
+  }
+  /* The formats, two by two; the edit's own is lit (FormatCard). */
+  .formats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .format {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px;
+    border-radius: 10px;
+    color: var(--moon-white);
+    text-align: left;
+    box-shadow: inset 0 0 0 1.8px transparent;
+    transition: transform var(--dur-snappy) var(--ease-snappy);
+  }
+  .format.paper {
+    color: var(--charcoal);
+  }
+  .format.on {
+    box-shadow: inset 0 0 0 1.8px var(--violet);
+    transform: scale(1.02);
+  }
+  .pace {
+    display: flex;
+    gap: 2px;
+    width: 100%;
+    height: 10px;
+  }
+  .pace span {
+    flex: 1;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+  .pace span.soft {
+    opacity: 0.33;
+  }
+  .fname {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .fline {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.65;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .format.on {
+      transform: none;
+    }
+  }
+  .chips .link {
+    margin-left: auto;
+  }
+  /* A small rounded choice, filled when it's the one in use (ChipStyle). */
+  .chip {
+    flex: none;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 11px;
+    background: var(--midnight);
+    color: var(--moon-white);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .chip.on {
+    background: var(--violet);
+    color: #17191b;
   }
   .link {
     display: inline-flex;

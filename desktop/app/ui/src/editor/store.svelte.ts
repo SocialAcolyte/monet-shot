@@ -7,8 +7,8 @@
 // take time: the video is clips from one or more takes, in order.
 
 import { call } from "../lib/ipc";
-import { core, type Core, type Editor, type Edit, type Clip, type ZoomSegment, type BlurRegion, type CameraClip, type NormRect, type MusicChoice } from "./core";
-import type { CursorArt, Rect } from "./plan";
+import { core, rate, outputDuration, type Core, type Editor, type Edit, type Clip, type Format, type TextOverlay, type ZoomSegment, type BlurRegion, type CameraClip, type NormRect, type MusicChoice } from "./core";
+import type { CursorArt, Rect, TextArt, TextPlan } from "./plan";
 import * as cameraFlow from "./camera/flow";
 
 export interface TakeData {
@@ -65,6 +65,10 @@ export class EditorStore {
   selectedID = $state<string | null>(null);
   selectedClip = $state<number | null>(null);
   selectedBlurID = $state<string | null>(null);
+  /** The text being edited in the inspector. */
+  selectedTextID = $state<string | null>(null);
+  /** The mood the music browser opens on (a format's suggestion). */
+  musicMood = $state<string | null>(null);
   canUndo = $state(false);
   canRedo = $state(false);
 
@@ -101,6 +105,7 @@ export class EditorStore {
   /** The edit has changes not yet written. */
   private unsaved = false;
   private dragOrigin: ZoomSegment | null = null;
+  private textOrigin: TextOverlay | null = null;
   private clipOrigin: { index: number; leading: boolean; clips: Clip[] } | null = null;
   private musicOrigin: number | null = null;
   /** A box as it was when a drag on it began (drags are relative to that). */
@@ -163,7 +168,13 @@ export class EditorStore {
       for (const seg of this.edit.segments) {
         if (seg.take !== span.take || seg.end <= span.start || seg.start >= span.end) continue;
         const a = Math.max(seg.start, span.start), b = Math.min(seg.end, span.end);
-        out.push({ segment: seg, start: span.at + (a - span.start), end: span.at + (b - span.start), clip: i, id: `${seg.id}-${i}` });
+        out.push({
+          segment: seg,
+          start: span.at + (a - span.start) / span.speed,
+          end: span.at + (b - span.start) / span.speed,
+          clip: i,
+          id: `${seg.id}-${i}`,
+        });
       }
     });
     return out;
@@ -281,6 +292,7 @@ export class EditorStore {
     if (this.selectedClip != null && this.selectedClip >= this.clips.length) this.selectedClip = null;
     if (this.selectedID && !this.edit.segments.some((s) => s.id === this.selectedID)) this.selectedID = null;
     if (this.selectedBlurID && !this.edit.blurs.some((b) => b.id === this.selectedBlurID)) this.selectedBlurID = null;
+    if (this.selectedTextID && !this.texts.some((o) => o.id === this.selectedTextID)) this.selectedTextID = null;
     if (this.time > this.duration) this.seek(this.duration);
   }
 
@@ -289,6 +301,7 @@ export class EditorStore {
     if (id != null) {
       this.selectedClip = null;
       this.selectedBlurID = null;
+      this.selectedTextID = null;
     }
   }
 
@@ -308,6 +321,7 @@ export class EditorStore {
 
   deleteSelected() {
     if (this.selectedBlurID) return this.deleteBlur(this.selectedBlurID);
+    if (this.selectedTextID) return this.deleteText(this.selectedTextID);
     if (this.selectedID == null && this.selectedClip != null) return this.deleteClip(this.selectedClip);
     const id = this.selectedID;
     if (!id) return;
@@ -366,6 +380,9 @@ export class EditorStore {
     const o = this.dragOrigin;
     if (!o || o.id !== id) return;
     const length = this.takeDuration(o.take);
+    // The drag is in output seconds; a zoom lives in take time, on footage that may play faster or slower.
+    const sp = this.ed.spans().find((s) => s.take === o.take && o.start < s.end && o.end > s.start);
+    seconds *= sp?.speed ?? 1;
     const moved =
       edge == null
         ? this.c.segmentMove(o, seconds, length)
@@ -400,6 +417,7 @@ export class EditorStore {
     if (i != null) {
       this.selectedID = null;
       this.selectedBlurID = null;
+      this.selectedTextID = null;
     }
   }
 
@@ -436,11 +454,40 @@ export class EditorStore {
     if (!o || !o.clips[o.index]) return;
     const c0 = o.clips[o.index];
     const edge = o.leading ? c0.start : c0.end;
-    const next = this.c.clipResize(o.clips, o.index, o.leading, edge + seconds, this.takeDuration(c0.take));
+    // The drag is in output seconds; the edge moves in take time.
+    const next = this.c.clipResize(o.clips, o.index, o.leading, edge + seconds * rate(c0), this.takeDuration(c0.take));
     this.setClips(next);
     const st = this.c.clipStarts(next);
-    const n = next[o.index];
-    this.seek(o.leading ? st[o.index] : st[o.index] + (n.end - n.start) - 0.02);
+    this.seek(o.leading ? st[o.index] : st[o.index] + outputDuration(next[o.index]) - 0.02);
+  }
+
+  /** Sets clip i's speed, keeping the playhead on the same footage. */
+  setSpeed(speed: number, i: number) {
+    if (!this.clips[i]) return;
+    const here = this.ed.locate(this.time);
+    this.setClips(this.c.clipSetSpeed(this.clips, i, speed));
+    this.seek(this.ed.output(here.take, here.time) ?? this.starts[i]);
+  }
+
+  /** Plays every clip at `speed`. */
+  setSpeedForAll(speed: number) {
+    const here = this.ed.locate(this.time);
+    this.setClips(this.clips.reduce((cs, _, i) => this.c.clipSetSpeed(cs, i, speed), this.clips));
+    this.seek(this.ed.output(here.take, here.time) ?? 0);
+  }
+
+  /** Sets clip i's fade in and out (output seconds; omitted = unchanged). */
+  setFades(i: number, fades: { fadeIn?: number; fadeOut?: number }) {
+    const next = clone(this.clips);
+    const c = next[i];
+    if (!c) return;
+    for (const k of ["fadeIn", "fadeOut"] as const) {
+      const v = fades[k];
+      if (v == null) continue;
+      if (v > 0) c[k] = v;
+      else delete c[k];
+    }
+    this.setClips(next);
   }
 
   endClipDrag() {
@@ -463,7 +510,7 @@ export class EditorStore {
     if (!m || !clips[m.index]) return;
     const st = this.starts;
     const c = clips[m.index];
-    const centre = st[m.index] + (c.end - c.start) / 2 + m.offset;
+    const centre = st[m.index] + outputDuration(c) / 2 + m.offset;
     const to = this.c.clipDropIndex(clips, m.index, centre);
     if (to === m.index) return;
     this.setClips(this.c.clipMove(clips, m.index, to));
@@ -570,6 +617,7 @@ export class EditorStore {
     if (id != null) {
       this.selectedID = null;
       this.selectedClip = null;
+      this.selectedTextID = null;
     }
   }
 
@@ -658,6 +706,107 @@ export class EditorStore {
     } catch (e) {
       console.error("backdrop", e);
     }
+  }
+
+  // MARK: texts
+
+  get texts(): TextOverlay[] {
+    return this.edit.texts ?? [];
+  }
+  get selectedText(): TextOverlay | null {
+    return this.texts.find((o) => o.id === this.selectedTextID) ?? null;
+  }
+
+  selectText(id: string | null) {
+    this.selectedTextID = id;
+    if (id != null) {
+      this.selectedID = null;
+      this.selectedClip = null;
+      this.selectedBlurID = null;
+    }
+  }
+
+  /** Adds a text at the playhead (T adds a title), selected for typing. */
+  addText(style: TextOverlay["style"] = "title") {
+    const words = style === "title" ? "Your title" : style === "caption" ? "Say what's happening" : "Look here";
+    const animation = style === "caption" ? "words" : style === "label" ? "pop" : "rise";
+    let o = this.c.textInsert(words, style, animation, this.time, this.duration);
+    if (this.edit.format) o = this.c.formatStyled(this.edit.format, o);
+    this.update((e) => (e.texts = [...(e.texts ?? []), o]));
+    this.selectText(o.id);
+  }
+
+  setText(id: string, change: (o: TextOverlay) => void) {
+    this.update((e) => {
+      const o = e.texts?.find((x) => x.id === id);
+      if (o) change(o);
+    });
+  }
+
+  deleteText(id: string) {
+    this.update((e) => (e.texts = (e.texts ?? []).filter((o) => o.id !== id)));
+    if (this.selectedTextID === id) this.selectedTextID = null;
+  }
+
+  /** Starts the text at the playhead, or ends it there. */
+  textStartsHere(id: string) {
+    const o = this.texts.find((x) => x.id === id);
+    if (o) this.replaceText(this.c.textResize(o, true, this.time, this.duration));
+  }
+  textEndsHere(id: string) {
+    const o = this.texts.find((x) => x.id === id);
+    if (o) this.replaceText(this.c.textResize(o, false, this.time, this.duration));
+  }
+
+  private replaceText(next: TextOverlay) {
+    this.update((e) => (e.texts = (e.texts ?? []).map((o) => (o.id === next.id ? next : o))));
+  }
+
+  beginTextDrag(id: string) {
+    this.textOrigin = clone(this.texts.find((o) => o.id === id) ?? null);
+    this.selectText(id);
+  }
+
+  /** Drags a text (or one end of it) by `seconds` of output time. */
+  dragText(id: string, edge: "leading" | "trailing" | null, seconds: number) {
+    const o = this.textOrigin;
+    if (!o || o.id !== id) return;
+    const d = this.duration;
+    const moved =
+      edge == null
+        ? this.c.textMove(o, o.at + seconds, d)
+        : this.c.textResize(o, edge === "leading", edge === "leading" ? o.at + seconds : o.at + o.duration + seconds, d);
+    this.replaceText(moved);
+    this.seek(edge === "trailing" ? moved.at + moved.duration - 0.02 : moved.at + 0.02);
+  }
+
+  endTextDrag() {
+    this.textOrigin = null;
+  }
+
+  // MARK: formats
+
+  get formats(): Format[] {
+    return this.c.formats();
+  }
+  get format(): Format | null {
+    return this.formats.find((f) => f.id === this.edit.format) ?? null;
+  }
+
+  /** Puts the whole edit in format `id`'s pace and look (one undo step),
+   *  keeping the playhead on the same footage. */
+  applyFormat(id: string) {
+    const here = this.ed.locate(this.time);
+    const next = this.c.formatApply(this.edit, id, this.takeDuration(0));
+    if (!next) return;
+    this.update((e) => Object.assign(e, next));
+    this.seek(this.ed.output(here.take, here.time) ?? 0);
+  }
+
+  /** Opens the music browser on a format's mood. */
+  findMusic(f: Format) {
+    this.musicMood = f.musicMood;
+    this.openMusic();
   }
 
   // MARK: music
@@ -770,6 +919,16 @@ export class EditorStore {
       this.arts.set(key, art);
     }
     return this.arts.get(key)!;
+  }
+
+  /** core-wasm's picture of a text (the painter caches it). */
+  textArt(text: TextPlan): TextArt | null {
+    try {
+      return this.c.textArt(text);
+    } catch (e) {
+      console.error("textArt", e);
+      return null;
+    }
   }
 
   close() {

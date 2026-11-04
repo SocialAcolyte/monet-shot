@@ -20,6 +20,36 @@ export interface FramePlan {
   ripples: RipplePlan[];
   cursor: CursorPlan | null;
   webcam: WebcamPlan[];
+  /** A clip fading: the backdrop again over everything at this opacity. */
+  veil: number;
+  /** The clip's playback speed: the take's video plays at this rate. */
+  speed: number;
+  /** Words over everything (the veil too), in drawing order. */
+  texts: TextPlan[];
+}
+
+/** One text: textArt(plan) drawn centred on `center`, scaled by `scale`
+ *  about its centre, at `opacity`. */
+export interface TextPlan {
+  lines: string[];
+  px: number;
+  tracking: number;
+  center: Point;
+  opacity: number;
+  scale: number;
+  /** One alpha per word, reading order; empty = all shown. */
+  words: number[];
+  color: Rgba;
+  backing: Rgba | null;
+  shadow: boolean;
+}
+
+/** textArt(text) from core-wasm. */
+export interface TextArt {
+  width: number;
+  height: number;
+  /** Premultiplied RGBA8, sRGB. */
+  rgba: Uint8Array;
 }
 
 export type BackdropPlan =
