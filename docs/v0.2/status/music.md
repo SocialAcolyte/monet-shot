@@ -67,5 +67,10 @@ file stays. The desktop preview now plays the music at all (it didn't before), w
 
 - `Composer.addCamera` laid a camera clip that starts after 0 on an empty track at 0 (its picture and sound),
   so a clip recorded at 4 s played from 0 s. It now opens the gap before the first piece.
-- Windows: library tracks' `file:///D:/...` URLs became `/D:/...` paths, so *Use* failed ("that track isn't on
-  this computer"); fixed in `media.rs` and the page.
+- Windows: library tracks' `file:///D:/...` URLs became `/D:/...` paths. Fixed in the page (`music.ts`
+  `urlPath`); for `media.rs` this branch carries feat/vertical's identical fix (`69935b8`, cherry-picked) so the
+  merge has one copy. Also cherry-picked: vertical's `1f1378d` (windows-run stages 3 and 6 had failed on v0.2
+  itself since 2811c92: fixtures-test gave the painter no textArt; a console window sat over the pill).
+- What the Windows VM export taught: Day Trips placed from its first downbeat gave a 5 s video only its
+  filtered intro (earshot: -27.8 LUFS, 3.2 kHz wide, against -24.7 LUFS for those 5 s of the track). Each
+  track's `start` is now the first bar line where it's in full swing.
