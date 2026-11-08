@@ -414,6 +414,7 @@ public struct Project: Sendable {
         let first = try Take.load(folder)
         let edit = (try? JSONDecoder.app.decode(EditDoc.self, from: Data(contentsOf: folder.appendingPathComponent("edit.json")))) ?? EditDoc()
         var p = Project(folder: folder, meta: first.meta, cursor: first.cursor, edit: edit)
+        p.takes[0].transcript = first.transcript
         for dir in takeFolders(in: folder) {
             if let t = try? Take.load(dir) { p.takes.append(t) }
         }

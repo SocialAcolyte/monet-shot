@@ -9,6 +9,8 @@ import MonetShotKit
 ///   MonetShot --frame  <rec.reel> <seconds> <out.png>
 ///   MonetShot --render <rec.reel> <out.mp4>
 ///   MonetShot --format <rec.reel> <clean|fast|melancholic|cinematic>
+///   MonetShot --transcribe <rec.reel> [language]   every take with a voice
+///   MonetShot --captions <rec.reel> on|off
 ///   MonetShot --version
 enum CommandLineMode {
     struct Output { let text: String; let status: Int32 }
@@ -29,6 +31,10 @@ enum CommandLineMode {
             return blocking { try await add(URL(fileURLWithPath: args[1]), Array(args.dropFirst(2)).map { URL(fileURLWithPath: $0) }) }
         case "--format" where args.count == 3:
             return blocking { try format(URL(fileURLWithPath: args[1]), args[2]) }
+        case "--transcribe" where args.count == 2 || args.count == 3:
+            return blocking { try await transcribe(URL(fileURLWithPath: args[1]), language: args.count == 3 ? args[2] : Transcriber.language) }
+        case "--captions" where args.count == 3 && ["on", "off"].contains(args[2]):
+            return blocking { try captions(URL(fileURLWithPath: args[1]), on: args[2] == "on") }
         case "--render" where args.count == 3:
             return blocking { try await render(URL(fileURLWithPath: args[1]), to: URL(fileURLWithPath: args[2])) }
         case let flag? where flag.hasPrefix("--"):
@@ -46,6 +52,8 @@ enum CommandLineMode {
                MonetShot --music <rec.reel> <search>     put the first search result under the video
                MonetShot --add <rec.reel> <video|rec.reel>…  add footage as clips at the end
                MonetShot --format <rec.reel> <\(EditFormat.all.map(\.id).joined(separator: "|"))>  pace and look in one go
+               MonetShot --transcribe <rec.reel> [auto|en|fr|…]  speech to text, on this Mac
+               MonetShot --captions <rec.reel> on|off
                MonetShot --version
         """, status: 2)
 
@@ -116,6 +124,30 @@ enum CommandLineMode {
         let p = try Project.load(folder)
         let start = Date()
         try await Composer.export(p, to: out)
-        return String(format: "exported %@ in %.1fs", out.lastPathComponent, Date().timeIntervalSince(start))
+        let srt = Subtitles.write(p, beside: out)
+        return String(format: "exported %@ in %.1fs", out.lastPathComponent, Date().timeIntervalSince(start)) + (srt.map { " + \($0.lastPathComponent)" } ?? "")
+    }
+
+    private static func transcribe(_ folder: URL, language: String) async throws -> String {
+        var p = try Project.load(folder)
+        var out: [String] = []
+        for (k, take) in p.takes.enumerated() where take.meta.voice != nil {
+            let start = Date()
+            let t = try await Transcriber.transcribe(take, language: language)
+            try t.save(take.folder)
+            p.takes[k].transcript = t
+            out.append(String(format: "take %d: %d words (%@, %.1fs)", k + 1, t.words.count, t.language ?? "?", Date().timeIntervalSince(start)))
+            out += t.words.map { String(format: "  %6.2f %6.2f  %@", $0.start, $0.end, $0.text) }
+        }
+        guard !out.isEmpty else { return "no take has a voice" }
+        out.append(Subtitles.text(p))
+        return out.joined(separator: "\n")
+    }
+
+    private static func captions(_ folder: URL, on: Bool) throws -> String {
+        var p = try Project.load(folder)
+        p.edit.captions = on
+        try p.saveEdit()
+        return "captions \(on ? "on" : "off"): \(Subtitles.overlays(p).count) phrases"
     }
 }

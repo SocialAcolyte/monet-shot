@@ -32,6 +32,7 @@ public enum Composer {
             at = at + length
         }
         try await addCamera(project, map: map, to: comp)
+        try await addVoice(project, map: map, to: comp)
         return comp
     }
 
@@ -86,7 +87,7 @@ public enum Composer {
     /// Where someone is talking (camera sound), in output time.
     static func voice(in comp: AVComposition) -> [ClosedRange<Double>] {
         comp.tracks(withMediaType: .audio)
-            .filter { $0.trackID == TrackID.overlayAudio || $0.trackID == TrackID.takeCameraAudio }
+            .filter { [TrackID.overlayAudio, TrackID.takeCameraAudio, TrackID.takeVoice].contains($0.trackID) }
             .flatMap(\.segments)
             .filter { !$0.isEmpty }
             .map { $0.timeMapping.target.start.seconds...$0.timeMapping.target.end.seconds }

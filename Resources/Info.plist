@@ -48,9 +48,11 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Monet Shot records your voice with the camera.</string>
+	<string>Monet Shot records your voice, with the camera or on its own.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Monet Shot turns what you say into captions, on this Mac.</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

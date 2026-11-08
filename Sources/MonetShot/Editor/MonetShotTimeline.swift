@@ -62,6 +62,12 @@ struct MonetShotTimeline: View {
                         .zIndex(lifted ? 2 : 1)
                 }
 
+                // Your voice, a thin lane under the clips (words marked once transcribed).
+                VoiceLane(model: model, starts: starts, pxPerSecond: pps)
+                    .frame(width: w, height: 5)
+                    .offset(x: inset, y: stripY + stripH + 4)
+                    .allowsHitTesting(false)
+
                 // The zoom track: empty space deselects, a double-click adds.
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(Palette.panel)
@@ -443,5 +449,28 @@ private struct CameraPill: View {
                 Button("Delete", role: .destructive) { model.deleteCameraClip(clip.id) }
             }
             .help("You on camera: right-click for bubble or full frame")
+    }
+}
+
+/// Where the clips carry your voice, and each word heard in it.
+private struct VoiceLane: View {
+    let model: EditorModel
+    let starts: [Double]
+    let pxPerSecond: CGFloat
+
+    var body: some View {
+        let clips = model.clips
+        let voiced = Set(model.voicedTakes)
+        let words = model.captionWords
+        Canvas { ctx, size in
+            for (i, c) in clips.enumerated() where voiced.contains(c.take) {
+                let r = CGRect(x: CGFloat(starts[i]) * pxPerSecond + 1, y: 0, width: max(2, CGFloat(c.outputDuration) * pxPerSecond - 2), height: size.height)
+                ctx.fill(Path(roundedRect: r, cornerRadius: size.height / 2), with: .color(Palette.clay.opacity(0.35)))
+            }
+            for w in words {
+                let r = CGRect(x: CGFloat(w.start) * pxPerSecond, y: 0, width: max(1.5, CGFloat(w.end - w.start) * pxPerSecond - 1), height: size.height)
+                ctx.fill(Path(roundedRect: r, cornerRadius: 1), with: .color(Palette.clay.opacity(0.9)))
+            }
+        }
     }
 }

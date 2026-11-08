@@ -46,6 +46,8 @@ final class ScreenRecorder: NSObject {
     private let frameSink = FrameSink()
     /// When the camera file and the screen file started (CACurrentMediaTime).
     private var cameraStart: Double?
+    /// When the microphone file started, if your voice is recorded without the camera.
+    private var voiceStart: Double?
     private var screenStart: Double?
     private var observing = false
 
@@ -139,6 +141,8 @@ final class ScreenRecorder: NSObject {
             if CameraRecorder.withScreen, CameraRecorder.shared.session.isRunning {
                 cameraStart = await CameraRecorder.shared.record(to: folder.appendingPathComponent("camera.mov"))
             }
+            // Your voice alone, when a microphone is chosen and the camera isn't hearing it.
+            voiceStart = cameraStart == nil ? await VoiceRecorder.shared.record(to: folder.appendingPathComponent("voice.m4a")) : nil
             try await stream.startCapture()
             Log.info("capture started: \(source) \(Int(pixelSize.width))x\(Int(pixelSize.height)) @\(scale)x -> \(folder.lastPathComponent)")
         } catch {
@@ -147,6 +151,7 @@ final class ScreenRecorder: NSObject {
             self.stream = nil
             self.output = nil
             _ = await CameraRecorder.shared.stop()
+            _ = await VoiceRecorder.shared.stop()
             try? FileManager.default.removeItem(at: folder)
             onEvent(.failed("could not start recording: \(error.localizedDescription)"))
         }
@@ -196,7 +201,18 @@ final class ScreenRecorder: NSObject {
                 meta.camera = cam.lastPathComponent
                 meta.cameraOffset = cs - ss
                 Log.info(String(format: "camera saved with the take, %.2fs offset", meta.cameraOffset))
+                // The camera heard you: that's the take's voice.
+                if AVCaptureDevice.authorizationStatus(for: .audio) == .authorized {
+                    meta.voice = meta.camera
+                    meta.voiceOffset = meta.cameraOffset
+                }
             }
+            if VoiceRecorder.shared.isRecording, let v = await VoiceRecorder.shared.stop(), let vs = voiceStart, let ss = screenStart {
+                meta.voice = v.lastPathComponent
+                meta.voiceOffset = vs - ss
+                Log.info(String(format: "voice saved with the take, %.2fs offset", vs - ss))
+            }
+            voiceStart = nil
             var project = Project(folder: folder, meta: meta, cursor: track, edit: EditDoc())
             var cuts = pauses
             if let open = pausedAt { cuts.append(Cut(start: open, end: meta.duration)) }
@@ -274,6 +290,7 @@ extension ScreenRecorder: SCRecordingOutputDelegate {
         Task { @MainActor in
             Log.error("recording failed: \(message)")
             if CameraRecorder.shared.isRecording { Task { _ = await CameraRecorder.shared.stop() } }
+            if VoiceRecorder.shared.isRecording { Task { _ = await VoiceRecorder.shared.stop() } }
             _ = tracker?.stop()
             tracker = nil
             stream = nil

@@ -14,6 +14,7 @@ struct InspectorView: View {
                     formatSection
                     if let i = model.selectedClip, model.clips.indices.contains(i) { clipSection(i) }
                     textSection
+                    CaptionsSection(model: model)
                     zoomSection
                     privacySection
                     musicSection
@@ -461,7 +462,7 @@ struct InspectorView: View {
 
 // MARK: parts
 
-private struct Section<Content: View>: View {
+struct Section<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
     init(_ title: String, @ViewBuilder content: () -> Content) {
@@ -480,7 +481,7 @@ private struct Section<Content: View>: View {
     }
 }
 
-private struct Hint: View {
+struct Hint: View {
     let text: String
     init(_ text: String) { self.text = text }
     var body: some View {
@@ -563,7 +564,7 @@ private struct FormatCard: View {
 }
 
 /// A small rounded choice, filled when it's the one in use.
-private struct ChipStyle: ButtonStyle {
+struct ChipStyle: ButtonStyle {
     let on: Bool
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -578,7 +579,7 @@ private struct ChipStyle: ButtonStyle {
     }
 }
 
-private struct ToggleRow: View {
+struct ToggleRow: View {
     let label: String
     let isOn: Binding<Bool>
     init(_ label: String, isOn: Binding<Bool>) {
