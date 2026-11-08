@@ -20,6 +20,10 @@ public struct TextOverlay: Codable, Equatable, Identifiable, Sendable {
     /// A soft box behind the words (nil = the style's choice).
     public var backing: Bool?
     public var uppercase = false
+    /// When each word is spoken, in seconds after `at` (captions made from a
+    /// transcript): the words keep that time and the one being said is
+    /// lit. nil for a text typed in.
+    public var beats: [Double]?
 
     public init(id: UUID = UUID(), text: String, at: Double, duration: Double = 3, style: TextStyle = .title,
                 animation: TextAnimation = .rise) {
@@ -46,6 +50,7 @@ public struct TextOverlay: Codable, Equatable, Identifiable, Sendable {
         tone = try c.decodeIfPresent(TextTone.self, forKey: .tone) ?? .light
         backing = try c.decodeIfPresent(Bool.self, forKey: .backing)
         uppercase = try c.decodeIfPresent(Bool.self, forKey: .uppercase) ?? false
+        beats = try c.decodeIfPresent([Double].self, forKey: .beats)
     }
 
     public var end: Double { at + duration }
@@ -135,6 +140,8 @@ public enum TextTone: String, Codable, CaseIterable, Sendable {
     }
     /// The box behind them, and its opacity.
     public var backingHex: UInt32 { self == .dark ? 0xF3F0E8 : 0x17191B }
+    /// The word being said, in a caption.
+    public var highlightHex: UInt32 { self == .clay ? 0xF7F4EE : 0xE07A55 }
     public var backingAlpha: Double { self == .dark ? 0.92 : 0.72 }
 }
 
@@ -152,6 +159,8 @@ public struct TextState: Equatable, Sendable {
     public var scale: Double
     /// One per word, in reading order; empty unless the words come one by one.
     public var words: [Double]
+    /// The word being said (reading order), lit in the tone's highlight; nil for none.
+    public var highlight: Int? = nil
 }
 
 public enum TextMotion {
@@ -197,13 +206,16 @@ public enum TextMotion {
         let short = min(width, height)
         let px = (o.style.em * min(max(o.size, 0.25), 4) * short).rounded()
         let into = t - o.at, left = o.end - t
-        let inDur = min(o.animation == .pop ? 0.32 : 0.45, o.duration / 4)
-        let outDur = min(0.35, o.duration / 4)
+        // Spoken captions come and go quickly: a phrase follows the voice.
+        let spoken = o.beats.map { !$0.isEmpty } ?? false
+        let inDur = min(spoken ? 0.18 : o.animation == .pop ? 0.32 : 0.45, o.duration / 4)
+        let outDur = min(spoken ? 0.12 : 0.35, o.duration / 4)
         let u = into / inDur
         var opacity = smooth(left / outDur)
         var scale = 1.0
         var rise = 0.0
         var arrive: [Double] = []
+        var highlight: Int?
         switch o.animation {
         case .fade:
             opacity = min(opacity, smooth(u))
@@ -215,12 +227,18 @@ public enum TextMotion {
             scale = 0.82 + 0.18 * easeOutBack(u)
         case .words:
             let n = lines.reduce(0) { $0 + words($1).count }
-            // The words arrive over the first ~60% of the text's time, at most 0.32 s apart.
-            let step = min(0.32, o.duration * 0.6 / Double(max(n, 1)))
-            arrive = (0..<n).map { k in smooth((into - Double(k) * step) / 0.22) }
+            if spoken, let beats = o.beats {
+                // Each word arrives as it is said.
+                arrive = (0..<n).map { k in smooth((into - beats[min(k, beats.count - 1)]) / 0.12) }
+            } else {
+                // The words arrive over the first ~60% of the text's time, at most 0.32 s apart.
+                let step = min(0.32, o.duration * 0.6 / Double(max(n, 1)))
+                arrive = (0..<n).map { k in smooth((into - Double(k) * step) / 0.22) }
+            }
         }
+        if spoken, let beats = o.beats { highlight = beats.lastIndex { $0 <= into } }
         return TextState(lines: lines, px: px, tracking: o.style.tracking, centerX: (o.x * width).rounded(),
-                         centerY: (o.y * height).rounded() + rise, opacity: opacity, scale: scale, words: arrive)
+                         centerY: (o.y * height).rounded() + rise, opacity: opacity, scale: scale, words: arrive, highlight: highlight)
     }
 }
 

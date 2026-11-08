@@ -65,7 +65,12 @@ fn painter_matches_the_macs_renderer() {
                 PlanTake { meta, cursor: from_json(t["cursor"].as_str().unwrap().as_bytes()).unwrap(), dir: String::new() }
             })
             .collect();
-        let planner = Planner::new(&doc, &takes);
+        let transcripts: Vec<Option<monetshot_core::Transcript>> = c
+            .get("transcripts")
+            .and_then(|v| v.as_array())
+            .map(|a| a.iter().map(|t| t.as_str().map(|s| from_json(s.as_bytes()).unwrap())).collect())
+            .unwrap_or_default();
+        let planner = Planner::new(&doc, &takes).with_transcripts(&transcripts);
         let plan = planner.plan(c["t"].as_f64().unwrap());
         let sources = c["sources"].as_array().unwrap();
         let source = load(fx.join(sources[plan.take as usize].as_str().unwrap()));
@@ -95,7 +100,7 @@ fn painter_matches_the_macs_renderer() {
         // Text is rasterised by CoreText on the Mac and ab_glyph here (same
         // font, same layout to 0.05 px; see art.rs): glyph edges anti-alias
         // a little differently, so frames with words get more room there.
-        let edges = if doc.overlays().is_empty() { 0.005 } else { 0.008 };
+        let edges = if doc.overlays().is_empty() && planner.captions.is_empty() { 0.005 } else { 0.008 };
         if !(mean < 1.5 && bad < edges) {
             failures.push(name.to_string());
         }

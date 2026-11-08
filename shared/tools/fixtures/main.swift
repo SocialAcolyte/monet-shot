@@ -704,9 +704,9 @@ do {
     var rr = LCG(state: 7)
 
     func render(_ name: String, _ doc: EditDoc, _ takes: [(meta: RecordingMeta, cursor: CursorTrack)], at t: Double,
-                webcam: Bool = false, overlay: Bool = false) {
+                webcam: Bool = false, overlay: Bool = false, transcripts: [Transcript?] = []) {
         let doc = fixedIDs(doc)
-        let r = Renderer(doc: doc, takes: takes, folder: backdrops)
+        let r = Renderer(doc: doc, takes: takes, folder: backdrops, transcripts: transcripts)
         let p = r.map.locate(t)
         let src = CIImage(cgImage: p.take == 0 ? srcA : srcB)
         let image = r.render(source: src, webcam: webcam ? CIImage(cgImage: cam) : nil, overlay: overlay, at: t)
@@ -727,10 +727,13 @@ do {
         let ctx = CGContext(data: UnsafeMutableRawPointer(mutating: a), width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
                             space: srgb, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         savePNG(ctx.makeImage()!, renderOut.appendingPathComponent("\(name).png"))
-        cases.append(.o(["name": .s(name), "file": .s("\(name).png"), "t": n(t), "edit": jsonString(doc),
-                         "takes": .a(takes.map { .o(["meta": jsonString($0.meta), "cursor": jsonString($0.cursor)]) }),
-                         "sources": .a([.s("source-a.png"), .s("source-b.png")]), "webcam": webcam ? .s("webcam.png") : .null,
-                         "overlay": .b(overlay), "backdropFolder": .s("Resources/Backdrops")]))
+        var c: [String: J] = ["name": .s(name), "file": .s("\(name).png"), "t": n(t), "edit": jsonString(doc),
+                              "takes": .a(takes.map { .o(["meta": jsonString($0.meta), "cursor": jsonString($0.cursor)]) }),
+                              "sources": .a([.s("source-a.png"), .s("source-b.png")]), "webcam": webcam ? .s("webcam.png") : .null,
+                              "overlay": .b(overlay), "backdropFolder": .s("Resources/Backdrops")]
+        // Only on the cases that have them, so the older cases are unchanged.
+        if !transcripts.isEmpty { c["transcripts"] = .a(transcripts.map { $0.map(jsonString) ?? .null }) }
+        cases.append(.o(c))
     }
     func one(_ w: Int = 1440, _ h: Int = 900, duration: Double = 4) -> [(meta: RecordingMeta, cursor: CursorTrack)] {
         var m = RecordingMeta(pixelWidth: w, pixelHeight: h, pointScale: 1, duration: duration, createdAt: Date(timeIntervalSince1970: 0), source: "display")
@@ -790,6 +793,15 @@ do {
     d.texts = [title, caption, label]
     render("charcoal-texts", d, one(), at: 0.4)
     render("charcoal-texts-settled", d, one(), at: 1.9)
+    // Captions from a transcript, the third word being said, on a phone-shaped canvas too.
+    let said = Transcript(words: [TranscriptWord(text: "Zooms", start: 0.3, end: 0.7), TranscriptWord(text: "are", start: 0.75, end: 0.9),
+                                  TranscriptWord(text: "decided", start: 0.95, end: 1.4), TranscriptWord(text: "after", start: 1.45, end: 1.7),
+                                  TranscriptWord(text: "recording.", start: 1.75, end: 2.3), TranscriptWord(text: "Nice!", start: 3, end: 3.4)],
+                          language: "en", engine: "apple")
+    d = EditDoc(); d.outputWidth = 960; d.backdrop = .charcoal; d.captions = true
+    render("charcoal-captions", d, one(), at: 1.2, transcripts: [said])
+    d = EditDoc(); d.outputWidth = 540; d.backdrop = .dusk; d.canvasAspect = 9.0 / 16; d.captions = true; d.format = "melancholic"
+    render("dusk-captions-tall", d, one(), at: 0.9, transcripts: [said])
     write("render/cases.json", .o(["cases": .a(cases)]))
 }
 
@@ -936,6 +948,83 @@ do {
         .o(["id": .s(f.id), "name": .s(f.name), "blurb": .s(f.blurb), "speed": n(f.speed), "musicMood": .s(f.musicMood)])
     }
     write("formats.json", .o(["formats": .a(list), "cases": .a(cases)]))
+}
+
+
+// MARK: - Captions
+// Their own random stream, so adding them left every older fixture as it was.
+
+do {
+    var cr = LCG(state: 0xCA97)
+    let vocab = ["so", "this", "is", "Monet", "Shot", "and", "the", "zoom", "follows", "my", "cursor", "here", "we", "go", "really",
+                 "Ça", "va", "naïve", "café", "okay", "um", "uh", "nice", "recording", "editor", "captions", "word", "by", "a", "New York"]
+    func transcript(_ length: Double) -> Transcript {
+        var words: [TranscriptWord] = []
+        var t = cr.range(0, 0.8)
+        while t < length {
+            let d = cr.range(0.12, 0.6)
+            var w = vocab[cr.int(0, vocab.count - 1)]
+            let r = cr.next()
+            if r < 0.12 { w += "." } else if r < 0.16 { w += "?" } else if r < 0.18 { w += "…" } else if r < 0.24 { w += "," }
+            if cr.next() < 0.03 { w = "" }
+            words.append(TranscriptWord(text: w, start: t, end: min(length, t + d)))
+            t += d + (cr.next() < 0.15 ? cr.range(0.7, 2) : cr.range(0.01, 0.3))
+        }
+        return Transcript(words: words, language: cr.next() < 0.5 ? "en" : nil, engine: cr.next() < 0.5 ? "whisper" : "apple")
+    }
+    var cases: [J] = []
+    let canvases: [(Double, Double)] = [(2560, 1440), (1080, 1920), (960, 960), (1920, 1080)]
+    for k in 0..<24 {
+        let lengths = [10.0, 6.0]
+        let trs: [Transcript?] = [transcript(lengths[0]), k % 3 == 0 ? nil : transcript(lengths[1])]
+        var doc = EditDoc()
+        if k % 4 != 0 {
+            var list = randomClips(&cr, takes: lengths)
+            for i in list.indices where cr.next() < 0.4 { list[i].speed = [0.5, 1.5, 2, 0.75][cr.int(0, 3)] }
+            doc.clips = list
+        } else {
+            doc.cuts = [Cut(start: 2, end: 3.1)]
+        }
+        let map = TimeMap(doc, duration: lengths[0])
+        let (w, h) = canvases[k % canvases.count]
+        let anim = TextAnimation.allCases[cr.int(0, 3)]
+        let words = Captions.words(trs, map: map)
+        let overlays = Captions.overlays(trs, map: map, width: w, height: h, animation: anim)
+        var states: [J] = []
+        for o in overlays {
+            var t = o.at - 0.05
+            while t < o.end + 0.05 {
+                if let st = TextMotion.state(o, at: t, width: w, height: h) {
+                    states.append(.o(["t": n(t), "lines": .a(st.lines.map(J.s)), "px": n(st.px), "centerX": n(st.centerX), "centerY": n(st.centerY),
+                                      "opacity": n(st.opacity), "scale": n(st.scale), "words": .a(st.words.map(J.n)),
+                                      "highlight": st.highlight.map(J.i) ?? .null]))
+                }
+                t += 0.11
+            }
+        }
+        cases.append(.o([
+            "transcripts": .a(trs.map { $0.map(jsonString) ?? .null }), "edit": jsonString(doc), "takeDuration": n(lengths[0]),
+            "width": n(w), "height": n(h), "animation": .s(anim.rawValue),
+            "words": .a(words.map { .o(["text": .s($0.text), "start": n($0.start), "end": n($0.end), "span": .i($0.span), "take": .i($0.take), "index": .i($0.index)]) }),
+            "overlays": .a(overlays.map(jsonString)), "srt": .s(Captions.srt(overlays)), "text": .s(Captions.text(words)), "states": .a(states),
+        ]))
+    }
+    var lines: [J] = []
+    for ws in [["one"], ["two", "words"], ["a", "rather", "longer", "phrase", "here"], ["Supercalifragilistic", "x"], ["Ça", "va", "très", "bien", "merci", "beaucoup"]] {
+        lines.append(.o(["words": .a(ws.map(J.s)), "text": .s(Captions.lines(ws))]))
+    }
+    let tr = Transcript(words: [TranscriptWord(text: "Helo", start: 0.5, end: 0.9), TranscriptWord(text: "um", start: 1, end: 1.2),
+                                TranscriptWord(text: "world", start: 1.3, end: 1.8)], language: "en", engine: "whisper")
+    let edits: [J] = [(0, "Hello"), (1, ""), (2, "  big  world "), (5, "x")].map { i, text in
+        .o(["index": .i(i), "text": .s(text), "result": jsonString(tr.editing(i, to: text))])
+    }
+    var meta = RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 2, duration: 12, createdAt: Date(timeIntervalSince1970: 1_700_000_000), source: "display")
+    meta.voice = "voice.m4a"; meta.voiceOffset = 0.25
+    var withCaptions = EditDoc(); withCaptions.captions = true
+    write("captions.json", .o(["cases": .a(cases), "lines": .a(lines), "transcript": jsonString(tr), "edits": .a(edits),
+                               "meta": jsonString(meta), "edit": jsonString(withCaptions),
+                               "safeArea": .a(canvases.map { w, h in let r = safeArea(canvasWidth: w, canvasHeight: h)
+                                   return .o(["width": n(w), "height": n(h), "x": n(Double(r.minX)), "y": n(Double(r.minY)), "w": n(Double(r.width)), "h": n(Double(r.height))]) })]))
 }
 
 // MARK: - Sync stamp

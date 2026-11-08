@@ -19,6 +19,8 @@ public final class Renderer: @unchecked Sendable {
     /// Height of the arrow itself inside `cursor` (the image adds a margin).
     let cursorArtHeight: CGFloat
     let looks: [TakeLook]
+    /// What was said, as captions (empty unless the edit shows them).
+    public let captions: [TextOverlay]
 
     /// Everything that depends on one take: where it sits on the canvas
     /// (takes can differ in shape), its pointer, its clicks and its zooms.
@@ -44,7 +46,8 @@ public final class Renderer: @unchecked Sendable {
     }
 
     public convenience init(project: Project) {
-        self.init(doc: project.edit, takes: project.takes.map { ($0.meta, $0.cursor) }, folder: project.folder)
+        self.init(doc: project.edit, takes: project.takes.map { ($0.meta, $0.cursor) }, folder: project.folder,
+                  transcripts: project.takes.map(\.transcript))
     }
 
     /// A single-take renderer (tests, and recordings with one take).
@@ -53,13 +56,18 @@ public final class Renderer: @unchecked Sendable {
     }
 
     /// `folder` is where an `.image` backdrop's file lives (the .reel folder).
-    public init(doc: EditDoc, takes: [(meta: RecordingMeta, cursor: CursorTrack)], folder: URL?) {
+    /// `transcripts[k]` is take k's, for the captions.
+    public init(doc: EditDoc, takes: [(meta: RecordingMeta, cursor: CursorTrack)], folder: URL?, transcripts: [Transcript?] = []) {
         self.doc = doc
         let first = takes.first?.meta ?? RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 1, source: "display")
         map = TimeMap(doc, duration: first.duration)
         let size = doc.canvasSize(recordingAspect: first.aspect)
         let canvas = CGSize(width: size.width, height: size.height)
         self.canvas = canvas
+        captions = doc.captions == true
+            ? Captions.overlays(transcripts, map: map, width: canvas.width, height: canvas.height,
+                                animation: EditFormat.named(doc.format)?.captionAnimation ?? .words)
+            : []
         let framed = doc.backdrop != .none
         let pad = framed ? CGFloat(doc.padding) * min(canvas.width, canvas.height) : 0
         let room = CGRect(origin: .zero, size: canvas).insetBy(dx: pad, dy: pad)
@@ -417,7 +425,7 @@ extension Renderer {
     /// Every text showing at output time `t`, in list order (later on top).
     func withTexts(_ frame: CIImage, at t: Double) -> CIImage {
         var out = frame
-        for o in doc.overlays {
+        for o in doc.overlays + captions where o.covers(t) {
             guard let st = TextMotion.state(o, at: t, width: canvas.width, height: canvas.height), st.opacity > 0.001,
                   let art = TextArt.image(st, tone: o.tone, backing: o.hasBacking) else { continue }
             let s = CGFloat(st.scale)

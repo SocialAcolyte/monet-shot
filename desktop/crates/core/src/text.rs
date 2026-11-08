@@ -88,6 +88,10 @@ impl TextTone {
     pub fn backing_alpha(&self) -> f64 {
         if self.known() == TextTone::Dark { 0.92 } else { 0.72 }
     }
+    /// The word being said, in a caption.
+    pub fn highlight_hex(&self) -> u32 {
+        if self.known() == TextTone::Clay { 0xF7F4EE } else { 0xE07A55 }
+    }
 }
 
 fn one() -> f64 {
@@ -125,6 +129,10 @@ pub struct TextOverlay {
     pub backing: Option<bool>,
     #[serde(default)]
     pub uppercase: bool,
+    /// When each word is spoken, seconds after `at` (captions from a
+    /// transcript); None for a text typed in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub beats: Option<Vec<f64>>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
@@ -145,6 +153,7 @@ impl TextOverlay {
             tone: TextTone::Light,
             backing: None,
             uppercase: false,
+            beats: None,
             extra: Extra::new(),
         }
     }
@@ -175,6 +184,9 @@ pub struct TextState {
     pub scale: f64,
     /// One per word in reading order; empty unless the words come one by one.
     pub words: Vec<f64>,
+    /// The word being said (reading order), lit in the tone's highlight.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub highlight: Option<usize>,
 }
 
 /// The layout constants and the animation, as `TextMotion` on the Mac.
@@ -230,8 +242,11 @@ pub mod text_motion {
         let px = (o.style.em() * o.size.clamp(0.25, 4.0) * short).round();
         let (into, left) = (t - o.at, o.end() - t);
         let anim = o.animation.known();
-        let in_dur = (if anim == TextAnimation::Pop { 0.32f64 } else { 0.45 }).min(o.duration / 4.0);
-        let out_dur = 0.35f64.min(o.duration / 4.0);
+        // Spoken captions come and go quickly: a phrase follows the voice.
+        let beats = o.beats.as_deref().filter(|b| !b.is_empty());
+        let spoken = beats.is_some();
+        let in_dur = (if spoken { 0.18 } else if anim == TextAnimation::Pop { 0.32f64 } else { 0.45 }).min(o.duration / 4.0);
+        let out_dur = (if spoken { 0.12f64 } else { 0.35 }).min(o.duration / 4.0);
         let u = into / in_dur;
         let mut opacity = smooth(left / out_dur);
         let mut scale = 1.0;
@@ -245,15 +260,21 @@ pub mod text_motion {
             }
             TextAnimation::Words => {
                 let n: usize = lines.iter().map(|l| words(l).len()).sum();
-                // The words arrive over the first ~60% of the text's time, at most 0.32 s apart.
-                let step = 0.32f64.min(o.duration * 0.6 / n.max(1) as f64);
-                arrive = (0..n).map(|k| smooth((into - k as f64 * step) / 0.22)).collect();
+                if let Some(b) = beats {
+                    // Each word arrives as it is said.
+                    arrive = (0..n).map(|k| smooth((into - b[k.min(b.len() - 1)]) / 0.12)).collect();
+                } else {
+                    // The words arrive over the first ~60% of the text's time, at most 0.32 s apart.
+                    let step = 0.32f64.min(o.duration * 0.6 / n.max(1) as f64);
+                    arrive = (0..n).map(|k| smooth((into - k as f64 * step) / 0.22)).collect();
+                }
             }
             _ => {
                 opacity = opacity.min(smooth(u));
                 rise = (1.0 - ease_out(u)) * 0.035 * short;
             }
         }
+        let highlight = beats.and_then(|b| b.iter().rposition(|&x| x <= into));
         Some(TextState {
             lines,
             px,
@@ -263,6 +284,7 @@ pub mod text_motion {
             opacity,
             scale,
             words: arrive,
+            highlight,
         })
     }
 }

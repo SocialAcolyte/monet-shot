@@ -57,7 +57,7 @@ public enum TextArt {
 
     /// The picture of `state` with its tone and backing; nil if there is nothing to draw.
     public static func image(_ state: TextState, tone: TextTone, backing: Bool) -> Image? {
-        let key = "\(state.lines)|\(state.px)|\(state.tracking)|\(state.words.map { Int(($0 * 255).rounded()) })|\(tone.rawValue)|\(backing)"
+        let key = "\(state.lines)|\(state.px)|\(state.tracking)|\(state.words.map { Int(($0 * 255).rounded()) })|\(tone.rawValue)|\(backing)|\(state.highlight ?? -1)"
         lock.lock()
         if let hit = cache[key] { lock.unlock(); return hit }
         lock.unlock()
@@ -122,7 +122,7 @@ public enum TextArt {
                 // Glyphs draw y-up: flip back about the baseline.
                 ctx.translateBy(x: x0 + l.xs[k], y: CGFloat(baseline))
                 ctx.scaleBy(x: 1, y: -1)
-                ctx.setFillColor(color(tone.hex, alpha))
+                ctx.setFillColor(color(word == state.highlight ? tone.highlightHex : tone.hex, alpha))
                 var g = l.glyphs[k]
                 var at = CGPoint.zero
                 CTFontDrawGlyphs(font, &g, &at, 1, ctx)

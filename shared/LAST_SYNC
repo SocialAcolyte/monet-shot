@@ -1,4 +1,8 @@
-1c1355ad53e567457ceaec3db6ef39a88a61a437
+4b0cc19a87c43e63dc0d0ecdc0d27637e807fa9e
 # plus uncommitted MonetShotKit changes at generation time:
-# M Sources/MonetShotKit/Music/Music.swift
-# ?? Sources/MonetShotKit/Music/MusicGrid.swift
+# M Sources/MonetShotKit/Model/Project.swift
+#  M Sources/MonetShotKit/Model/Text.swift
+#  M Sources/MonetShotKit/Render/Renderer.swift
+#  M Sources/MonetShotKit/Render/TextArt.swift
+# ?? Sources/MonetShotKit/Model/Captions.swift
+# ?? Sources/MonetShotKit/Model/SafeArea.swift

@@ -130,6 +130,13 @@ pub struct RecordingMeta {
     /// Take time at which the camera file starts.
     #[serde(default)]
     pub camera_offset: f64,
+    /// The file holding your voice (`voice.m4a` from the microphone alone,
+    /// or the camera file when the camera heard you), and the take time at
+    /// which it starts. Written only when there is one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub voice: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub voice_offset: Option<f64>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
@@ -146,6 +153,8 @@ impl RecordingMeta {
             video: video.into(),
             camera: None,
             camera_offset: 0.0,
+            voice: None,
+            voice_offset: None,
             extra: Extra::new(),
         }
     }
@@ -365,6 +374,9 @@ pub struct EditDoc {
     /// The format last applied (`formats::Format::id`), for the picker.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
+    /// What was said, shown as captions (None until switched).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captions: Option<bool>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }

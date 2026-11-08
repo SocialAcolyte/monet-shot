@@ -633,3 +633,92 @@ fn frame_layout() {
         }
     }
 }
+
+#[test]
+fn captions() {
+    use monetshot_core::captions::{self, Transcript};
+    use monetshot_core::safe_area::safe_area;
+    let fx = fixture("captions.json");
+    let transcript = |v: &Value| -> Option<Transcript> { v.as_str().map(|s| from_json(s.as_bytes()).unwrap()) };
+    for (n, c) in arr(&fx["cases"]).iter().enumerate() {
+        let trs: Vec<Option<Transcript>> = arr(&c["transcripts"]).iter().map(transcript).collect();
+        for (t, v) in trs.iter().zip(arr(&c["transcripts"])) {
+            if let Some(t) = t {
+                assert_eq!(to_swift_json(t).unwrap(), v.as_str().unwrap(), "transcript json");
+            }
+        }
+        let doc = edit(&c["edit"]);
+        let map = TimeMap::new(&doc, f(&c["takeDuration"]));
+        let (w, h) = (f(&c["width"]), f(&c["height"]));
+        let anim: TextAnimation = serde_json::from_value(c["animation"].clone()).unwrap();
+        let words = captions::words(&trs, &map);
+        assert_eq!(words.len(), arr(&c["words"]).len(), "case {n}: word count");
+        for (a, b) in words.iter().zip(arr(&c["words"])) {
+            assert_eq!(a.text, b["text"].as_str().unwrap());
+            near(a.start, f(&b["start"]), "word start");
+            near(a.end, f(&b["end"]), "word end");
+            assert_eq!((a.span as i64, a.take, a.index as i64), (i(&b["span"]), i(&b["take"]), i(&b["index"])), "word place");
+        }
+        let overlays = captions::overlays(&trs, &map, w, h, anim);
+        assert_eq!(overlays.len(), arr(&c["overlays"]).len(), "case {n}: phrase count");
+        for (a, b) in overlays.iter().zip(arr(&c["overlays"])) {
+            let mac: TextOverlay = from_json(b.as_str().unwrap().as_bytes()).unwrap();
+            assert_eq!(a.text, mac.text, "case {n}: phrase");
+            assert_eq!(a.id, mac.id);
+            for (x, y, k) in [(a.at, mac.at, "at"), (a.duration, mac.duration, "duration"), (a.x, mac.x, "x"), (a.y, mac.y, "y"), (a.size, mac.size, "size")] {
+                near(x, y, &format!("case {n}: {k}"));
+            }
+            assert_eq!(a.animation, mac.animation);
+            let (ab, mb) = (a.beats.clone().unwrap(), mac.beats.clone().unwrap());
+            assert_eq!(ab.len(), mb.len());
+            for (x, y) in ab.iter().zip(&mb) {
+                near(*x, *y, "beat");
+            }
+        }
+        assert_eq!(captions::srt(&overlays), c["srt"].as_str().unwrap(), "case {n}: srt");
+        assert_eq!(captions::text(&words), c["text"].as_str().unwrap(), "case {n}: text");
+        let mut q = arr(&c["states"]).iter();
+        for o in &overlays {
+            let mut t = o.at - 0.05;
+            while t < o.end() + 0.05 {
+                if let Some(st) = text_motion::state(o, t, w, h) {
+                    let m = q.next().expect("a state");
+                    near(f(&m["t"]), t, "state t");
+                    let lines: Vec<&str> = arr(&m["lines"]).iter().map(|l| l.as_str().unwrap()).collect();
+                    assert_eq!(st.lines, lines);
+                    for (a, k) in [(st.px, "px"), (st.center_x, "centerX"), (st.center_y, "centerY"), (st.opacity, "opacity"), (st.scale, "scale")] {
+                        near(a, f(&m[k]), &format!("case {n}: {k} at {t}"));
+                    }
+                    assert_eq!(st.words.len(), arr(&m["words"]).len());
+                    for (a, b) in st.words.iter().zip(arr(&m["words"])) {
+                        near(*a, f(b), "word alpha");
+                    }
+                    assert_eq!(st.highlight.map(|x| x as i64), m["highlight"].as_i64(), "case {n}: highlight at {t}");
+                }
+                t += 0.11;
+            }
+        }
+        assert!(q.next().is_none(), "case {n}: as many states as the Mac");
+    }
+    for l in arr(&fx["lines"]) {
+        let ws: Vec<&str> = arr(&l["words"]).iter().map(|w| w.as_str().unwrap()).collect();
+        assert_eq!(captions::lines(&ws), l["text"].as_str().unwrap());
+    }
+    let tr: Transcript = from_json(fx["transcript"].as_str().unwrap().as_bytes()).unwrap();
+    for e in arr(&fx["edits"]) {
+        let got = tr.editing(i(&e["index"]) as usize, e["text"].as_str().unwrap());
+        assert_eq!(to_swift_json(&got).unwrap(), e["result"].as_str().unwrap(), "transcript edit");
+    }
+    let meta: RecordingMeta = from_json(fx["meta"].as_str().unwrap().as_bytes()).unwrap();
+    assert_eq!((meta.voice.as_deref(), meta.voice_offset), (Some("voice.m4a"), Some(0.25)));
+    assert_eq!(to_swift_json(&meta).unwrap(), fx["meta"].as_str().unwrap(), "meta with a voice");
+    let doc = edit(&fx["edit"]);
+    assert_eq!(doc.captions, Some(true));
+    assert_eq!(to_swift_json(&doc).unwrap(), fx["edit"].as_str().unwrap(), "edit with captions");
+    for s in arr(&fx["safeArea"]) {
+        let r = safe_area(f(&s["width"]), f(&s["height"]));
+        for (a, k) in [(r.x, "x"), (r.y, "y"), (r.w, "w"), (r.h, "h")] {
+            near(a, f(&s[k]), "safe area");
+        }
+    }
+}
