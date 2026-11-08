@@ -628,7 +628,7 @@ export class Painter {
   /** A text's picture as a texture, made once while it stays the same. */
   private text(src: Sources, t: TextPlan) {
     const words = t.words.map((w) => Math.round(w * 255));
-    const key = JSON.stringify([t.lines, t.px, t.tracking, words, t.color, t.backing, t.shadow]);
+    const key = JSON.stringify([t.lines, t.px, t.tracking, words, t.color, t.backing, t.shadow, t.highlight ?? null]);
     const hit = this.textTex.get(key);
     if (hit) return hit;
     const art = src.textArt(t);

@@ -61,6 +61,28 @@ final class EditorModel {
         musicBrowser.editor = self
     }
 
+    // Captions (the rest is in EditorCaptions.swift).
+    /// 0...1 while transcribing.
+    var transcribing: Double?
+    var transcribeError: String?
+    @ObservationIgnored var transcribeTask: Task<Void, Never>?
+    /// The transcript word being fixed (its place in `captionWords`), and the spelling so far.
+    var editingWord: Int?
+    var wordDraft = ""
+    /// The languages on-device speech knows (filled when the section first shows).
+    var speechLanguages: [Locale] = []
+    var language = Transcriber.language { didSet { Transcriber.language = language } }
+    var autoTranscribeOn = Transcriber.automatic { didSet { Transcriber.automatic = autoTranscribeOn } }
+    var subtitlesOn = EditorModel.writeSubtitles { didSet { EditorModel.writeSubtitles = subtitlesOn } }
+
+    /// Take `k`'s transcript changed: the captions follow at once.
+    func setTranscript(_ t: Transcript?, take k: Int) {
+        guard project.takes.indices.contains(k) else { return }
+        project.takes[k].transcript = t
+        renderer = makeRenderer()
+        scheduleRebuild()
+    }
+
     var doc: EditDoc { project.edit }
     /// Length of the finished video.
     var duration: Double { renderer.map.duration }
@@ -86,6 +108,7 @@ final class EditorModel {
                 if case .recording = self.cameraPhase { Task { await self.stopCamera() } }
             }
         }
+        autoTranscribe()
         for i in project.takes.indices { await makeThumbnails(take: i) }
         await loadMusicWave()
         Log.info("editor loaded \(project.name): \(project.takes.count) take(s), \(clips.count) clip(s), \(String(format: "%.1f", duration))s")
@@ -93,6 +116,7 @@ final class EditorModel {
 
     func close() {
         if cameraPhase != .off { closeCamera() }
+        transcribeTask?.cancel()
         player.pause()
         if let timeObserver { player.removeTimeObserver(timeObserver) }
         if let endObserver { NotificationCenter.default.removeObserver(endObserver) }
@@ -984,7 +1008,8 @@ final class EditorModel {
     }
 
     /// The recording as the preview shows it: while framing, uncropped,
-    /// unzoomed and without the cursor.
+    /// unzoomed, without the cursor, and whole (a vertical edit's follow
+    /// window would hide most of it).
     var shownProject: Project { EditorModel.shown(project, framing: framing) }
 
     private func makeRenderer() -> Renderer { EditorModel.renderer(for: project, framing: framing) }
@@ -999,6 +1024,7 @@ final class EditorModel {
         p.edit.crops = []
         p.edit.segments = []
         p.edit.cursorVisible = false
+        p.edit.layout = nil
         return p
     }
 
@@ -1026,6 +1052,7 @@ final class EditorModel {
                 }
                 exportProgress = nil
                 exportedURL = url
+                if EditorModel.writeSubtitles { Subtitles.write(project, beside: url) }
                 Log.info("export finished \(url.lastPathComponent)")
             } catch {
                 exportProgress = nil

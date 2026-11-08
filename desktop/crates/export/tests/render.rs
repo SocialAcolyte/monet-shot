@@ -1,5 +1,5 @@
 //! Our painter against frames the Mac's Renderer drew
-//! (`shared/fixtures/render/cases.json`). Set MONETSHOT_RENDER_OUT=<dir> to
+//! (`shared/fixtures/render/cases.json`, `vertical.json`). Set MONETSHOT_RENDER_OUT=<dir> to
 //! write ours beside them for a look.
 
 use monetshot_core::json::from_json;
@@ -40,8 +40,18 @@ fn compare(a: &Rgba8, b: &Rgba8) -> (f64, f64) {
 
 #[test]
 fn painter_matches_the_macs_renderer() {
+    matches_the_mac("cases.json");
+}
+
+/// Vertical and square frames (1080x1920, 1080x1080): the follow window.
+#[test]
+fn vertical_matches_the_macs_renderer() {
+    matches_the_mac("vertical.json");
+}
+
+fn matches_the_mac(file: &str) {
     let fx = repo().join("shared/fixtures/render");
-    let cases: Value = serde_json::from_slice(&std::fs::read(fx.join("cases.json")).unwrap()).unwrap();
+    let cases: Value = serde_json::from_slice(&std::fs::read(fx.join(file)).unwrap()).unwrap();
     let out = std::env::var_os("MONETSHOT_RENDER_OUT").map(PathBuf::from);
     let mut report = vec![];
     let mut failures = vec![];
@@ -65,7 +75,12 @@ fn painter_matches_the_macs_renderer() {
                 PlanTake { meta, cursor: from_json(t["cursor"].as_str().unwrap().as_bytes()).unwrap(), dir: String::new() }
             })
             .collect();
-        let planner = Planner::new(&doc, &takes);
+        let transcripts: Vec<Option<monetshot_core::Transcript>> = c
+            .get("transcripts")
+            .and_then(|v| v.as_array())
+            .map(|a| a.iter().map(|t| t.as_str().map(|s| from_json(s.as_bytes()).unwrap())).collect())
+            .unwrap_or_default();
+        let planner = Planner::new(&doc, &takes).with_transcripts(&transcripts);
         let plan = planner.plan(c["t"].as_f64().unwrap());
         let sources = c["sources"].as_array().unwrap();
         let source = load(fx.join(sources[plan.take as usize].as_str().unwrap()));
@@ -95,7 +110,7 @@ fn painter_matches_the_macs_renderer() {
         // Text is rasterised by CoreText on the Mac and ab_glyph here (same
         // font, same layout to 0.05 px; see art.rs): glyph edges anti-alias
         // a little differently, so frames with words get more room there.
-        let edges = if doc.overlays().is_empty() { 0.005 } else { 0.008 };
+        let edges = if doc.overlays().is_empty() && planner.captions.is_empty() { 0.005 } else { 0.008 };
         if !(mean < 1.5 && bad < edges) {
             failures.push(name.to_string());
         }

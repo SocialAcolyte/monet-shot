@@ -15,6 +15,8 @@ pub mod imports;
 pub mod paint;
 #[cfg(feature = "pipeline")]
 pub mod sound;
+#[cfg(feature = "pipeline")]
+pub mod subtitles;
 
 pub use art::{cursor_art, CursorArt};
 pub use text_art::{text_art, TextArt};

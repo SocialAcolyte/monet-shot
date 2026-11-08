@@ -67,7 +67,11 @@ func segs(_ s: [ZoomSegment]) -> J { .a(s.map(seg)) }
 func rect(_ r: NormRect) -> J { .o(["x": n(r.x), "y": n(r.y), "w": n(r.w), "h": n(r.h)]) }
 /// A CoreImage rect (origin bottom-left) as top-left canvas pixels.
 func tl(_ r: CGRect, _ height: CGFloat) -> J { .o(["x": n(r.minX), "y": n(height - r.maxY), "w": n(r.width), "h": n(r.height)]) }
-func cam(_ c: Camera) -> J { .o(["scale": n(c.scale), "centerX": n(c.centerX), "centerY": n(c.centerY)]) }
+func cam(_ c: Camera) -> J {
+    var o: [String: J] = ["scale": n(c.scale), "centerX": n(c.centerX), "centerY": n(c.centerY)]
+    if c.window != 1 { o["window"] = n(c.window) }
+    return .o(o)
+}
 
 // MARK: - Deterministic inputs
 
@@ -801,9 +805,9 @@ do {
     var rr = LCG(state: 7)
 
     func render(_ name: String, _ doc: EditDoc, _ takes: [(meta: RecordingMeta, cursor: CursorTrack)], at t: Double,
-                webcam: Bool = false, overlay: Bool = false) {
+                webcam: Bool = false, overlay: Bool = false, transcripts: [Transcript?] = []) {
         let doc = fixedIDs(doc)
-        let r = Renderer(doc: doc, takes: takes, folder: backdrops)
+        let r = Renderer(doc: doc, takes: takes, folder: backdrops, transcripts: transcripts)
         let p = r.map.locate(t)
         let src = CIImage(cgImage: p.take == 0 ? srcA : srcB)
         let image = r.render(source: src, webcam: webcam ? CIImage(cgImage: cam) : nil, overlay: overlay, at: t)
@@ -824,10 +828,13 @@ do {
         let ctx = CGContext(data: UnsafeMutableRawPointer(mutating: a), width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
                             space: srgb, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         savePNG(ctx.makeImage()!, renderOut.appendingPathComponent("\(name).png"))
-        cases.append(.o(["name": .s(name), "file": .s("\(name).png"), "t": n(t), "edit": jsonString(doc),
-                         "takes": .a(takes.map { .o(["meta": jsonString($0.meta), "cursor": jsonString($0.cursor)]) }),
-                         "sources": .a([.s("source-a.png"), .s("source-b.png")]), "webcam": webcam ? .s("webcam.png") : .null,
-                         "overlay": .b(overlay), "backdropFolder": .s("Resources/Backdrops")]))
+        var c: [String: J] = ["name": .s(name), "file": .s("\(name).png"), "t": n(t), "edit": jsonString(doc),
+                              "takes": .a(takes.map { .o(["meta": jsonString($0.meta), "cursor": jsonString($0.cursor)]) }),
+                              "sources": .a([.s("source-a.png"), .s("source-b.png")]), "webcam": webcam ? .s("webcam.png") : .null,
+                              "overlay": .b(overlay), "backdropFolder": .s("Resources/Backdrops")]
+        // Only on the cases that have them, so the older cases are unchanged.
+        if !transcripts.isEmpty { c["transcripts"] = .a(transcripts.map { $0.map(jsonString) ?? .null }) }
+        cases.append(.o(c))
     }
     func one(_ w: Int = 1440, _ h: Int = 900, duration: Double = 4) -> [(meta: RecordingMeta, cursor: CursorTrack)] {
         var m = RecordingMeta(pixelWidth: w, pixelHeight: h, pointScale: 1, duration: duration, createdAt: Date(timeIntervalSince1970: 0), source: "display")
@@ -887,6 +894,15 @@ do {
     d.texts = [title, caption, label]
     render("charcoal-texts", d, one(), at: 0.4)
     render("charcoal-texts-settled", d, one(), at: 1.9)
+    // Captions from a transcript, the third word being said, on a phone-shaped canvas too.
+    let said = Transcript(words: [TranscriptWord(text: "Zooms", start: 0.3, end: 0.7), TranscriptWord(text: "are", start: 0.75, end: 0.9),
+                                  TranscriptWord(text: "decided", start: 0.95, end: 1.4), TranscriptWord(text: "after", start: 1.45, end: 1.7),
+                                  TranscriptWord(text: "recording.", start: 1.75, end: 2.3), TranscriptWord(text: "Nice!", start: 3, end: 3.4)],
+                          language: "en", engine: "apple")
+    d = EditDoc(); d.outputWidth = 960; d.backdrop = .charcoal; d.captions = true
+    render("charcoal-captions", d, one(), at: 1.2, transcripts: [said])
+    d = EditDoc(); d.outputWidth = 540; d.backdrop = .dusk; d.canvasAspect = 9.0 / 16; d.captions = true; d.format = "melancholic"
+    render("dusk-captions-tall", d, one(), at: 0.9, transcripts: [said])
     write("render/cases.json", .o(["cases": .a(cases)]))
 }
 
@@ -1033,6 +1049,208 @@ do {
         .o(["id": .s(f.id), "name": .s(f.name), "blurb": .s(f.blurb), "speed": n(f.speed), "musicMood": .s(f.musicMood)])
     }
     write("formats.json", .o(["formats": .a(list), "cases": .a(cases)]))
+}
+
+// MARK: - Vertical and square: canvas, safe area, follow framing
+// Their own random stream and files, so every older fixture is unchanged.
+
+do {
+    var vr = LCG(state: 0x0916)
+    var canvases: [J] = []
+    for layout in CanvasLayout.allCases {
+        for (w, a) in [(2560, 16.0 / 9.0), (1921, 0.0), (1280, 1.0)] {
+            var d = EditDoc(); d.outputWidth = w; d.canvasAspect = a; d.setLayout(layout)
+            let s = d.canvasSize(recordingAspect: 1.6)
+            canvases.append(.o(["layout": .s(layout.rawValue), "outputWidth": .i(w), "canvasAspect": n(a), "recordingAspect": n(1.6),
+                                "edit": jsonString(d), "width": .i(s.width), "height": .i(s.height)]))
+        }
+    }
+    var safes: [J] = []
+    for (w, h) in [(1080.0, 1920.0), (1920, 1080), (1080, 1080), (720, 1280), (1000, 1250), (1000, 1251), (607, 1079)] {
+        let r = safeArea(canvasWidth: w, canvasHeight: h)
+        safes.append(.o(["width": n(w), "height": n(h), "x": n(r.minX), "y": n(r.minY), "w": n(r.width), "h": n(r.height)]))
+    }
+    var windows: [J] = []
+    for (ta, fa) in [(16.0 / 9.0, 0.53), (1.6, 1.0), (0.5625, 0.53), (0.53, 0.53), (0.531, 0.53), (2.4, 0.0)] {
+        windows.append(.o(["takeAspect": n(ta), "frameAspect": n(fa), "window": FollowFraming.window(takeAspect: ta, frameAspect: fa).map(J.n) ?? .null]))
+    }
+    // Texts on a phone canvas: their places taken inside the safe area.
+    var texts: [J] = []
+    for k in 0..<8 {
+        var o = TextOverlay(id: fixedID(100 + k), text: "Say it\nshort", at: 0, duration: 3, style: TextStyle.allCases[k % 3], animation: .fade)
+        o.x = vr.range(0, 1); o.y = [0, 1, 0.5, 0.9, 0.1, vr.range(0, 1), 0.88, 0.12][k]
+        let (w, h): (Double, Double) = [(1080, 1920), (1080, 1080), (720, 1280)][k % 3]
+        let st = TextMotion.state(Renderer.inSafeArea(o, width: w, height: h), at: 1.5, width: w, height: h)!
+        texts.append(.o(["overlay": jsonString(o), "width": n(w), "height": n(h), "centerX": n(st.centerX), "centerY": n(st.centerY), "px": n(st.px)]))
+    }
+    // Whole layouts, with the camera sampled densely to pin down the glide.
+    func dense(_ c: J, _ doc: EditDoc, _ takes: [(meta: RecordingMeta, cursor: CursorTrack)]) -> J {
+        guard case .o(var o) = c else { return c }
+        let r = Renderer(doc: fixedIDs(doc), takes: takes, folder: nil)
+        var q: [J] = []
+        var t = 0.0
+        while t < r.map.duration + 0.2 {
+            let p = r.map.locate(t)
+            q.append(.o(["t": n(t), "camera": cam(r.camera(take: p.take, time: p.time))]))
+            t += 0.05
+        }
+        o["cameras"] = .a(q)
+        o["windows"] = .a(r.looks.map { $0.follow.map { J.n($0.window) } ?? .null })
+        return .o(o)
+    }
+    func vcase(_ name: String, _ doc: EditDoc, _ takes: [(meta: RecordingMeta, cursor: CursorTrack)]) -> J {
+        dense(layoutCase(name, doc, takes), doc, takes)
+    }
+    var cases: [J] = []
+    var takes = takePairs([(2880, 1800, 2, 8)], &vr)
+    var d = EditDoc(); d.setLayout(.vertical)
+    d.segments = CameraMath.autoZooms(clicks: takes[0].cursor.clicks, duration: 8)
+    cases.append(vcase("vertical-default", d, takes))
+    takes = takePairs([(1920, 1080, 1, 7)], &vr)
+    d = EditDoc(); d.setLayout(.vertical); d.backdrop = .charcoal; d.cursorStyle = .dot
+    d.segments = [ZoomSegment(start: 0.5, end: 2.6, scale: 2.4, focusX: 0.88, focusY: 0.15),
+                  ZoomSegment(start: 3.2, end: 6.5, scale: 2), ZoomSegment(start: 6.6, end: 7, scale: 3, focusX: 0.05, focusY: 0.95)]
+    cases.append(vcase("vertical-fixed-focus", d, takes))
+    takes = takePairs([(1280, 720, 1, 5), (1080, 1920, 1, 4)], &vr)
+    d = EditDoc(); d.setLayout(.vertical); d.backdrop = .dusk; d.cameraLook.shape = .rounded; d.cameraLook.corner = .bottomLeft
+    d.clips = [Clip(start: 0.5, end: 3, take: 0), Clip(start: 0, end: 3, take: 1), Clip(start: 3, end: 5, take: 0)]
+    d.setCrop(NormRect(x: 0.2, y: 0.1, w: 0.7, h: 0.8), take: 0)
+    d.segments = [ZoomSegment(start: 1, end: 2.5, scale: 2, take: 0), ZoomSegment(start: 0.5, end: 2, scale: 2, take: 1)]
+    cases.append(vcase("vertical-two-takes-crop", d, takes))
+    takes = takePairs([(3456, 2234, 2, 5)], &vr)
+    d = EditDoc(); d.setLayout(.vertical); d.backdrop = .none; d.cameraLook.corner = .topRight; d.cameraLook.size = 0.5
+    cases.append(vcase("vertical-none-big-bubble", d, takes))
+    takes = takePairs([(1920, 1080, 1, 5)], &vr)
+    d = EditDoc(); d.setLayout(.square); d.backdrop = .slate; d.padding = 0.1
+    d.segments = CameraMath.autoZooms(clicks: takes[0].cursor.clicks, duration: 5)
+    cases.append(vcase("square-follow", d, takes))
+    takes = takePairs([(2560, 1600, 2, 4)], &vr)
+    takes[0].cursor = CursorTrack()
+    d = EditDoc(); d.setLayout(.vertical); d.cameraLook.corner = .topLeft
+    cases.append(vcase("vertical-no-cursor", d, takes))
+    write("vertical.json", .o(["canvas": .a(canvases), "safeArea": .a(safes), "window": .a(windows), "texts": .a(texts),
+                               "constants": .o(["zoomDepth": n(FollowFraming.zoomDepth), "deadZone": n(FollowFraming.deadZone),
+                                                "omega": n(FollowFraming.omega), "phoneBubble": n(Renderer.phoneBubble), "captionBand": n(SafeArea.captionBand)]),
+                               "cases": .a(cases)]))
+
+    // Reference frames, 1080x1920 and 1080x1080, by the Swift Renderer (CPU).
+    let srcA = testCard(width: 1440, height: 900, hue: 0.2), srcB = testCard(width: 1280, height: 720, hue: 0.9), webcam = webcamCard(width: 640, height: 480)
+    let context = CIContext(options: [.cacheIntermediates: false, .useSoftwareRenderer: true])
+    let backdrops = root.appendingPathComponent("Resources/Backdrops")
+    var frames: [J] = []
+    func render(_ name: String, _ doc: EditDoc, _ takes: [(meta: RecordingMeta, cursor: CursorTrack)], at t: Double, webcam useWebcam: Bool = false) {
+        let doc = fixedIDs(doc)
+        let r = Renderer(doc: doc, takes: takes, folder: backdrops)
+        let p = r.map.locate(t)
+        let image = r.render(source: CIImage(cgImage: p.take == 0 ? srcA : srcB), webcam: useWebcam ? CIImage(cgImage: webcam) : nil, overlay: false, at: t)
+        let w = Int(r.canvas.width), h = Int(r.canvas.height)
+        func pixels() -> [UInt8] {
+            var px = [UInt8](repeating: 0, count: w * h * 4)
+            context.render(image, toBitmap: &px, rowBytes: w * 4, bounds: CGRect(origin: .zero, size: r.canvas), format: .RGBA8, colorSpace: srgb)
+            return px
+        }
+        let a = pixels(), b = pixels()
+        if a != b { print("WARNING \(name): two renders differ") }
+        let ctx = CGContext(data: UnsafeMutableRawPointer(mutating: a), width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                            space: srgb, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        savePNG(ctx.makeImage()!, renderOut.appendingPathComponent("\(name).png"))
+        frames.append(.o(["name": .s(name), "file": .s("\(name).png"), "t": n(t), "edit": jsonString(doc),
+                          "takes": .a(takes.map { .o(["meta": jsonString($0.meta), "cursor": jsonString($0.cursor)]) }),
+                          "sources": .a([.s("source-a.png"), .s("source-b.png")]), "webcam": useWebcam ? .s("webcam.png") : .null,
+                          "overlay": .b(false), "backdropFolder": .s("Resources/Backdrops")]))
+    }
+    func card(_ w: Int = 1440, _ h: Int = 900, duration: Double = 4) -> [(meta: RecordingMeta, cursor: CursorTrack)] {
+        let m = RecordingMeta(pixelWidth: w, pixelHeight: h, pointScale: 1, duration: duration, createdAt: Date(timeIntervalSince1970: 0), source: "display")
+        var track = pointer(&vr, duration: duration)
+        track.clicks.append(CursorSample(t: 1.0, x: 0.72, y: 0.4))
+        return [(m, track)]
+    }
+    d = EditDoc(); d.setLayout(.vertical)
+    render("vertical-paper", d, card(), at: 2.2)
+    d = EditDoc(); d.setLayout(.vertical); d.backdrop = .charcoal; d.cursorStyle = .white
+    d.segments = [ZoomSegment(start: 0.2, end: 3.8, scale: 2)]
+    d.texts = [TextOverlay(id: fixedID(0xB1), text: "Zooms decided after", at: 0, duration: 4, style: .caption, animation: .fade)]
+    d.cameraLook.corner = .bottomRight
+    render("vertical-zoom-caption-camera", d, card(), at: 2, webcam: true)
+    d = EditDoc(); d.setLayout(.square); d.backdrop = .image; d.backdropImage = "monet-water-lilies.jpg"
+    render("square-follow", d, card(), at: 1.4)
+    write("render/vertical.json", .o(["cases": .a(frames)]))
+}
+
+// MARK: - Captions
+// Their own random stream, so adding them left every older fixture as it was.
+
+do {
+    var cr = LCG(state: 0xCA97)
+    let vocab = ["so", "this", "is", "Monet", "Shot", "and", "the", "zoom", "follows", "my", "cursor", "here", "we", "go", "really",
+                 "Ça", "va", "naïve", "café", "okay", "um", "uh", "nice", "recording", "editor", "captions", "word", "by", "a", "New York"]
+    func transcript(_ length: Double) -> Transcript {
+        var words: [TranscriptWord] = []
+        var t = cr.range(0, 0.8)
+        while t < length {
+            let d = cr.range(0.12, 0.6)
+            var w = vocab[cr.int(0, vocab.count - 1)]
+            let r = cr.next()
+            if r < 0.12 { w += "." } else if r < 0.16 { w += "?" } else if r < 0.18 { w += "…" } else if r < 0.24 { w += "," }
+            if cr.next() < 0.03 { w = "" }
+            words.append(TranscriptWord(text: w, start: t, end: min(length, t + d)))
+            t += d + (cr.next() < 0.15 ? cr.range(0.7, 2) : cr.range(0.01, 0.3))
+        }
+        return Transcript(words: words, language: cr.next() < 0.5 ? "en" : nil, engine: cr.next() < 0.5 ? "whisper" : "apple")
+    }
+    var cases: [J] = []
+    let canvases: [(Double, Double)] = [(2560, 1440), (1080, 1920), (960, 960), (1920, 1080)]
+    for k in 0..<24 {
+        let lengths = [10.0, 6.0]
+        let trs: [Transcript?] = [transcript(lengths[0]), k % 3 == 0 ? nil : transcript(lengths[1])]
+        var doc = EditDoc()
+        if k % 4 != 0 {
+            var list = randomClips(&cr, takes: lengths)
+            for i in list.indices where cr.next() < 0.4 { list[i].speed = [0.5, 1.5, 2, 0.75][cr.int(0, 3)] }
+            doc.clips = list
+        } else {
+            doc.cuts = [Cut(start: 2, end: 3.1)]
+        }
+        let map = TimeMap(doc, duration: lengths[0])
+        let (w, h) = canvases[k % canvases.count]
+        let anim = TextAnimation.allCases[cr.int(0, 3)]
+        let words = Captions.words(trs, map: map)
+        let overlays = Captions.overlays(trs, map: map, width: w, height: h, animation: anim)
+        var states: [J] = []
+        for o in overlays {
+            var t = o.at - 0.05
+            while t < o.end + 0.05 {
+                if let st = TextMotion.state(o, at: t, width: w, height: h) {
+                    states.append(.o(["t": n(t), "lines": .a(st.lines.map(J.s)), "px": n(st.px), "centerX": n(st.centerX), "centerY": n(st.centerY),
+                                      "opacity": n(st.opacity), "scale": n(st.scale), "words": .a(st.words.map(J.n)),
+                                      "highlight": st.highlight.map(J.i) ?? .null]))
+                }
+                t += 0.11
+            }
+        }
+        cases.append(.o([
+            "transcripts": .a(trs.map { $0.map(jsonString) ?? .null }), "edit": jsonString(doc), "takeDuration": n(lengths[0]),
+            "width": n(w), "height": n(h), "animation": .s(anim.rawValue),
+            "words": .a(words.map { .o(["text": .s($0.text), "start": n($0.start), "end": n($0.end), "span": .i($0.span), "take": .i($0.take), "index": .i($0.index)]) }),
+            "overlays": .a(overlays.map(jsonString)), "srt": .s(Captions.srt(overlays)), "text": .s(Captions.text(words)), "states": .a(states),
+        ]))
+    }
+    var lines: [J] = []
+    for ws in [["one"], ["two", "words"], ["a", "rather", "longer", "phrase", "here"], ["Supercalifragilistic", "x"], ["Ça", "va", "très", "bien", "merci", "beaucoup"]] {
+        lines.append(.o(["words": .a(ws.map(J.s)), "text": .s(Captions.lines(ws))]))
+    }
+    let tr = Transcript(words: [TranscriptWord(text: "Helo", start: 0.5, end: 0.9), TranscriptWord(text: "um", start: 1, end: 1.2),
+                                TranscriptWord(text: "world", start: 1.3, end: 1.8)], language: "en", engine: "whisper")
+    let edits: [J] = [(0, "Hello"), (1, ""), (2, "  big  world "), (5, "x")].map { i, text in
+        .o(["index": .i(i), "text": .s(text), "result": jsonString(tr.editing(i, to: text))])
+    }
+    var meta = RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 2, duration: 12, createdAt: Date(timeIntervalSince1970: 1_700_000_000), source: "display")
+    meta.voice = "voice.m4a"; meta.voiceOffset = 0.25
+    var withCaptions = EditDoc(); withCaptions.captions = true
+    write("captions.json", .o(["cases": .a(cases), "lines": .a(lines), "transcript": jsonString(tr), "edits": .a(edits),
+                               "meta": jsonString(meta), "edit": jsonString(withCaptions),
+                               "safeArea": .a(canvases.map { w, h in let r = safeArea(canvasWidth: w, canvasHeight: h)
+                                   return .o(["width": n(w), "height": n(h), "x": n(Double(r.minX)), "y": n(Double(r.minY)), "w": n(Double(r.width)), "h": n(Double(r.height))]) })]))
 }
 
 // MARK: - Sync stamp

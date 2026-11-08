@@ -11,9 +11,11 @@ struct InspectorView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
+                    shapeSection
                     formatSection
                     if let i = model.selectedClip, model.clips.indices.contains(i) { clipSection(i) }
                     textSection
+                    CaptionsSection(model: model)
                     zoomSection
                     privacySection
                     musicSection
@@ -431,24 +433,45 @@ struct InspectorView: View {
         }
     }
 
+    /// Landscape, or made for phones (vertical) and feeds (square). Switching
+    /// back leaves the landscape output choices as they were.
+    private var shapeSection: some View {
+        Section("Shape") {
+            Picker("", selection: Binding(
+                get: { model.doc.canvasLayout },
+                set: { v in model.update { $0.setLayout(v) } })) {
+                ForEach(CanvasLayout.allCases, id: \.self) { Text($0.label).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            if model.doc.followsAction {
+                Hint(model.doc.canvasLayout == .vertical
+                     ? "For phones. The frame follows the action; the dashed line marks what Reels, Shorts and TikTok leave clear."
+                     : "For feeds. The frame follows the action.")
+            }
+        }
+    }
+
     private var outputSection: some View {
         Section("Output") {
-            Picker("", selection: bind(\.outputWidth)) {
-                Text("1080p").tag(1920)
-                Text("1440p").tag(2560)
-                Text("4K").tag(3840)
+            if model.doc.canvasLayout == .landscape {
+                Picker("", selection: bind(\.outputWidth)) {
+                    Text("1080p").tag(1920)
+                    Text("1440p").tag(2560)
+                    Text("4K").tag(3840)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Picker("", selection: Binding(
+                    get: { model.doc.canvasAspect == 0 ? 0 : (abs(model.doc.canvasAspect - 1) < 0.01 ? 1 : 16.0 / 9.0) },
+                    set: { v in model.update { $0.canvasAspect = v } })) {
+                    Text("16:9").tag(16.0 / 9.0)
+                    Text("Square").tag(1.0)
+                    Text("As recorded").tag(0.0)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            Picker("", selection: Binding(
-                get: { model.doc.canvasAspect == 0 ? 0 : (abs(model.doc.canvasAspect - 1) < 0.01 ? 1 : 16.0 / 9.0) },
-                set: { v in model.update { $0.canvasAspect = v } })) {
-                Text("16:9").tag(16.0 / 9.0)
-                Text("Square").tag(1.0)
-                Text("As recorded").tag(0.0)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
             let size = model.doc.canvasSize(recordingAspect: model.project.meta.aspect)
             Hint("\(size.width) × \(size.height), 60 fps")
         }
@@ -461,7 +484,7 @@ struct InspectorView: View {
 
 // MARK: parts
 
-private struct Section<Content: View>: View {
+struct Section<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
     init(_ title: String, @ViewBuilder content: () -> Content) {
@@ -480,7 +503,7 @@ private struct Section<Content: View>: View {
     }
 }
 
-private struct Hint: View {
+struct Hint: View {
     let text: String
     init(_ text: String) { self.text = text }
     var body: some View {
@@ -563,7 +586,7 @@ private struct FormatCard: View {
 }
 
 /// A small rounded choice, filled when it's the one in use.
-private struct ChipStyle: ButtonStyle {
+struct ChipStyle: ButtonStyle {
     let on: Bool
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -578,7 +601,7 @@ private struct ChipStyle: ButtonStyle {
     }
 }
 
-private struct ToggleRow: View {
+struct ToggleRow: View {
     let label: String
     let isOn: Binding<Bool>
     init(_ label: String, isOn: Binding<Bool>) {

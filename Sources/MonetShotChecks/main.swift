@@ -1,3 +1,4 @@
+import AVFoundation
 import Foundation
 import CoreImage
 import MonetShotKit
@@ -26,6 +27,81 @@ await check("config round-trips") { dir in
     c.refreshSeconds = 120
     store.save(c)
     expect(store.loadConfig() == c, "saved config loads back")
+}
+
+// MARK: vertical (phones): layout, safe area, follow framing
+
+await check("vertical layout round-trips and leaves landscape untouched") { _ in
+    var d = EditDoc(); d.outputWidth = 3840; d.canvasAspect = 1
+    let before = try JSONEncoder.app.encode(d)
+    d.setLayout(.vertical)
+    let tall = String(decoding: try JSONEncoder.app.encode(d), as: UTF8.self)
+    expect(tall.contains("\"layout\" : \"vertical\""), "vertical is written")
+    expect(d.canvasSize(recordingAspect: 1.6) == (1080, 1920), "vertical is 1080x1920")
+    d.setLayout(.square)
+    expect(d.canvasSize(recordingAspect: 1.6) == (1080, 1080), "square is 1080x1080")
+    d.setLayout(.landscape)
+    expect(try JSONEncoder.app.encode(d) == before, "back to landscape: byte-for-byte the old edit")
+    let odd = try JSONDecoder.app.decode(EditDoc.self, from: Data(#"{"layout": "diagonal", "padding": 0.1}"#.utf8))
+    expect(odd.canvasLayout == .landscape && odd.padding == 0.1, "an unknown layout draws as landscape, the rest still loads")
+}
+
+await check("safe area: phone bands on tall canvases only") { _ in
+    let s = safeArea(canvasWidth: 1080, canvasHeight: 1920)
+    expect(s == CGRect(x: 86, y: 230, width: 908, height: 1306), "1080x1920 keeps clear of the top 12% and bottom 20% (\(s))")
+    expect(safeArea(canvasWidth: 1920, canvasHeight: 1080) == CGRect(x: 0, y: 0, width: 1920, height: 1080), "landscape is clear edge to edge")
+    expect(safeArea(canvasWidth: 1080, canvasHeight: 1080).width == 1080, "square is clear edge to edge")
+}
+
+await check("follow framing: a tall window that holds, then glides") { _ in
+    // The pointer rests left, wobbles a little (inside the dead zone), then crosses to the right.
+    var samples: [CursorSample] = []
+    for i in 0...600 {
+        let t = Double(i) / 60
+        let x = t < 5 ? 0.3 + 0.01 * sin(t * 9) : 0.85
+        samples.append(CursorSample(t: t, x: x, y: 0.5))
+    }
+    let meta = RecordingMeta(pixelWidth: 2880, pixelHeight: 1800, pointScale: 2, duration: 10, source: "display")
+    var d = EditDoc(); d.setLayout(.vertical)
+    let r = Renderer(doc: d, meta: meta, cursor: CursorTrack(samples: samples))
+    let f = r.frameRect()
+    expect(r.canvas == CGSize(width: 1080, height: 1920), "canvas is 1080x1920")
+    let pad = (0.07 * 1080).rounded()
+    expect(f.width >= 1080 - 2 * pad - 1 && f.height >= 1920 - 2 * pad - 1, "the recording fills the phone frame inside the padding (\(f))")
+    let c1 = r.camera(take: 0, time: 1), c2 = r.camera(take: 0, time: 3)
+    expect(c1.window < 0.4 && c1.window > 0.25, "the window is tall (\(c1.window))")
+    expect(abs(c1.centerX - c2.centerX) < 0.003, "a small wobble doesn't move it (\(c1.centerX) vs \(c2.centerX))")
+    expect(abs(c1.centerX - 0.3) < 0.02, "it is on the pointer (\(c1.centerX))")
+    let late = r.camera(take: 0, time: 9.5)
+    expect(late.centerX > 0.8 - late.window / 2 && late.centerX <= 1 - late.window / 2 + 1e-9, "it ends on the right, inside the picture (\(late.centerX))")
+    var fastest = 0.0
+    var last = r.camera(take: 0, time: 0).centerX
+    for k in 1...600 {
+        let x = r.camera(take: 0, time: Double(k) / 60).centerX
+        fastest = max(fastest, abs(x - last) * 60)
+        last = x
+    }
+    expect(fastest < 0.9, "the glide is calm: at most \(fastest) picture widths a second")
+    let v = late.viewport
+    expect(v.x >= -1e-9 && v.x + v.w <= 1 + 1e-9 && v.h == 1, "the window stays inside the picture, full height")
+    // Full height of a Retina take on a 1920 canvas: text is at least its own pixel size.
+    expect(f.height / 1800 > 0.9, "legible: \(f.height / 1800) output px per recorded px")
+}
+
+await check("vertical: camera bubble and texts inside the safe area") { _ in
+    let meta = RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 5, source: "display")
+    for corner in CameraCorner.allCases {
+        var d = EditDoc(); d.setLayout(.vertical); d.cameraLook.corner = corner; d.cameraLook.size = 0.5
+        let r = Renderer(doc: d, meta: meta, cursor: CursorTrack())
+        let b = r.bubbleRect
+        let top = r.canvas.height - b.maxY
+        let safe = safeArea(canvasWidth: 1080, canvasHeight: 1920)
+        expect(top >= safe.minY && top + b.height <= safe.maxY && b.minX >= 0 && b.maxX <= 1080, "\(corner) bubble inside the safe area (\(b))")
+    }
+    var o = TextOverlay(text: "Hi", at: 0, duration: 2, style: .caption, animation: .fade)
+    o.y = 1
+    let st = TextMotion.state(Renderer.inSafeArea(o, width: 1080, height: 1920), at: 1, width: 1080, height: 1920)!
+    expect(st.centerY <= 1920 * 0.8 + 0.5, "a caption at the very bottom sits on the safe line (\(st.centerY))")
 }
 
 await check("missing keys fall back to defaults") { dir in
@@ -519,6 +595,107 @@ await check("the music grid finds the beat, the downbeat and the lift") { _ in
     let lift = 0.5 + 8 * beat * 4
     expect(g.lifts.contains { abs($0 - lift) < 0.15 }, "the louder section is a lift (\(g.lifts), want \(lift))")
     expect(abs(g.nearestBarLine(lift + 0.4) - lift) < 0.06, "times snap to the nearest bar line")
+}
+
+
+// MARK: - Captions and voice
+
+await check("captions: a transcript through a cut and a 2x clip, phrases, srt, the word being said") { _ in
+    let said = ["Monet", "Shot", "turns", "a", "screen", "recording", "into", "a", "polished", "demo.", "Zooms", "come", "later."]
+    var words: [TranscriptWord] = []
+    for (k, w) in said.enumerated() { words.append(TranscriptWord(text: w, start: 0.5 + Double(k) * 0.4, end: 0.8 + Double(k) * 0.4)) }
+    let tr = Transcript(words: words, language: "en", engine: "apple")
+    // Keep 0...2 (first 4 words), cut 2...3, then 3...6 at 2x.
+    let a = Clip(start: 0, end: 2)
+    var b = Clip(start: 3, end: 6)
+    b.speed = 2
+    let map = TimeMap(clips: [a, b])
+    let cw = Captions.words([tr], map: map)
+    expect(cw.first?.text == "Monet" && near(cw[0].start, 0.5), "first word at its own time")
+    expect(!cw.contains { $0.text == "screen" }, "a word in the cut isn't shown (\(cw.map(\.text)))")
+    if let i = cw.firstIndex(where: { $0.text == "into" }) {
+        // "into" starts at 2.9 in the take: 3 is the clip's start, so output 2 + 0 (clamped), ends (3.2-3)/2 later.
+        expect(near(cw[i].start, 2) && near(cw[i].end, 2.1), "a word in the 2x clip is squeezed (\(cw[i].start)...\(cw[i].end))")
+    } else { expect(false, "\"into\" is in the 2x clip") }
+    let overlays = Captions.overlays([tr], map: map, width: 1920, height: 1080)
+    expect(overlays.allSatisfy { $0.style == .caption && $0.beats?.count == $0.text.split(whereSeparator: { $0 == " " || $0 == "\n" }).count }, "phrases carry a beat per word")
+    expect(overlays.first?.text.contains("Monet Shot") == true, "the first phrase opens with the first words")
+    expect(overlays.allSatisfy { $0.text.split(separator: "\n").count <= 2 && $0.text.split(whereSeparator: { $0 == " " || $0 == "\n" }).count <= Captions.maxWords }, "at most two lines and six words")
+    expect(zip(overlays, overlays.dropFirst()).allSatisfy { $0.end <= $1.at + 1e-9 }, "phrases never overlap")
+    expect(overlays.allSatisfy { $0.y > 0.7 && $0.y < 0.94 }, "captions sit in the bottom of the safe area")
+    let srt = Captions.srt(overlays)
+    expect(srt.hasPrefix("1\n00:00:00,500 --> "), "srt starts with the first phrase at 0.5 s (\(srt.prefix(30)))")
+    let o = overlays[0]
+    let st = TextMotion.state(o, at: o.at + (o.beats?[1] ?? 0) + 0.01, width: 1920, height: 1080)
+    expect(st?.highlight == 1, "the second word is lit while it's said")
+    expect(TextMotion.state(o, at: o.at + 0.01, width: 1920, height: 1080)?.highlight == 0, "the first word is lit at the start")
+    var doc = EditDoc()
+    doc.captions = true
+    doc.clips = [a, b]
+    let r = Renderer(doc: doc, takes: [(RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 8, source: "display"), CursorTrack())],
+                     folder: nil, transcripts: [tr])
+    expect(r.captions.count == overlays.count, "the renderer shows the captions when switched on")
+    doc.captions = nil
+    let off = Renderer(doc: doc, takes: [(RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 8, source: "display"), CursorTrack())],
+                       folder: nil, transcripts: [tr])
+    expect(off.captions.isEmpty, "and not when off")
+    let edited = tr.editing(8, to: "polished").editing(1, to: "")
+    expect(edited.words.count == said.count - 1 && edited.words[7].text == "polished", "a word is fixed, another dropped")
+}
+
+/// A short silent H.264 video (grey frames), for checks that need a real take.
+func makeVideo(_ url: URL, seconds: Double, fps: Int32 = 10) async throws {
+    let w = try AVAssetWriter(outputURL: url, fileType: .mov)
+    let input = AVAssetWriterInput(mediaType: .video, outputSettings: [AVVideoCodecKey: AVVideoCodecType.h264, AVVideoWidthKey: 160, AVVideoHeightKey: 100])
+    let adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: [
+        kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA, kCVPixelBufferWidthKey as String: 160, kCVPixelBufferHeightKey as String: 100])
+    w.add(input)
+    w.startWriting()
+    w.startSession(atSourceTime: .zero)
+    for i in 0..<Int(seconds * Double(fps)) {
+        while !input.isReadyForMoreMediaData { try await Task.sleep(for: .milliseconds(5)) }
+        var pb: CVPixelBuffer?
+        CVPixelBufferPoolCreatePixelBuffer(nil, adaptor.pixelBufferPool!, &pb)
+        guard let pb else { continue }
+        CVPixelBufferLockBaseAddress(pb, [])
+        memset(CVPixelBufferGetBaseAddress(pb), 0x80, CVPixelBufferGetDataSize(pb))
+        CVPixelBufferUnlockBaseAddress(pb, [])
+        adaptor.append(pb, withPresentationTime: CMTime(value: CMTimeValue(i), timescale: fps))
+    }
+    input.markAsFinished()
+    await w.finishWriting()
+}
+
+await check("voice: the take's voice follows its clips in the edited asset") { dir in
+    let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+    let sentence = repo.appendingPathComponent("shared/fixtures/voice/sentence.m4a")
+    guard FileManager.default.fileExists(atPath: sentence.path) else { expect(false, "voice fixture present"); return }
+    let folder = dir.appendingPathComponent("v.reel")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    try await makeVideo(folder.appendingPathComponent("screen.mov"), seconds: 7)
+    try FileManager.default.copyItem(at: sentence, to: folder.appendingPathComponent("voice.m4a"))
+    var meta = RecordingMeta(pixelWidth: 160, pixelHeight: 100, pointScale: 1, duration: 7, source: "display")
+    meta.voice = "voice.m4a"
+    meta.voiceOffset = 0.5
+    var p = Project(folder: folder, meta: meta, cursor: CursorTrack(), edit: EditDoc())
+    var fast = Clip(start: 3, end: 5)
+    fast.speed = 2
+    p.edit.clips = [Clip(start: 0, end: 2), fast]
+    try p.saveMeta(); try p.saveCursor(); try p.saveEdit()
+    p = try Project.load(folder)
+    expect(p.takes[0].voiceURL?.lastPathComponent == "voice.m4a", "the take knows its voice")
+    try Transcript(words: [TranscriptWord(text: "Hi", start: 1, end: 1.3)]).save(folder)
+    expect(try Project.load(folder).takes[0].transcript?.words.count == 1, "the first take's transcript loads with the project")
+    let prepared = try await Composer.prepare(p)
+    guard let comp = prepared.asset as? AVMutableComposition else { expect(false, "a composition"); return }
+    let voiceTrack = comp.tracks(withMediaType: .audio).first { $0.trackID == 6 }
+    expect(voiceTrack != nil, "a voice track")
+    let segs = (voiceTrack?.segments ?? []).filter { !$0.isEmpty }
+    let targets = segs.map { ($0.timeMapping.target.start.seconds, $0.timeMapping.target.end.seconds) }
+    // Clip 1: voice from take 0.5 (file 0) to 2 -> output 0.5...2; clip 2: take 3...5 at 2x -> output 2...3.
+    expect(targets.count == 2 && near(targets[0].0, 0.5, 0.01) && near(targets[0].1, 2, 0.01)
+           && near(targets[1].0, 2, 0.01) && near(targets[1].1, 3, 0.01), "voice placed with its clips (\(targets))")
+    expect(near(segs.last.map { $0.timeMapping.source.start.seconds } ?? 0, 2.5, 0.01), "the 2x clip's voice starts 2.5 s into the file")
 }
 
 if let file = ProcessInfo.processInfo.environment["MONETSHOT_GRID_FILE"] {

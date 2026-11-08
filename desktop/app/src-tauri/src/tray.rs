@@ -7,7 +7,7 @@
 use std::sync::Mutex;
 
 use tauri::image::Image;
-use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
+use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Wry};
 use tiny_skia::{Color, FillRule, LineCap, Paint, PathBuilder, Pixmap, Stroke, Transform};
@@ -33,7 +33,7 @@ enum Look {
 struct TrayState {
     look: Option<Look>,
     title: Option<String>,
-    menu_key: Option<(bool, bool, bool, Vec<std::path::PathBuf>)>,
+    menu_key: Option<(bool, bool, bool, bool, Vec<std::path::PathBuf>)>,
 }
 
 static STATE: Mutex<TrayState> = Mutex::new(TrayState { look: None, title: None, menu_key: None });
@@ -138,7 +138,7 @@ fn set_title(app: &AppHandle, s: &BarState) {
 pub fn refresh_menu(app: &AppHandle) {
     let snap = app.state::<Bar>().snapshot();
     let recording = matches!(snap.phase, Phase::Recording { .. });
-    let key = (recording, snap.paused, snap.camera_too, library::recent(6));
+    let key = (recording, snap.paused, snap.camera_too, snap.vertical, library::recent(6));
     {
         let mut st = STATE.lock().unwrap();
         if st.menu_key.as_ref() == Some(&key) {
@@ -173,6 +173,8 @@ fn build_menu(app: &AppHandle, s: &BarState) -> tauri::Result<Menu<Wry>> {
             menu.append(&MenuItem::with_id(app, "choose", "Choose what to record…", true, None::<&str>)?)?;
         }
         menu.append(&CheckMenuItem::with_id(app, "camera", "Record My Camera Too", true, s.camera_too, None::<&str>)?)?;
+        menu.append(&CheckMenuItem::with_id(app, "vertical", "Record Vertical", true, s.vertical, None::<&str>)?)?;
+        menu.append(&mic_menu(app)?)?;
     }
     menu.append(&MenuItem::with_id(app, "home", "Open Monet Shot", true, Some("CmdOrCtrl+O"))?)?;
     menu.append(&PredefinedMenuItem::separator(app)?)?;
@@ -191,8 +193,43 @@ fn build_menu(app: &AppHandle, s: &BarState) -> tauri::Result<Menu<Wry>> {
     Ok(menu)
 }
 
+/// "Microphone": off, or which one records your voice with the screen.
+fn mic_menu(app: &AppHandle) -> tauri::Result<Submenu<Wry>> {
+    let chosen = crate::speech::settings().mic;
+    let sub = Submenu::with_id(app, "mic", "Microphone", true)?;
+    sub.append(&CheckMenuItem::with_id(app, "mic:", "Off", true, chosen.is_none(), None::<&str>)?)?;
+    for m in mics() {
+        let on = chosen.as_deref() == Some(m.id.as_str());
+        sub.append(&CheckMenuItem::with_id(app, format!("mic:{}", m.id), &m.name, true, on, None::<&str>)?)?;
+    }
+    Ok(sub)
+}
+
+/// The microphones, listed once (listing runs ffmpeg or pactl).
+fn mics() -> Vec<monetshot_capture::Device> {
+    static LIST: std::sync::OnceLock<Vec<monetshot_capture::Device>> = std::sync::OnceLock::new();
+    LIST.get_or_init(|| {
+        let mut v = monetshot_capture::microphones().unwrap_or_default();
+        if !v.iter().any(|d| d.id == "default") {
+            v.insert(0, monetshot_capture::Device { id: "default".into(), name: "Default microphone".into() });
+        }
+        v
+    })
+    .clone()
+}
+
 fn on_menu(app: &AppHandle, id: &str) {
     let bar = app.state::<Bar>();
+    if let Some(mic) = id.strip_prefix("mic:") {
+        let mut s = crate::speech::settings();
+        s.mic = (!mic.is_empty()).then(|| mic.to_string());
+        if let Err(e) = crate::speech::speech_set(s) {
+            crate::log::error(&format!("microphone choice: {e}"));
+        }
+        STATE.lock().unwrap().menu_key = None;
+        refresh_menu(app);
+        return;
+    }
     match id {
         "record" => bar.tap(app),
         "choose" => {
@@ -200,6 +237,7 @@ fn on_menu(app: &AppHandle, id: &str) {
             bar.tap(app);
         }
         "camera" => bar.toggle_camera_too(app),
+        "vertical" => bar.toggle_vertical(app),
         "pause" => bar.toggle_pause(app),
         "stop" => bar.stop(app),
         "home" => windows::show_home(app),

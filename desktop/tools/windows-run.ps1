@@ -26,6 +26,11 @@
 #               Home's cards and thumbnails, Move to Trash, Show in folder,
 #               open by clicking; in the editor, add a video, record a new
 #               take (we stop it), reorder clips, undo, save.
+#   9. vertical `monet-shot --vertical` on a copy of the take, then
+#               `--render`: a 1080x1920 H.264 export, frames grabbed for a
+#               look; the editor on it runs ui/devchecks/vertical.js (tall
+#               canvas, follow window, safe-area guides, Shape, back to
+#               Landscape untouched, Record Vertical), with a screenshot.
 #
 # Every stage runs even when an earlier one failed; the script exits 1 if
 # any failed. Logs, the take, the export and screenshots go to -Out.
@@ -38,7 +43,7 @@
 # desktop/packaging/windows/bin (fetch-ffmpeg.sh).
 param(
   [string]$Out = $(if ($env:RUNNER_TEMP) { Join-Path $env:RUNNER_TEMP 'ms-run' } else { Join-Path ([IO.Path]::GetTempPath()) 'ms-run' }),
-  [string[]]$Stages = @('record', 'editor', 'fixtures', 'hevc', 'export', 'install', 'window', 'home')
+  [string[]]$Stages = @('record', 'editor', 'fixtures', 'hevc', 'export', 'install', 'window', 'home', 'vertical', 'captions')
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3
@@ -434,6 +439,55 @@ function Stage-Export {
   } else { Fail 'export: no sound to measure' }
 }
 
+# MARK: 9. captions
+
+# A take whose voice is the test sentence (`say` on the Mac): the editor
+# transcribes it on open (whisper; the model downloaded into this home on
+# first use), devchecks/captions.js checks what it heard, fixes a word and
+# exports; then a frame of the export with its caption, and the .srt.
+function Stage-Captions {
+  Section '9. captions (debug exe, whisper, devchecks/captions.js)'
+  Start-Vite
+  $h = Join-Path $Out 'home-captions'
+  if (Test-Path $h) { Remove-Item -Recurse -Force $h }
+  $reel = Join-Path $h 'recordings\voice-test.reel'
+  New-Item -ItemType Directory -Force $reel | Out-Null
+  & $ffmpeg -v error -y -f lavfi -i 'testsrc2=size=1280x720:rate=30' -t 7 -pix_fmt yuv420p -c:v libx264 (Join-Path $reel 'screen.mp4')
+  Copy-Item (Join-Path $repo 'shared\fixtures\voice\sentence.m4a') (Join-Path $reel 'voice.m4a')
+  $meta = '{"createdAt":"2026-11-08T00:00:00Z","duration":7,"pixelHeight":720,"pixelWidth":1280,"pointScale":1,"source":"display","video":"screen.mp4","voice":"voice.m4a","voiceOffset":0.5}'
+  [IO.File]::WriteAllText((Join-Path $reel 'meta.json'), $meta)
+  [IO.File]::WriteAllText((Join-Path $reel 'edit.json'), '{"outputWidth":1920}')
+  $devScript = Join-Path $desktop 'app\ui\devchecks\captions.js'
+  Start-App $debug @{ MONETSHOT_HOME = $h; MONETSHOT_DEV_SCRIPT = $devScript } @($reel) | Out-Null
+  if (Wait-Log $h 'check: shot captions-editor' 900) { Start-Sleep 2; Shot '9-captions-editor' | Out-Null } else { Shot '9-captions-no-shot' | Out-Null }
+  $done = Wait-Log $h 'check: done (\d+) ok, (\d+) failed' 900
+  Stop-App
+  Save-Log $h '9-captions'
+  $log = Read-Log $h
+  ($log -split "`n" | Where-Object { $_ -match 'check:|ERROR|transcri|subtitles|speech model' }) -join "`n" | Write-Host
+  if (-not $done) { Fail 'captions: the check never finished'; return }
+  $good = [int]$done.Groups[1].Value; $bad = [int]$done.Groups[2].Value
+  if ($bad -eq 0 -and $good -gt 0) { Ok "captions check: $good ok, 0 failed" } else { Fail "captions: check: done $good ok, $bad failed" }
+  $video = Join-Path $h 'recordings\voice-test.mp4'
+  $srt = Join-Path $h 'recordings\voice-test.srt'
+  if (Test-Path $video) {
+    Copy-Item $video (Join-Path $Out 'captions-export.mp4') -Force
+    foreach ($t in @(1.6, 3.2, 5.0)) {
+      & $ffmpeg -v error -y -ss $t -i $video -frames:v 1 (Join-Path $Out ("9-captioned-{0}s.png" -f $t))
+    }
+    $a = & $ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of csv=p=0 $video
+    if ($a -match 'aac') { Ok 'captions export has the voice (aac)' } else { Fail "captions export: no audio stream ($a)" }
+  } else { Fail "captions: no export at $video" }
+  if (Test-Path $srt) {
+    Copy-Item $srt (Join-Path $Out 'captions-export.srt') -Force
+    $text = Get-Content -Raw $srt
+    Write-Host $text
+    if ($text -match '^1\r?\n00:00:0') { Ok 'subtitles written beside the export' } else { Fail "captions: the .srt looks wrong" }
+  } else { Fail "captions: no subtitles at $srt" }
+  $model = Join-Path $h 'models\ggml-base-q5_1.bin'
+  if ((Test-Path $model) -and (Test-Path "$model.sha256")) { Ok "speech model downloaded and checked ($((Get-Item $model).Length) bytes)" } else { Fail 'captions: the speech model is not where it should be' }
+}
+
 # MARK: 3. fixtures
 
 function Stage-Fixtures {
@@ -441,7 +495,10 @@ function Stage-Fixtures {
   Start-Vite
   $h = Join-Path $Out 'home-fixtures'
   New-Item -ItemType Directory -Force $h | Out-Null
-  $cases = @((Get-Content -Raw (Join-Path $repo 'shared\fixtures\render\cases.json') | ConvertFrom-Json).cases).Count
+  $cases = 0
+  foreach ($f in 'cases.json', 'vertical.json') {
+    $cases += @((Get-Content -Raw (Join-Path $repo "shared\fixtures\render\$f") | ConvertFrom-Json).cases).Count
+  }
   Start-App $debug @{ MONETSHOT_HOME = $h; MONETSHOT_DEV_PAGE = 'fixtures-test.html' } | Out-Null
   $until = (Get-Date).AddSeconds(300)
   $lines = @()
@@ -748,6 +805,49 @@ function Stage-Home {
   Copy-Item -Recurse $open (Join-Path $Out 'take-home.reel') -Force
 }
 
+# MARK: 9. vertical
+
+function Stage-Vertical {
+  Section '9. vertical (--vertical, --render 1080x1920, the editor in vertical)'
+  if (-not $script:take) { Fail 'vertical: no take (record failed)'; return }
+  $h = Join-Path $Out 'home-vertical'
+  New-Item -ItemType Directory -Force (Join-Path $h 'recordings') | Out-Null
+  $copy = Copy-Reel $script:take (Join-Path $h 'recordings\vertical.reel')
+  $env:MONETSHOT_HOME = $h
+  try {
+    $said = & $debug --vertical $copy 2>&1 | Out-String
+    Write-Host "--vertical: $said"
+    $edit = Get-Content -Raw (Join-Path $copy 'edit.json')
+    if ($LASTEXITCODE -eq 0 -and $edit -match '"layout" : "vertical"') { Ok "--vertical: edit.json says vertical ($($said.Trim()))" }
+    else { Fail "vertical: --vertical exited $LASTEXITCODE, edit.json: $edit"; return }
+    $mp4 = Join-Path $Out 'vertical.mp4'
+    $said = & $debug --render $copy $mp4 2>&1 | Out-String
+    Write-Host "--render: $said"
+  } finally { Remove-Item Env:\MONETSHOT_HOME -ErrorAction SilentlyContinue }
+  if (-not (Test-Path $mp4)) { Fail "vertical: --render made no file ($said)"; return }
+  $v = Probe $mp4
+  Write-Host "vertical export: $($v.codec) $($v.width)x$($v.height), $($v.frames) frames, $($v.duration) s"
+  if ($v.width -eq 1080 -and $v.height -eq 1920 -and $v.frames -gt 30) { Ok "vertical export: $($v.codec) 1080x1920, $($v.frames) frames, $($v.duration) s" }
+  else { Fail "vertical export: $($v.codec) $($v.width)x$($v.height), $($v.frames) frames" }
+  foreach ($t in 1, 2.5, 4) {
+    $png = Join-Path $Out "vertical-frame-$t.png"
+    & $ffmpeg -v error -y -ss $t -i $mp4 -frames:v 1 $png
+    if (Test-Path $png) { Write-Host "frame $png ($((Get-Item $png).Length) bytes)" } else { Fail "vertical: no frame at $t s" }
+  }
+  # The editor on it: the tall preview, then the check's switches.
+  Start-Vite
+  $devScript = Join-Path $desktop 'app\ui\devchecks\vertical.js'
+  Start-App $debug @{ MONETSHOT_HOME = $h; MONETSHOT_DEV_SCRIPT = $devScript } @($copy) | Out-Null
+  if (Wait-Log $h 'vertical: shown' 120) { Start-Sleep 1; Shot '9-editor-vertical' | Out-Null } else { Shot '9-editor-not-shown' | Out-Null }
+  $done = Wait-Log $h 'vertical: done (\d+) ok, (\d+) failed' 120
+  Stop-App
+  Save-Log $h '9-vertical'
+  ((Read-Log $h) -split "`n" | Where-Object { $_ -match 'vertical:|ERROR' }) -join "`n" | Write-Host
+  if (-not $done) { Fail 'vertical: the editor check never finished'; return }
+  $good = [int]$done.Groups[1].Value; $bad = [int]$done.Groups[2].Value
+  if ($bad -eq 0 -and $good -gt 0) { Ok "vertical editor check: $good ok, 0 failed" } else { Fail "vertical: editor check $good ok, $bad failed" }
+}
+
 # MARK: run
 
 try {
@@ -762,6 +862,8 @@ try {
         'install' { Stage-Install }
         'window' { Stage-Window }
         'home' { Stage-Home }
+        'vertical' { Stage-Vertical }
+        'captions' { Stage-Captions }
         default { throw "unknown stage $s" }
       }
     } catch {

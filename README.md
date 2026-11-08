@@ -56,6 +56,16 @@ crop away anything private before you share it. The look follows
     zooms) or *Cinematic* (long fades in and out, titles in capitals) sets
     the pace and look in one go, and suggests a music mood. Everything
     stays adjustable; ⌘Z undoes it.
+  - **Shape.** *Landscape*, *Vertical* (1080×1920, for Reels, Shorts and
+    TikTok) or *Square* (1080×1080), at the top of the inspector. Vertical
+    doesn't shrink the screen into a strip: the recording fills the phone
+    frame at its full height and the frame follows the action like a
+    camera operator, holding still while you work in one place and gliding
+    to wherever you click or zoom next. Texts stay clear of the phone apps'
+    buttons (the dashed line in the preview), and the camera bubble sits
+    larger, in the lower third. *Landscape* brings the landscape edit back
+    as it was. **Record Vertical** in the ring's right-click menu (or the
+    shape toggle on Home) makes every new recording open vertical.
   - **Space** plays,
     **←/→** step a frame (with Shift, a second), **A** re-runs auto-zoom.
 - **Hide & crop.** *Hide* (or **B**) shows the take whole, so you can
@@ -90,6 +100,21 @@ crop away anything private before you share it. The look follows
     ring's right-click menu. You see yourself in a bubble during the 3‑2‑1;
     it hides when recording starts (it would be in the capture) and the
     camera keeps recording alongside, following the take's clips and cuts.
+- **Your voice and captions.** Pick a *Microphone* in the ring's
+  right-click menu (Windows/Linux: the tray menu) and your voice records
+  beside the screen, without the camera. It shows as a thin lane under the
+  clips, plays in the preview, goes into the export, and the music ducks
+  under it. With the camera on, the camera's microphone is your voice.
+  - When a take with a voice opens, it is transcribed on this computer:
+    Apple's on-device speech on the Mac; on Windows and Linux whisper.cpp,
+    whose small model (57 MB) downloads once, with progress, the first time.
+    Nothing is uploaded. *Transcribe* runs it again (any language, or
+    *Automatic*), with progress and a way to stop.
+  - *Captions* puts what you said over the video in short phrases at the
+    bottom, the word being said lit in clay, in the format's way of bringing
+    words in. Click a word in the transcript to fix it, or empty it to drop
+    a filler. *Copy transcript* copies the text.
+  - Every export also writes `<name>.srt` (subtitles) beside the video.
 - **Music.** *Music* (or **M**) opens the browser beside your video: 43
   tracks that come with the app, all CC0 or public domain, so there is
   nothing to credit and no conditions. *For this video* suggests a few that
@@ -139,6 +164,7 @@ MonetShot --frame  <rec.reel> <s> <out.png>   # one finished frame
 MonetShot --render <rec.reel> <out.mp4>       # the full export
 MonetShot --add    <rec.reel> <video|rec.reel>…  # add footage as clips at the end
 MonetShot --format <rec.reel> fast              # clean | fast | melancholic | cinematic
+MonetShot --aspect <rec.reel> vertical          # landscape | vertical | square (--vertical <rec.reel> for short)
 ```
 
 ## What it changes on your Mac
@@ -157,7 +183,9 @@ to just the chosen display or window for that recording, which is also why
 it keeps working after each rebuild of an ad-hoc signed app. Pointer
 positions are polled and clicks come from a mouse event monitor; neither
 needs Accessibility. Monet Shot records sound only from the microphone, only
-while recording yourself, and never keystrokes.
+while recording yourself or with a *Microphone* chosen, and never keystrokes.
+Transcription runs on the Mac (Speech may download its on-device model for
+your language once).
 
 ## How it works
 
@@ -185,7 +213,9 @@ while recording yourself, and never keystrokes.
 ## Known limits
 
 - One display or window per take; a window is assumed not to move while
-  recording. No system audio; the camera brings your voice.
+  recording. No system audio; your voice comes from the microphone or the
+  camera. Clips of you recorded over the edit in the editor aren't
+  transcribed (a take's own voice and camera are).
 - Hidden boxes are fixed rectangles: they don't track something that
   moves or scrolls. Time them with *Start here* / *End here*, or crop it
   away.

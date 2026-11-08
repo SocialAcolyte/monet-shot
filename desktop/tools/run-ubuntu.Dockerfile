@@ -4,7 +4,7 @@
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      build-essential curl ca-certificates git pkg-config clang libclang-dev rsync \
+      build-essential curl ca-certificates git pkg-config clang libclang-dev cmake rsync \
       libpipewire-0.3-dev ffmpeg \
       libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev libxdo-dev \
       xvfb xdotool imagemagick x11-utils openbox dbus-x11 at-spi2-core \

@@ -82,6 +82,18 @@ final class CameraRecorder: NSObject {
         session.commitConfiguration()
     }
 
+    /// Hears you through `mic` from now on (not mid-recording).
+    func useMic(_ mic: AVCaptureDevice) {
+        guard configured, !output.isRecording, AVCaptureDevice.authorizationStatus(for: .audio) == .authorized,
+              let input = try? AVCaptureDeviceInput(device: mic) else { return }
+        session.beginConfiguration()
+        for old in session.inputs.compactMap({ $0 as? AVCaptureDeviceInput }) where old.device.hasMediaType(.audio) {
+            session.removeInput(old)
+        }
+        if session.canAddInput(input) { session.addInput(input) }
+        session.commitConfiguration()
+    }
+
     private func configure() {
         configured = true
         session.beginConfiguration()
@@ -91,7 +103,8 @@ final class CameraRecorder: NSObject {
             session.addInput(input)
             videoInput = input
         }
-        if let mic = AVCaptureDevice.default(for: .audio), AVCaptureDevice.authorizationStatus(for: .audio) == .authorized,
+        // The microphone chosen in the menu, else the system's.
+        if let mic = VoiceRecorder.chosen ?? AVCaptureDevice.default(for: .audio), AVCaptureDevice.authorizationStatus(for: .audio) == .authorized,
            let input = try? AVCaptureDeviceInput(device: mic), session.canAddInput(input) {
             session.addInput(input)
         }

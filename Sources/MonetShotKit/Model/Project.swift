@@ -43,6 +43,11 @@ public struct RecordingMeta: Codable, Equatable, Sendable {
     /// at which that file starts.
     public var camera: String?
     public var cameraOffset: Double = 0
+    /// The file holding your voice for this take (`voice.m4a` from the
+    /// microphone alone, or the camera file when the camera heard you), and
+    /// the take time at which it starts. Written only when there is one.
+    public var voice: String?
+    public var voiceOffset: Double?
 
     public init(pixelWidth: Int, pixelHeight: Int, pointScale: Double, duration: Double, createdAt: Date = Date(),
                 source: String, video: String = "screen.mov") {
@@ -67,6 +72,8 @@ public struct RecordingMeta: Codable, Equatable, Sendable {
         video = try c.decodeIfPresent(String.self, forKey: .video) ?? "screen.mov"
         camera = try c.decodeIfPresent(String.self, forKey: .camera)
         cameraOffset = try c.decodeIfPresent(Double.self, forKey: .cameraOffset) ?? 0
+        voice = try c.decodeIfPresent(String.self, forKey: .voice)
+        voiceOffset = try c.decodeIfPresent(Double.self, forKey: .voiceOffset)
     }
 
     public var aspect: Double { Double(pixelWidth) / Double(max(pixelHeight, 1)) }
@@ -255,6 +262,12 @@ public struct EditDoc: Codable, Equatable, Sendable {
     /// The format last applied (`EditFormat.id`), for the picker to show; the
     /// edit itself carries everything the format set.
     public var format: String?
+    /// Vertical or square (`CanvasLayout`); nil = landscape, the canvas
+    /// `outputWidth` x `canvasAspect` sets (and which it leaves untouched).
+    public var layout: CanvasLayout?
+    /// What was said, shown as captions (nil until switched, so older edits
+    /// stay as they were).
+    public var captions: Bool?
 
     public init() {}
 
@@ -291,6 +304,9 @@ public struct EditDoc: Codable, Equatable, Sendable {
         crops = try c.decodeIfPresent([TakeCrop].self, forKey: .crops) ?? d.crops
         texts = try c.decodeIfPresent([TextOverlay].self, forKey: .texts)
         format = try c.decodeIfPresent(String.self, forKey: .format)
+        // A layout this version doesn't know draws as landscape.
+        layout = (try? c.decodeIfPresent(CanvasLayout.self, forKey: .layout)) ?? nil
+        captions = try c.decodeIfPresent(Bool.self, forKey: .captions)
     }
 
     /// The clips that make the video: the explicit list, or (for a recording
@@ -311,6 +327,7 @@ public struct EditDoc: Codable, Equatable, Sendable {
 
     /// Canvas size in pixels for a recording of the given aspect.
     public func canvasSize(recordingAspect: Double) -> (width: Int, height: Int) {
+        if let size = canvasLayout.size { return size }
         let aspect = canvasAspect > 0 ? canvasAspect : recordingAspect
         let w = max(2, outputWidth)
         // Video encoders want even dimensions.
@@ -325,6 +342,8 @@ public struct Take: Sendable {
     public let folder: URL
     public var meta: RecordingMeta
     public var cursor: CursorTrack
+    /// What was said in it (`transcript.json`), if transcribed.
+    public var transcript: Transcript?
 
     public init(folder: URL, meta: RecordingMeta, cursor: CursorTrack) {
         self.folder = folder
@@ -334,6 +353,7 @@ public struct Take: Sendable {
 
     public var videoURL: URL { folder.appendingPathComponent(meta.video) }
     public var cameraURL: URL? { meta.camera.map { folder.appendingPathComponent($0) } }
+    public var voiceURL: URL? { meta.voice.map { folder.appendingPathComponent($0) } }
     /// Imported videos carry no pointer log, so MonetShot draws no cursor on them.
     public var hasCursor: Bool { !cursor.samples.isEmpty }
 
@@ -348,7 +368,9 @@ public struct Take: Sendable {
         guard FileManager.default.fileExists(atPath: folder.appendingPathComponent(meta.video).path) else {
             throw Project.LoadError.missing(meta.video)
         }
-        return Take(folder: folder, meta: meta, cursor: cursor)
+        var take = Take(folder: folder, meta: meta, cursor: cursor)
+        take.transcript = Transcript.load(folder)
+        return take
     }
 
     public func save() throws {
@@ -398,6 +420,7 @@ public struct Project: Sendable {
         let first = try Take.load(folder)
         let edit = (try? JSONDecoder.app.decode(EditDoc.self, from: Data(contentsOf: folder.appendingPathComponent("edit.json")))) ?? EditDoc()
         var p = Project(folder: folder, meta: first.meta, cursor: first.cursor, edit: edit)
+        p.takes[0].transcript = first.transcript
         for dir in takeFolders(in: folder) {
             if let t = try? Take.load(dir) { p.takes.append(t) }
         }

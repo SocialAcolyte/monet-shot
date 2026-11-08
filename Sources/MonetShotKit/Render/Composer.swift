@@ -32,6 +32,7 @@ public enum Composer {
             at = at + length
         }
         try await addCamera(project, map: map, to: comp)
+        try await addVoice(project, map: map, to: comp)
         return comp
     }
 
@@ -85,9 +86,9 @@ public enum Composer {
         for t in [overlayV, overlayA, takeV, takeA] where t.segments.isEmpty { comp.removeTrack(t) }
     }
 
-    /// Where someone is talking, in output time: every sound in the edit so
-    /// far (the camera's mic, a voiceover), read for its level by
-    /// `VoiceActivity`. Call before the music is laid in.
+    /// Where someone is talking, in output time: the camera's sound and the
+    /// take's voice track (the microphone alone), read for their level by
+    /// `VoiceActivity`.
     static func voice(in comp: AVComposition) async -> [ClosedRange<Double>] {
         // Each piece of sound is read from its own file and laid at its place
         // on the output clock (a mix reader drops the silence before a late
@@ -95,7 +96,8 @@ public enum Composer {
         let rate = 16_000.0
         let length = (try? await comp.load(.duration).seconds) ?? 0
         var samples = [Float](repeating: 0, count: max(0, Int(length * rate)))
-        for track in comp.tracks(withMediaType: .audio) {
+        for track in comp.tracks(withMediaType: .audio)
+            where [TrackID.overlayAudio, TrackID.takeCameraAudio, TrackID.takeVoice].contains(track.trackID) {
             for seg in track.segments where !seg.isEmpty {
                 guard let url = seg.sourceURL else { continue }
                 let asset = AVURLAsset(url: url)     // kept alive while it's read

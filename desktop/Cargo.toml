@@ -1,11 +1,11 @@
 [workspace]
 resolver = "2"
 # Explicit, so a crate folder made before its Cargo.toml never breaks the build.
-members = ["crates/core", "crates/core-wasm", "crates/export", "crates/capture", "app/src-tauri"]
+members = ["crates/core", "crates/core-wasm", "crates/export", "crates/capture", "crates/transcribe", "app/src-tauri"]
 exclude = ["target", "tools"]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 publish = false

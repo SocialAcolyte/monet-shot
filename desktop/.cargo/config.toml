@@ -1,0 +1,4 @@
+# whisper.cpp (monetshot-transcribe) must not be tuned to the build
+# machine's CPU (-march=native), or the app could crash on someone else's.
+[env]
+GGML_NATIVE = "OFF"

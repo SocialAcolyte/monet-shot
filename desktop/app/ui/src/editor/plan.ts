@@ -16,7 +16,7 @@ export interface FramePlan {
   frame: Rect;
   cornerRadius: number;
   source: SourcePlan;
-  camera: { scale: number; centerX: number; centerY: number };
+  camera: { scale: number; centerX: number; centerY: number; window: number };
   ripples: RipplePlan[];
   cursor: CursorPlan | null;
   webcam: WebcamPlan[];
@@ -42,6 +42,9 @@ export interface TextPlan {
   color: Rgba;
   backing: Rgba | null;
   shadow: boolean;
+  /** The word being said (a caption), lit in `highlightColor`. */
+  highlight?: number;
+  highlightColor?: Rgba;
 }
 
 /** textArt(text) from core-wasm. */

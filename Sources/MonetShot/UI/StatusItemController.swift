@@ -82,6 +82,10 @@ final class StatusItemController: NSObject {
             let cam = item("Record My Camera Too", #selector(toggleCamera))
             cam.state = CameraRecorder.withScreen ? .on : .off
             menu.addItem(cam)
+            let tall = item("Record Vertical", #selector(toggleVertical))
+            tall.state = RecordLayout.vertical ? .on : .off
+            menu.addItem(tall)
+            menu.addItem(microphoneItem())
         }
         menu.addItem(item("Open Monet Shot", #selector(home), key: "o"))
         menu.addItem(.separator())
@@ -114,6 +118,30 @@ final class StatusItemController: NSObject {
 
     @objc private func record() { model.tap() }
     @objc private func toggleCamera() { CameraRecorder.withScreen.toggle() }
+    @objc private func toggleVertical() { RecordLayout.vertical.toggle() }
+
+    /// "Microphone ▸ Off / each mic": your voice, with or without the camera.
+    private func microphoneItem() -> NSMenuItem {
+        let sub = NSMenu()
+        let chosen = VoiceRecorder.chosen?.uniqueID
+        let off = item("Off", #selector(chooseMic(_:)))
+        off.state = chosen == nil ? .on : .off
+        sub.addItem(off)
+        for mic in VoiceRecorder.microphones {
+            let i = item(mic.localizedName, #selector(chooseMic(_:)))
+            i.representedObject = mic.uniqueID
+            i.state = mic.uniqueID == chosen ? .on : .off
+            sub.addItem(i)
+        }
+        let top = NSMenuItem(title: "Microphone", action: nil, keyEquivalent: "")
+        top.submenu = sub
+        return top
+    }
+
+    @objc private func chooseMic(_ sender: NSMenuItem) {
+        VoiceRecorder.choice = sender.representedObject as? String
+        if let mic = VoiceRecorder.chosen { CameraRecorder.shared.useMic(mic) }
+    }
     @objc private func home() { openHome() }
     @objc private func stop() { model.stopRecording() }
     @objc private func pause() { model.togglePause() }

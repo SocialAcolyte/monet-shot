@@ -148,6 +148,8 @@ export interface Edit {
   texts?: TextOverlay[] | null;
   /** The format last applied (Format.id). */
   format?: string | null;
+  /** What was said, shown as captions (absent until switched). */
+  captions?: boolean | null;
   segments: ZoomSegment[];
   blurs: BlurRegion[];
   crops: { take: number; rect: NormRect; [k: string]: unknown }[];
@@ -177,6 +179,8 @@ export interface Edit {
   clickRipple: boolean;
   outputWidth: number;
   canvasAspect: number;
+  /** "vertical" | "square"; absent = landscape (outputWidth x canvasAspect). */
+  layout?: string | null;
   cuts: unknown[];
   trimStart: number;
   trimEnd?: number | null;
@@ -227,7 +231,31 @@ export interface Editor {
   contentPoint(px: number, py: number, w: number, h: number, t: number): { x: number; y: number } | null;
   cameraCentre(t: number): { x: number; y: number };
   bubbleRect(): Rect;
+  /** Take `take`'s transcript changed: re-plans (captions). */
+  setTranscript(take: number, transcript: Transcript | null): void;
+  /** Every transcribed word the edit shows, output time, play order. */
+  captionWords(): CaptionWord[];
+  transcriptText(): string;
+  srt(): string;
   free(): void;
+}
+
+/** transcript.json: what was said in a take, in its own time. */
+export interface Transcript {
+  words: { text: string; start: number; end: number }[];
+  language?: string | null;
+  engine?: string | null;
+  [k: string]: unknown;
+}
+
+/** A transcript word placed in the video. */
+export interface CaptionWord {
+  text: string;
+  start: number;
+  end: number;
+  span: number;
+  take: number;
+  index: number;
 }
 
 export interface Core {
@@ -259,6 +287,8 @@ export interface Core {
   normRectSpanning(ax: number, ay: number, bx: number, by: number): NormRect;
   setCrop(edit: Edit, rect: NormRect, take: number): Edit;
   canvasSize(edit: Edit, recordingAspect: number): { width: number; height: number };
+  /** The part of a canvas phone apps leave clear (px, top-left); the whole canvas unless it is tall. */
+  safeArea(canvasWidth: number, canvasHeight: number): Rect;
   nearestBarLine(grid: unknown, t: number): number;
   musicGain(t: number, length: number, fadeIn: boolean, fadeOut: boolean, voice: unknown): number;
   musicGainWith(t: number, length: number, fadeIn: boolean, fadeOut: boolean, outro: number | undefined, voice: unknown): number;
@@ -266,6 +296,7 @@ export interface Core {
   musicOutro(grid: unknown, offset: number, length: number): number;
   musicTempo(song: unknown): string | undefined;
   newId(): string;
+  transcriptEdit(transcript: Transcript, i: number, text: string): Transcript;
 }
 
 let loaded: Promise<Core> | null = null;

@@ -36,6 +36,12 @@ pub async fn bar_toggle_pause(app: AppHandle) {
     app.state::<Bar>().toggle_pause(&app)
 }
 
+/// "Record Vertical" on the pill or Home (the tray menu has it too).
+#[tauri::command]
+pub async fn bar_toggle_vertical(app: AppHandle) {
+    app.state::<Bar>().toggle_vertical(&app)
+}
+
 /// The hold ring completed (the pill times the hold itself).
 #[tauri::command]
 pub async fn bar_stop(app: AppHandle) {
@@ -232,6 +238,7 @@ pub async fn export_start(app: AppHandle, folder: PathBuf) -> Result<PathBuf, St
         let cancel = std::sync::atomic::AtomicBool::new(false);
         match monetshot_export::export(&p, &out, &progress, &cancel) {
             Ok(()) => {
+                crate::speech::after_export(&p, &out);
                 crate::log::info(&format!("export finished {}", out.display()));
                 Ok(out)
             }

@@ -130,6 +130,13 @@ pub struct RecordingMeta {
     /// Take time at which the camera file starts.
     #[serde(default)]
     pub camera_offset: f64,
+    /// The file holding your voice (`voice.m4a` from the microphone alone,
+    /// or the camera file when the camera heard you), and the take time at
+    /// which it starts. Written only when there is one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub voice: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub voice_offset: Option<f64>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
@@ -146,6 +153,8 @@ impl RecordingMeta {
             video: video.into(),
             camera: None,
             camera_offset: 0.0,
+            voice: None,
+            voice_offset: None,
             extra: Extra::new(),
         }
     }
@@ -365,6 +374,13 @@ pub struct EditDoc {
     /// The format last applied (`formats::Format::id`), for the picker.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
+    /// Vertical or square (`vertical::CanvasLayout`); None = landscape, the
+    /// canvas `output_width` x `canvas_aspect` sets (left untouched).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub layout: Option<crate::vertical::CanvasLayout>,
+    /// What was said, shown as captions (None until switched).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captions: Option<bool>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
@@ -406,6 +422,9 @@ impl EditDoc {
 
     /// Canvas size in pixels (even height) for a recording of this aspect.
     pub fn canvas_size(&self, recording_aspect: f64) -> (i64, i64) {
+        if let Some(size) = self.canvas_layout().size() {
+            return size;
+        }
         let aspect = if self.canvas_aspect > 0.0 { self.canvas_aspect } else { recording_aspect };
         let w = self.output_width.max(2);
         let h = ((w as f64 / aspect / 2.0).round() as i64) * 2;

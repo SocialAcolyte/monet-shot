@@ -2,10 +2,10 @@
   // The recordings, as cards (HomeView). Opens at launch and from the tray,
   // so any edit can be reopened without recording.
   import { onMount } from "svelte";
-  import { Download, CircleDot } from "@lucide/svelte";
+  import { Download, CircleDot, RectangleHorizontal, RectangleVertical } from "@lucide/svelte";
   import Aperture from "../components/Aperture.svelte";
   import Spinner from "../components/Spinner.svelte";
-  import { call, on, inTauri } from "../lib/ipc";
+  import { call, on, inTauri, type BarState } from "../lib/ipc";
   import { fileUrl, minutes } from "../lib/files";
   import { fileManager, trashName, ringHome, titleBarInset } from "../lib/platform";
 
@@ -21,6 +21,8 @@
   let thumbs = $state<Record<string, string>>({});
   let importing = $state(false);
   let loaded = $state(false);
+  /** "Record Vertical", shared with the pill and the tray. */
+  let vertical = $state(false);
 
   async function refresh() {
     items = await call<Item[]>("home_items");
@@ -34,11 +36,14 @@
 
   onMount(() => {
     refresh();
+    call<BarState>("bar_state").then((s) => (vertical = s.vertical));
+    const offBar = on<BarState>("bar", (s) => (vertical = s.vertical));
     const off = on("library-changed", () => refresh());
     const focus = () => refresh();
     addEventListener("focus", focus);
     return () => {
       off.then((f) => f());
+      offBar.then((f) => f());
       removeEventListener("focus", focus);
     };
   });
@@ -99,6 +104,16 @@
     <span class="spacer" data-tauri-drag-region></span>
     <button class="pill-button" onclick={importVideo} disabled={importing} title="Edit any video in Monet Shot">
       {#if importing}<Spinner size={12} /> Importing{:else}<Download /> Import video{/if}
+    </button>
+    <button
+      class="pill-button icon"
+      onclick={() => call("bar_toggle_vertical")}
+      title={vertical ? "New recordings open made for phones (9:16). Click for landscape." : "New recordings open in landscape. Click to make them for phones (9:16)."}
+      aria-label={vertical ? "New recordings: vertical" : "New recordings: landscape"}
+      aria-pressed={vertical}
+      data-vertical={vertical}
+    >
+      {#if vertical}<RectangleVertical />{:else}<RectangleHorizontal />{/if}
     </button>
     <button class="pill-button prominent" onclick={() => call("bar_tap")}><CircleDot /> New recording</button>
   </header>

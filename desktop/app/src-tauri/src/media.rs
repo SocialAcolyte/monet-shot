@@ -658,7 +658,8 @@ mod tests {
         req.push_str("\r\n");
         c.write_all(req.as_bytes()).unwrap();
         let mut out = Vec::new();
-        c.read_to_end(&mut out).unwrap();
+        // Windows may reset the socket once a refusal is sent: keep what came.
+        let _ = c.read_to_end(&mut out);
         out
     }
 

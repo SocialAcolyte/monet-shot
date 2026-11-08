@@ -1,6 +1,6 @@
 [package]
 name = "monet-shot"
-version = "0.1.1"
+version = "0.2.0"
 description = "Monet Shot: a screen recorder that makes your recordings look good"
 edition = "2021"
 publish = false
@@ -16,6 +16,7 @@ tauri-build = { version = "2", features = [] }
 monetshot-core = { workspace = true }
 monetshot-capture = { path = "../../crates/capture" }
 monetshot-export = { path = "../../crates/export" }
+monetshot-transcribe = { path = "../../crates/transcribe" }
 tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api", "protocol-asset"] }
 tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"

@@ -142,6 +142,8 @@ final class HomeWindow: NSObject, NSWindowDelegate {
 
 struct HomeView: View {
     let model: HomeModel
+    /// New recordings open in the vertical layout (RecordLayout).
+    @AppStorage(RecordLayout.key) private var vertical = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -150,7 +152,8 @@ struct HomeView: View {
                     .foregroundStyle(Palette.moonWhite)
                     .frame(width: 24, height: 24)
                 Text("Monet Shot").font(.system(size: 28, weight: .bold, design: .rounded))
-                Spacer()
+                    .lineLimit(1).fixedSize()
+                Spacer(minLength: 12)
                 Button(action: model.importVideo) {
                     if model.importing {
                         HStack(spacing: 6) { ProgressView().controlSize(.small); Text("Importing") }
@@ -161,6 +164,14 @@ struct HomeView: View {
                 .buttonStyle(PillButtonStyle())
                 .disabled(model.importing)
                 .help("Edit any video in Monet Shot")
+                Button { vertical.toggle() } label: {
+                    Label(vertical ? "Vertical" : "Landscape", systemImage: vertical ? "rectangle.portrait" : "rectangle")
+                        .labelStyle(.iconOnly)
+                        .frame(width: 16)
+                }
+                .accessibilityLabel(vertical ? "New recordings: vertical" : "New recordings: landscape")
+                .buttonStyle(PillButtonStyle())
+                .help(vertical ? "New recordings open made for phones (9:16). Click for landscape." : "New recordings open in landscape. Click to make them for phones (9:16).")
                 Button(action: model.record) { Label("New recording", systemImage: "record.circle") }
                     .buttonStyle(PillButtonStyle(prominent: true))
             }

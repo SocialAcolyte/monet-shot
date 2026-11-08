@@ -18,15 +18,15 @@ use std::sync::mpsc::sync_channel;
 use std::sync::Arc;
 
 /// Where someone is talking, and the sound itself, laid on the output timeline.
-struct Placed {
-    file: PathBuf,
+pub(crate) struct Placed {
+    pub(crate) file: PathBuf,
     /// Source seconds into the file.
-    from: f64,
+    pub(crate) from: f64,
     /// Output seconds it lasts (source seconds = duration * speed).
-    duration: f64,
-    at: f64,
+    pub(crate) duration: f64,
+    pub(crate) at: f64,
     /// The clip's speed: the sound is played at it, pitch kept.
-    speed: f64,
+    pub(crate) speed: f64,
 }
 
 /// The camera sound pieces, as `Composer.addCamera` places them: clips
@@ -60,6 +60,7 @@ fn camera_audio(project: &Project, map: &TimeMap) -> Vec<Placed> {
             });
         }
     }
+    out.extend(crate::subtitles::voice_audio(project, map));
     out
 }
 

@@ -12,6 +12,7 @@ use crate::privacy::{BlurRegion, BlurStyle, NormRect};
 use crate::project::Project;
 use crate::text::text_motion;
 use crate::timemap::TimeMap;
+use crate::vertical::{self, CanvasLayout, FollowTrack};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
@@ -268,6 +269,11 @@ pub struct TextPlan {
     pub backing: Option<Rgba>,
     /// A soft shadow under unboxed light words (in the picture).
     pub shadow: bool,
+    /// The word being said (reading order) and its colour, in a caption.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub highlight: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub highlight_color: Option<Rgba>,
 }
 
 /// One take as the planner needs it.
@@ -294,8 +300,20 @@ struct Look {
     cursor_track: SmoothTrack,
     focus_track: SmoothTrack,
     segments: Vec<ZoomSegment>,
+    /// A wide take in a tall or square frame: the window that follows the action.
+    follow: Option<FollowTrack>,
     radius: f64,
     shadow: Option<ShadowPlan>,
+}
+
+impl Look {
+    /// The camera at the take's time `t`.
+    fn camera(&self, t: f64) -> Camera {
+        match &self.follow {
+            Some(f) => f.camera(t, &self.segments),
+            None => camera_math::camera_at(t, &self.segments, &self.focus_track),
+        }
+    }
 }
 
 /// Built once per edit (it smooths every take's pointer), then asked for
@@ -308,6 +326,8 @@ pub struct Planner {
     pub backdrop: BackdropPlan,
     pub cursor_art_height: u32,
     looks: Vec<Look>,
+    /// What was said, as captions (empty unless the edit shows them).
+    pub captions: Vec<crate::text::TextOverlay>,
 }
 
 impl Planner {
@@ -325,7 +345,22 @@ impl Planner {
                     .unwrap_or_default(),
             })
             .collect();
-        Planner::new(&p.edit, &takes)
+        let planner = Planner::new(&p.edit, &takes);
+        #[cfg(not(target_arch = "wasm32"))]
+        let planner = planner.with_transcripts(&p.takes.iter().map(|t| crate::captions::Transcript::load(&t.folder)).collect::<Vec<_>>());
+        planner
+    }
+
+    /// The captions for these transcripts (`transcripts[k]` is take k's),
+    /// when the edit shows them.
+    pub fn with_transcripts(mut self, transcripts: &[Option<crate::captions::Transcript>]) -> Planner {
+        self.captions = if self.doc.captions == Some(true) {
+            let anim = self.doc.format.as_deref().and_then(crate::formats::named).map_or(crate::text::TextAnimation::Words, |f| f.caption_animation.clone());
+            crate::captions::overlays(transcripts, &self.map, self.canvas.width as f64, self.canvas.height as f64, anim)
+        } else {
+            vec![]
+        };
+        self
     }
 
     pub fn new(doc: &EditDoc, takes: &[PlanTake]) -> Planner {
@@ -349,8 +384,12 @@ impl Planner {
                 let meta = take.meta.clone();
                 let crop = doc.crop(index as i64);
                 let aspect = meta.aspect() * crop.w / crop.h;
+                // Vertical and square: a wider take fills the room, seen through a window.
+                let follows = doc.follows_action() && vertical::window(aspect, room.w / room.h).is_some();
                 let (mut fw, mut fh) = (room.w, room.w / aspect);
-                if fh > room.h {
+                if follows {
+                    fh = room.h;
+                } else if fh > room.h {
                     fh = room.h;
                     fw = fh * aspect;
                 }
@@ -358,7 +397,12 @@ impl Planner {
                 // so flipping keeps whole pixels.
                 let (x, y_ci, w, h) = ((room_mid_x - fw / 2.0).round(), (room_mid_y - fh / 2.0).round(), fw.round(), fh.round());
                 let frame = Rect::new(x, chf - y_ci - h, w, h);
-                let ppp = frame.w / (meta.pixel_width as f64 * crop.w / meta.point_scale.max(1.0));
+                let window = if follows { vertical::window(aspect, frame.w / frame.h) } else { None };
+                let ppp = if window.is_some() {
+                    frame.h / (meta.pixel_height as f64 * crop.h / meta.point_scale.max(1.0))
+                } else {
+                    frame.w / (meta.pixel_width as f64 * crop.w / meta.point_scale.max(1.0))
+                };
                 let radius = if framed { doc.corner_radius * frame.w.min(frame.h) } else { 0.0 };
                 let shadow = (framed && doc.shadow).then(|| {
                     let blur = 0.035 * short;
@@ -391,7 +435,9 @@ impl Planner {
                         }
                         z
                     })
-                    .collect();
+                    .collect::<Vec<ZoomSegment>>();
+                let focus_track = SmoothTrack::make(&samples, meta.duration, camera_math::CAMERA_OMEGA);
+                let follow = window.map(|w| FollowTrack::make(w, &segments, &focus_track, meta.duration));
                 Look {
                     dir: take.dir.clone(),
                     crop,
@@ -402,8 +448,9 @@ impl Planner {
                     has_cursor: !take.cursor.samples.is_empty(),
                     clicks,
                     cursor_track: SmoothTrack::make(&samples, meta.duration, camera_math::cursor_omega(doc.cursor_smoothing)),
-                    focus_track: SmoothTrack::make(&samples, meta.duration, camera_math::CAMERA_OMEGA),
+                    focus_track,
                     segments,
+                    follow,
                     radius,
                     shadow,
                     meta,
@@ -414,7 +461,7 @@ impl Planner {
         let base = looks.iter().map(|l| l.cursor_base_height).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v)))).unwrap_or(40.0);
         let cursor_art_height = (base * 2.5).max(24.0).min(512.0).round() as u32;
         let backdrop = backdrop_plan(doc, cwf, chf);
-        Planner { doc: doc.clone(), map, canvas: Size { width: cw as u32, height: ch as u32 }, backdrop, cursor_art_height, looks }
+        Planner { doc: doc.clone(), map, canvas: Size { width: cw as u32, height: ch as u32 }, backdrop, cursor_art_height, looks, captions: vec![] }
     }
 
     fn look(&self, take: i64) -> Option<&Look> {
@@ -432,7 +479,7 @@ impl Planner {
 
     /// The camera in take `take` at take time `time` (cropped picture's coordinates).
     pub fn camera(&self, take: i64, time: f64) -> Camera {
-        self.look(take).map_or(Camera::IDENTITY, |l| camera_math::camera_at(time, &l.segments, &l.focus_track))
+        self.look(take).map_or(Camera::IDENTITY, |l| l.camera(time))
     }
 
     pub fn camera_at(&self, t: f64) -> Camera {
@@ -493,11 +540,15 @@ impl Planner {
     /// Every text showing at output time `t`.
     pub fn texts(&self, t: f64) -> Vec<TextPlan> {
         let (w, h) = (self.canvas.width as f64, self.canvas.height as f64);
+        // Your own texts move into a tall canvas's safe area; captions are
+        // already placed in it.
         self.doc
             .overlays()
             .iter()
+            .map(|o| in_safe_area(o, w, h))
+            .chain(self.captions.iter().filter(|o| o.covers(t)).cloned())
             .filter_map(|o| {
-                let st = text_motion::state(o, t, w, h)?;
+                let st = text_motion::state(&o, t, w, h)?;
                 if st.opacity <= 0.001 {
                     return None;
                 }
@@ -513,6 +564,8 @@ impl Planner {
                     color: Rgba::hex(o.tone.hex(), 1.0),
                     backing: backed.then(|| Rgba::hex(o.tone.backing_hex(), o.tone.backing_alpha())),
                     shadow: text_motion::has_shadow(&o.tone, backed),
+                    highlight: st.highlight,
+                    highlight_color: st.highlight.map(|_| Rgba::hex(o.tone.highlight_hex(), 1.0)),
                 })
             })
             .collect()
@@ -550,7 +603,7 @@ impl Planner {
                 texts: vec![],
             };
         };
-        let cam = camera_math::camera_at(time, &l.segments, &l.focus_track);
+        let cam = l.camera(time);
         let (sw, sh) = (l.meta.pixel_width as f64, l.meta.pixel_height as f64);
         let whole = Rect::new(0.0, 0.0, sw, sh);
         let hides = hides(&l.blurs, time, sw, sh);
@@ -635,12 +688,23 @@ impl Planner {
         let look = &self.doc.camera_look;
         let (cw, ch) = (self.canvas.width as f64, self.canvas.height as f64);
         let short = cw.min(ch);
-        let h = (look.size * short).round();
-        let w = if look.shape.known() == CameraShape::Circle { h } else { (h * 4.0 / 3.0).round() };
         let m = (0.045 * short).round();
         let corner = look.corner.known();
         let right = matches!(corner, CameraCorner::BottomRight | CameraCorner::TopRight);
         let bottom = matches!(corner, CameraCorner::BottomRight | CameraCorner::BottomLeft);
+        let circle = look.shape.known() == CameraShape::Circle;
+        if self.doc.canvas_layout() == CanvasLayout::Vertical {
+            // On a phone: bigger, and inside the safe area: a bottom corner sits
+            // in the lower third, above the band captions use; a top one under its top.
+            let shape = if circle { 1.0 } else { 4.0 / 3.0 };
+            let h = (look.size * PHONE_BUBBLE * short).round().min(((cw - 2.0 * m) / shape).floor());
+            let w = if circle { h } else { (h * 4.0 / 3.0).round() };
+            let safe = vertical::safe_area(cw, ch);
+            let top = if bottom { safe.max_y() - (vertical::CAPTION_BAND * ch).round() - h } else { safe.y };
+            return Rect::new(if right { cw - m - w } else { m }, top, w, h);
+        }
+        let h = (look.size * short).round();
+        let w = if circle { h } else { (h * 4.0 / 3.0).round() };
         Rect::new(if right { cw - m - w } else { m }, if bottom { ch - m - h } else { m }, w, h)
     }
 
@@ -710,6 +774,21 @@ impl Planner {
             }),
         }
     }
+}
+
+/// How much bigger the camera bubble is in the vertical layout.
+pub const PHONE_BUBBLE: f64 = 1.5;
+
+/// On a tall canvas, a text's place (0...1 across the canvas) is taken as a
+/// place inside the safe area, so phone apps' buttons never cover it.
+pub fn in_safe_area(o: &crate::text::TextOverlay, w: f64, h: f64) -> crate::text::TextOverlay {
+    let mut out = o.clone();
+    if vertical::safe_area_is_inset(w, h) {
+        let safe = vertical::safe_area(w, h);
+        out.x = (safe.x + o.x * safe.w) / w;
+        out.y = (safe.y + o.y * safe.h) / h;
+    }
+    out
 }
 
 /// The hidden boxes showing at take time `time`, in source pixels.

@@ -45,10 +45,41 @@ frame), `volume`, `fadeIn`, `fadeOut`. A chosen track starts on a downbeat
 bars (`MusicFit.outro`, worked out from the track's grid each time the edit
 renders, so a trimmed video still ends on a phrase). With "Lower music
 while you talk" on, the music dips to 30 % wherever the edit's own sound
-(the camera's mic, a voiceover) is above the take's quiet by its level
+(the camera's mic, the take's voice track) is above the take's quiet by its level
 alone (`VoiceActivity`). A file of your own gets its grid read once and kept
 with the choice. Favourites are this computer's own (UserDefaults on the
 Mac, the webview's storage on Windows and Linux), not part of a recording.
+
+**Vertical.** `layout` in edit.json (`vertical` 1080x1920, `square`
+1080x1080; absent = landscape, whose `outputWidth`/`canvasAspect` stay
+as they were). A take wider than the frame fills it through a window of
+the frame's shape and the take's full height, which follows the action:
+it holds while the zoom's point (or the camera copy of the pointer) stays
+within 22% of the window's width of its centre, then glides there (a
+critically damped spring at 4 rad/s, run both ways); zooms keep 60% of
+their depth. On a tall canvas texts are placed inside the safe area
+(`safeArea(canvasWidth, canvasHeight)`: clear of the top 12%, bottom 20%
+and 8% of each side), and the vertical camera bubble is 1.5x bigger, in
+the lower third above the caption band (10%). "Record Vertical"
+(`recordVertical`) starts a new recording's edit in the vertical layout.
+
+**Voice and captions.** A take may carry your voice: `meta.voice` names
+the file (`voice.m4a` from the microphone alone, or the camera file when
+the camera heard you) and `meta.voiceOffset` the take time it starts at
+(both written only when there is one). It plays under its clips at their
+speed, like a take's camera, and the music ducks under it. What was said
+is `transcript.json` in the take's folder: `{"words": [{"text", "start",
+"end"}], "language", "engine"}`, words sorted by `start`, times in the
+take's own seconds (Apple's on-device speech on the Mac, whisper.cpp
+elsewhere; fixed words are rewritten in place, dropped ones removed).
+`captions` in edit.json (written only once switched) shows them: the
+words the clips show (a word belongs to the clip showing its middle) are
+mapped to output time and grouped into phrases of at most 6 words / 38
+letters, broken at pauses over 0.6 s, sentence ends and cuts, on one line
+or two balanced ones (over 20 letters), placed at the bottom of
+`safeArea`, coming in as the format's caption animation with the word
+being said lit (`TextOverlay.beats`). Exports write the same phrases as
+`<name>.srt` beside the video. Checked by `shared/fixtures/captions.json`.
 
 **Non-goals.** System audio, keystroke overlays, multi-display takes,
 cloud upload.
