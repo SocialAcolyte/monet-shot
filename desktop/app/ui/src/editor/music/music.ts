@@ -87,10 +87,17 @@ export const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s
 /** A file:// URL (or path) as something the page can load. Images use the
  *  asset protocol; audio on Linux goes through the app's loopback media
  *  server, because WebKitGTK's player can't stream from asset:// (FormatError). */
+/** The path in a file:// URL (file:///D:/x is D:/x on Windows). */
+export function urlPath(url: string): string | null {
+  if (!url.startsWith("file://")) return null;
+  const p = decodeURIComponent(url.slice("file://".length));
+  return /^\/[A-Za-z]:/.test(p) ? p.slice(1) : p;
+}
+
 export async function playable(url: string | undefined, media = false): Promise<string | null> {
   if (!url) return null;
   if (!url.startsWith("file://")) return /^https?:/.test(url) ? url : null;
-  const path = decodeURIComponent(url.slice("file://".length));
+  const path = urlPath(url)!;
   if (!inTauri) return null;
   if (media && !isMac && !isWindows) return call<string>("media_url", { path }).catch(() => null);
   const { convertFileSrc } = await import("@tauri-apps/api/core");
@@ -126,7 +133,7 @@ export function toggleAudition(store: EditorStore, song: Song) {
     store.togglePlay();
     return;
   }
-  const path = song.audioURL.startsWith("file://") ? decodeURIComponent(song.audioURL.slice("file://".length)) : null;
+  const path = urlPath(song.audioURL);
   if (!path) return;
   store.audition = fitted(store, song, path);
   store.seek(0);

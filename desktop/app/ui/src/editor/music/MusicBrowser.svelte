@@ -31,7 +31,11 @@
   type Shelf = { kind: "suggested" } | { kind: "favourites" } | { kind: "mood"; id: string };
   let query = $state("");
   // A format's "Find … music" opens on its mood; otherwise on this video's picks.
-  let shelf = $state<Shelf>(store.musicMood && moods.some((m) => m.id === store.musicMood) ? { kind: "mood", id: store.musicMood } : { kind: "suggested" });
+  function opening(): Shelf {
+    const mood = store.musicMood;
+    return mood && moods.some((m) => m.id === mood) ? { kind: "mood", id: mood } : { kind: "suggested" };
+  }
+  let shelf = $state<Shelf>(opening());
   let tempo = $state<Tempo | null>(null);
   let tracks = $state<Song[]>([]);
   let loading = $state(false);
