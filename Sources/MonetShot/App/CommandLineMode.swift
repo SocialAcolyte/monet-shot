@@ -9,6 +9,8 @@ import MonetShotKit
 ///   MonetShot --frame  <rec.reel> <seconds> <out.png>
 ///   MonetShot --render <rec.reel> <out.mp4>
 ///   MonetShot --format <rec.reel> <clean|fast|melancholic|cinematic>
+///   MonetShot --aspect <rec.reel> <landscape|vertical|square>
+///   MonetShot --vertical <rec.reel>                same as --aspect vertical
 ///   MonetShot --version
 enum CommandLineMode {
     struct Output { let text: String; let status: Int32 }
@@ -29,6 +31,10 @@ enum CommandLineMode {
             return blocking { try await add(URL(fileURLWithPath: args[1]), Array(args.dropFirst(2)).map { URL(fileURLWithPath: $0) }) }
         case "--format" where args.count == 3:
             return blocking { try format(URL(fileURLWithPath: args[1]), args[2]) }
+        case "--aspect" where args.count == 3:
+            return blocking { try aspect(URL(fileURLWithPath: args[1]), args[2]) }
+        case "--vertical" where args.count == 2:
+            return blocking { try aspect(URL(fileURLWithPath: args[1]), "vertical") }
         case "--render" where args.count == 3:
             return blocking { try await render(URL(fileURLWithPath: args[1]), to: URL(fileURLWithPath: args[2])) }
         case let flag? where flag.hasPrefix("--"):
@@ -46,6 +52,7 @@ enum CommandLineMode {
                MonetShot --music <rec.reel> <search>     put the first search result under the video
                MonetShot --add <rec.reel> <video|rec.reel>…  add footage as clips at the end
                MonetShot --format <rec.reel> <\(EditFormat.all.map(\.id).joined(separator: "|"))>  pace and look in one go
+               MonetShot --aspect <rec.reel> <landscape|vertical|square>  (--vertical <rec.reel> for short)
                MonetShot --version
         """, status: 2)
 
@@ -68,6 +75,17 @@ enum CommandLineMode {
         p.edit = f.apply(to: p.edit, duration: p.meta.duration)
         try p.saveEdit()
         return "\(f.name): \(p.clips.count) clips at \(String(format: "%g", f.speed))x, \(String(format: "%.1f", TimeMap(clips: p.clips).duration))s"
+    }
+
+    private static func aspect(_ folder: URL, _ name: String) throws -> String {
+        guard let layout = CanvasLayout(rawValue: name) else {
+            return "no layout \"\(name)\"; try \(CanvasLayout.allCases.map(\.rawValue).joined(separator: ", "))"
+        }
+        var p = try Project.load(folder)
+        p.edit.setLayout(layout)
+        try p.saveEdit()
+        let size = p.edit.canvasSize(recordingAspect: p.meta.aspect)
+        return "\(layout.label): \(size.width)x\(size.height)"
     }
 
     private static func auto(_ folder: URL) throws -> String {

@@ -81,6 +81,8 @@ struct PreviewArea: View {
                 } else if model.framing {
                     FrameOverlay(model: model, shown: shown)
                         .transition(.opacity.animation(Motion.base()))
+                } else if SafeArea.isInset(canvasWidth: Double(c.width), canvasHeight: Double(c.height)) {
+                    SafeAreaGuides(canvas: c, shown: shown)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))

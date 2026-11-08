@@ -76,8 +76,8 @@ public enum FollowFraming {
     /// How far the action may stray from the window's centre before it
     /// moves, as a fraction of the window's width (or height).
     public static let deadZone = 0.22
-    /// The glide's stiffness, rad/s: calmer than the cursor's.
-    public static let omega = 2.4
+    /// The glide's stiffness, rad/s: a pan of about a second and a half, under way half a second before the action moves.
+    public static let omega = 4.0
 
     /// The window's shape (normalised width over height) for a take of
     /// `takeAspect` in a frame of `frameAspect`; nil when the take is no

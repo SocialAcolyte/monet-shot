@@ -203,6 +203,7 @@ final class ScreenRecorder: NSObject {
             pausedAt = nil
             pauses = []
             project.edit.cuts = cuts.filter { $0.end > $0.start }
+            project.edit.setLayout(RecordLayout.layout)
             let map = TimeMap(project.edit, duration: meta.duration)
             project.edit.segments = CameraMath.autoZooms(clicks: track.clicks.filter { map.keeps(take: 0, time: $0.t) }, duration: meta.duration)
             // Recording the screen means the hand travels up to the menu bar to

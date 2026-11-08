@@ -80,7 +80,7 @@ pub const ZOOM_DEPTH: f64 = 0.6;
 /// as a fraction of the window's width (or height).
 pub const DEAD_ZONE: f64 = 0.22;
 /// The glide's stiffness, rad/s.
-pub const OMEGA: f64 = 2.4;
+pub const OMEGA: f64 = 4.0;
 
 /// The window's shape (normalised width over height) for a take of
 /// `take_aspect` in a frame of `frame_aspect`; None when the take is no
