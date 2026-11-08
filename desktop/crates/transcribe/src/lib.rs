@@ -222,8 +222,17 @@ pub fn transcribe(audio: &[f32], language: Option<&str>, model: &Path, progress:
     params.set_token_timestamps(true);
     params.set_split_on_word(true);
     params.set_max_len(1);
-    let c = cancel.clone();
-    params.set_abort_callback_safe(move || c.load(Ordering::Relaxed));
+    // Cancel stops whisper mid-way. (whisper-rs 0.16's set_abort_callback_safe
+    // reads its closure through the wrong type and aborts at random: our own
+    // trampoline over the flag instead, which outlives `full` below.)
+    unsafe extern "C" fn aborted(flag: *mut std::ffi::c_void) -> bool {
+        (*(flag as *const AtomicBool)).load(Ordering::Relaxed)
+    }
+    // SAFETY: `cancel` is held until `full` returns; the callback only reads it.
+    unsafe {
+        params.set_abort_callback(Some(aborted));
+        params.set_abort_callback_user_data(Arc::as_ptr(&cancel) as *mut std::ffi::c_void);
+    }
     let p = progress.clone();
     params.set_progress_callback_safe(move |n: i32| p(Stage::Transcribing((n as f64 / 100.0).clamp(0.0, 0.99))));
     progress(Stage::Transcribing(0.0));
