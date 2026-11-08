@@ -214,6 +214,9 @@ pub fn transcribe(audio: &[f32], language: Option<&str>, model: &Path, progress:
     params.set_n_threads(threads as i32);
     params.set_language(Some(language.unwrap_or("auto")));
     params.set_translate(false);
+    // The app's own name is the word people say most in its videos, and
+    // isn't in whisper's vocabulary: tell it how it's spelled.
+    params.set_initial_prompt("Monet Shot.");
     params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
