@@ -48,6 +48,9 @@ final class EditorModel {
     var showingMusic = false
     /// Peaks of the chosen song, for the snippet picker.
     private(set) var musicWave: [Float] = []
+    /// The chosen song's beat and lifts, so the snippet window snaps to bar lines
+    /// and can land a lift on a zoom (nil until read, or if it has no steady beat).
+    private(set) var musicGrid: MusicGrid?
     @ObservationIgnored private var musicOrigin: Double?
 
     init(project: Project) {
@@ -632,6 +635,7 @@ final class EditorModel {
         update { $0.music = nil }
         try? FileManager.default.removeItem(at: project.folder.appendingPathComponent(m.file))
         musicWave = []
+        musicGrid = nil
     }
 
     func setMusic(_ change: (inout MusicChoice) -> Void) {
@@ -646,10 +650,42 @@ final class EditorModel {
     func beginMusicDrag() { musicOrigin = doc.music?.offset }
     func beginMusicDragIfNeeded() { if musicOrigin == nil { beginMusicDrag() } }
 
-    func dragMusic(bySeconds s: Double) {
+    /// `free` (Option held) leaves the grid alone.
+    func dragMusic(bySeconds s: Double, free: Bool = false) {
         guard let o = musicOrigin, let m = doc.music else { return }
         let room = max(0, m.track.duration - duration)
-        setMusic { $0.offset = min(max(0, o + s), room) }
+        var want = min(max(0, o + s), room)
+        if !free, let g = musicGrid { want = snapMusic(want, grid: g, room: room) }
+        setMusic { $0.offset = want }
+    }
+
+    /// Where each zoom begins in the finished video.
+    var zoomMoments: [Double] {
+        doc.segments.compactMap { renderer.map.output(take: $0.take, time: $0.start) }.sorted()
+    }
+
+    /// A lift landing on a zoom wins when it's near; otherwise the video starts on the nearest bar line.
+    private func snapMusic(_ want: Double, grid g: MusicGrid, room: Double) -> Double {
+        var best: Double?
+        var nearest = max(0.6, g.bar * 0.6)
+        for lift in g.lifts {
+            for z in zoomMoments {
+                let at = lift - z
+                if at >= 0, at <= room, abs(at - want) < nearest { best = at; nearest = abs(at - want) }
+            }
+        }
+        if let best { return best }
+        let line = g.nearestBarLine(want)
+        return line <= room ? line : max(0, line - g.bar)
+    }
+
+    /// The lift and the zoom that meet at the current offset, if any (song time, video time).
+    var musicLanding: (lift: Double, zoom: Double)? {
+        guard let m = doc.music, let g = musicGrid else { return nil }
+        for lift in g.lifts {
+            for z in zoomMoments where abs(lift - m.offset - z) < 0.05 { return (lift, z) }
+        }
+        return nil
     }
 
     func endMusicDrag() { musicOrigin = nil }
@@ -662,8 +698,10 @@ final class EditorModel {
     }
 
     private func loadMusicWave() async {
-        guard let m = doc.music else { musicWave = []; return }
-        musicWave = await MusicCatalog.waveform(project.folder.appendingPathComponent(m.file))
+        guard let m = doc.music else { musicWave = []; musicGrid = nil; return }
+        let url = project.folder.appendingPathComponent(m.file)
+        musicWave = await MusicCatalog.waveform(url)
+        musicGrid = await MusicGrid.analyze(url)
     }
 
     // MARK: backdrop picture

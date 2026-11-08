@@ -775,7 +775,9 @@ private struct PaintingTile: View {
 
 /// The song as a waveform with a bright window the length of the video:
 /// slide the window to choose which part of the song plays (as when you
-/// pick the part of a song for a story).
+/// pick the part of a song for a story). It snaps to the song's bar lines,
+/// and clicks into place where one of the song's lifts (dots above) lands on
+/// a zoom (ticks in the window); both light up. Option drags freely.
 private struct SnippetPicker: View {
     let model: EditorModel
     let music: MusicChoice
@@ -787,38 +789,54 @@ private struct SnippetPicker: View {
             let video = model.renderer.map.duration
             let winW = max(12, min(w, CGFloat(video / song) * w))
             let winX = CGFloat(music.offset / song) * w
-            ZStack(alignment: .leading) {
+            let landing = model.musicLanding
+            ZStack(alignment: .topLeading) {
                 Canvas { ctx, size in
+                    let top: CGFloat = 8, h0 = size.height - top
                     let bars = model.musicWave.isEmpty ? Array(repeating: Float(0.3), count: 120) : model.musicWave
                     let step = size.width / CGFloat(bars.count)
                     for (i, v) in bars.enumerated() {
-                        let h = max(2, CGFloat(v) * size.height * 0.9)
+                        let h = max(2, CGFloat(v) * h0 * 0.9)
                         let x = CGFloat(i) * step
                         let inside = x >= winX && x <= winX + winW
-                        ctx.fill(Path(roundedRect: CGRect(x: x, y: (size.height - h) / 2, width: max(1, step - 1), height: h), cornerRadius: 1),
+                        ctx.fill(Path(roundedRect: CGRect(x: x, y: top + (h0 - h) / 2, width: max(1, step - 1), height: h), cornerRadius: 1),
                                  with: .color(inside ? Palette.moonWhite : Palette.faint.opacity(0.6)))
+                    }
+                    // the song's lifts, as dots above it
+                    for lift in model.musicGrid?.lifts ?? [] {
+                        let x = CGFloat(lift / song) * size.width
+                        let on = landing.map { abs($0.lift - lift) < 0.01 } ?? false
+                        ctx.fill(Path(ellipseIn: CGRect(x: x - 2.5, y: 0, width: 5, height: 5)), with: .color(on ? Palette.clay : Palette.dim))
+                    }
+                    // the video's zooms, as ticks in the window
+                    for z in model.zoomMoments where z < video {
+                        let x = winX + CGFloat(z / song) * size.width
+                        let on = landing.map { abs($0.zoom - z) < 0.01 } ?? false
+                        ctx.fill(Path(CGRect(x: x - 0.75, y: top, width: 1.5, height: h0)), with: .color(on ? Palette.clay : Palette.violet.opacity(0.9)))
                     }
                 }
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .strokeBorder(Palette.violet, lineWidth: 2)
                     .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Palette.violet.opacity(0.12)))
-                    .frame(width: winW)
-                    .offset(x: winX)
+                    .frame(width: winW, height: g.size.height - 8)
+                    .offset(x: winX, y: 8)
                     .gesture(
                         DragGesture(minimumDistance: 1)
                             .onChanged { v in
                                 model.beginMusicDragIfNeeded()
-                                model.dragMusic(bySeconds: Double(v.translation.width / w) * song)
+                                model.dragMusic(bySeconds: Double(v.translation.width / w) * song,
+                                                free: NSEvent.modifierFlags.contains(.option))
                             }
                             .onEnded { _ in model.endMusicDrag() }
                     )
             }
         }
-        .frame(height: 44)
-        .help("Drag to choose which part of the song plays")
-        Text("Plays \(MusicTime.clock(music.offset))–\(MusicTime.clock(min(music.track.duration, music.offset + model.renderer.map.duration))) of \(MusicTime.clock(music.track.duration))")
+        .frame(height: 52)
+        .help("Drag to choose which part of the song plays. It snaps to the beat; hold Option to place it freely")
+        Text("Plays \(MusicTime.clock(music.offset))–\(MusicTime.clock(min(music.track.duration, music.offset + model.renderer.map.duration))) of \(MusicTime.clock(music.track.duration))"
+             + (model.musicLanding != nil ? " · lift on the zoom" : ""))
             .font(.system(size: 11, design: .rounded))
             .monospacedDigit()
-            .foregroundStyle(Palette.dim)
+            .foregroundStyle(model.musicLanding != nil ? Palette.clay : Palette.dim)
     }
 }

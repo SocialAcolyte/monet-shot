@@ -1,9 +1,9 @@
 import AVFoundation
 import Foundation
 
-/// A track under the video: one of Kevin MacLeod's (incompetech.com, about
-/// 1,400 pieces under CC BY 4.0, which asks for a credit line that MonetShot keeps
-/// and writes beside every export), or a file of your own.
+/// A track under the video: one of the library that comes with the app (CC0
+/// or public domain, so it can go anywhere with no credit and no conditions;
+/// `Resources/Music/library.json`), or a file of your own.
 public struct Song: Codable, Equatable, Identifiable, Sendable {
     public var id: String
     public var title: String
@@ -75,16 +75,11 @@ public struct MusicMood: Equatable, Sendable, Identifiable {
     public let tint: UInt32
 
     public static let all: [MusicMood] = [
-        MusicMood(id: "bright", name: "Bright", feel: "bright", tint: 0xB89B4A),
-        MusicMood(id: "uplifting", name: "Uplifting", feel: "uplifting", tint: 0xC96F4A),
-        MusicMood(id: "relaxed", name: "Relaxed", feel: "relaxed", tint: 0x5F7A73),
-        MusicMood(id: "calming", name: "Calming", feel: "calming", tint: 0x6E8088),
-        MusicMood(id: "grooving", name: "Grooving", feel: "grooving", tint: 0x6A5B8A),
-        MusicMood(id: "bouncy", name: "Bouncy", feel: "bouncy", tint: 0x9B7B4F),
-        MusicMood(id: "driving", name: "Driving", feel: "driving", tint: 0x4A5A78),
-        MusicMood(id: "epic", name: "Epic", feel: "epic", tint: 0x8C5A4A),
-        MusicMood(id: "mysterious", name: "Mysterious", feel: "mysterious", tint: 0x5A5F78),
-        MusicMood(id: "humorous", name: "Playful", feel: "humorous", tint: 0x8A7A68),
+        MusicMood(id: "dreamy", name: "Dreamy", feel: "dreamy", tint: 0x6A5B8A),
+        MusicMood(id: "grooving", name: "Grooving", feel: "grooving", tint: 0xC96F4A),
+        MusicMood(id: "sunny", name: "Sunny", feel: "sunny", tint: 0xB89B4A),
+        MusicMood(id: "mellow", name: "Mellow", feel: "mellow", tint: 0x5F7A73),
+        MusicMood(id: "impressionist", name: "Impressionist", feel: "impressionist", tint: 0x5A6F88),
     ]
 }
 
@@ -107,60 +102,41 @@ public enum MusicError: Error, CustomStringConvertible {
     }
 }
 
-/// Kevin MacLeod's catalogue (incompetech.com), fetched once as a single
-/// JSON list and cached for a week; search and moods run over it locally.
+/// The music that comes with the app: CC0 and public-domain tracks, each
+/// levelled to the same loudness, listed in `Music/library.json` beside them.
+/// Search and moods run over it locally; it works offline.
 public enum MusicCatalog {
-    static let listURL = URL(string: "https://incompetech.com/music/royalty-free/pieces.json")!
-    static let fileBase = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/"
     static let agent = "MonetShot/0.1 (macOS screen recorder)"   // no personal details
-    /// Longer tracks are rarely what a demo wants and are slow to download.
-    static let maxSeconds: Double = 8 * 60
 
-    public static var cacheDir: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("MonetShot/music", isDirectory: true)
-    }
+    /// The app's Music folder (or the repo's, when run from source).
+    public static let folder: URL? = {
+        let bundled = Bundle.main.resourceURL?.appendingPathComponent("Music")
+        let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Resources/Music")
+        return [bundled, repo].compactMap { $0 }
+            .first { FileManager.default.fileExists(atPath: $0.appendingPathComponent("library.json").path) }
+    }()
 
     nonisolated(unsafe) private static var loaded: [Song]?
     private static let lock = NSLock()
 
-    /// The whole catalogue, newest first.
+    /// The whole library, in its listed order.
     public static func all() async throws -> [Song] {
         if let l = lock.withLock({ loaded }) { return l }
-        let cached = cacheDir.appendingPathComponent("incompetech.json")
-        var data: Data?
-        if let attrs = try? FileManager.default.attributesOfItem(atPath: cached.path),
-           let date = attrs[.modificationDate] as? Date, Date().timeIntervalSince(date) < 7 * 86_400 {
-            data = try? Data(contentsOf: cached)
-        }
-        if data == nil {
-            var req = URLRequest(url: listURL)
-            req.setValue(agent, forHTTPHeaderField: "User-Agent")
-            req.timeoutInterval = 30
-            do {
-                let (fresh, resp) = try await URLSession.shared.data(for: req)
-                guard (resp as? HTTPURLResponse)?.statusCode == 200 else { throw MusicError.http((resp as? HTTPURLResponse)?.statusCode ?? 0) }
-                data = fresh
-                try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
-                try? fresh.write(to: cached, options: .atomic)
-            } catch {
-                // Offline: an old copy is better than nothing.
-                data = try? Data(contentsOf: cached)
-                if data == nil { throw error }
-            }
-        }
-        let songs = try parse(data!)
+        guard let folder else { throw MusicError.download }
+        let songs = try parse(Data(contentsOf: folder.appendingPathComponent("library.json")), folder: folder)
         lock.withLock { loaded = songs }
         return songs
     }
 
-    /// Search words (all must match title, description, feel or
-    /// instruments) or a mood; nothing = everything, newest first.
+    /// Search words (all must match title, artist, description or mood)
+    /// or a mood; nothing = everything.
     public static func search(_ query: String, mood: MusicMood? = nil) async throws -> [Song] {
         let words = query.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
         return try await all().filter { s in
             if !words.isEmpty {
-                let hay = [s.title, s.about ?? "", s.genres.joined(separator: " "), s.instruments ?? ""].joined(separator: " ").lowercased()
+                let hay = [s.title, s.artist, s.about ?? "", s.genres.joined(separator: " "), s.instruments ?? ""].joined(separator: " ").lowercased()
                 return words.allSatisfy { hay.contains($0) }
             }
             if let mood { return s.genres.contains { $0.lowercased() == mood.feel } }
@@ -168,36 +144,16 @@ public enum MusicCatalog {
         }
     }
 
-    /// incompetech's pieces.json to songs; skips anything without a file or too long.
-    public static func parse(_ data: Data) throws -> [Song] {
-        struct Piece: Decodable {
-            let title: String?
-            let filename: String?
-            let length: String?
-            let instruments: String?
-            let bpm: String?
-            let description: String?
-            let feel: String?
-            let uploaded: String?
+    /// library.json (a list of songs whose audioURL is a file name) to songs
+    /// with file URLs in `folder`; skips anything whose file is missing.
+    public static func parse(_ data: Data, folder: URL) throws -> [Song] {
+        try JSONDecoder().decode([Song].self, from: data).compactMap { song in
+            let file = folder.appendingPathComponent(song.audioURL)
+            guard FileManager.default.fileExists(atPath: file.path) else { return nil }
+            var s = song
+            s.audioURL = file.absoluteString
+            return s
         }
-        let pieces = try JSONDecoder().decode([Piece].self, from: data)
-        return pieces.compactMap { p -> (Song, String)? in
-            guard let file = p.filename, !file.isEmpty, let title = p.title,
-                  let encoded = file.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return nil }
-            let parts = (p.length ?? "").split(separator: ":").compactMap { Double($0) }
-            let seconds = parts.reduce(0) { $0 * 60 + $1 }
-            guard seconds > 5, seconds <= maxSeconds else { return nil }
-            let feels = (p.feel ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-            let credit = "\"\(title)\" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"
-            let song = Song(id: file, title: title, artist: "Kevin MacLeod", duration: seconds, genres: feels,
-                            license: "by", licenseVersion: "4.0", licenseURL: "https://creativecommons.org/licenses/by/4.0/",
-                            audioURL: fileBase + encoded, pageURL: "https://incompetech.com/music/royalty-free/music.html",
-                            attribution: credit, bpm: p.bpm.flatMap { Int($0) }, about: p.description,
-                            instruments: p.instruments)
-            return (song, p.uploaded ?? "")
-        }
-        .sorted { $0.1 > $1.1 }
-        .map(\.0)
     }
 
     /// A file of your own (music you've licensed elsewhere), as a song.
@@ -218,8 +174,9 @@ public enum MusicCatalog {
     public static func download(_ track: Song, into folder: URL) async throws -> String {
         guard let url = URL(string: track.audioURL) else { throw MusicError.download }
         if url.isFileURL {
-            // Your own file: copy it in, keeping its type.
-            let name = "music-own-\(stableID(track.id)).\(url.pathExtension.isEmpty ? "m4a" : url.pathExtension.lowercased())"
+            // A file on this Mac (yours, or one of the app's own): copy it in, keeping its type.
+            let kind = track.license == "own" ? "music-own" : "music"
+            let name = "\(kind)-\(stableID(track.id)).\(url.pathExtension.isEmpty ? "m4a" : url.pathExtension.lowercased())"
             let dest = folder.appendingPathComponent(name)
             try? FileManager.default.removeItem(at: dest)
             try FileManager.default.copyItem(at: url, to: dest)

@@ -39,6 +39,7 @@ cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
 [[ -f "$ROOT/Resources/AppIcon.icns" ]] && cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/"
 # The backdrop gallery: public-domain paintings and their credits.
 [[ -d "$ROOT/Resources/Backdrops" ]] && cp -R "$ROOT/Resources/Backdrops" "$APP/Contents/Resources/"
+[[ -d "$ROOT/Resources/Music" ]] && cp -R "$ROOT/Resources/Music" "$APP/Contents/Resources/"
 # Text overlays draw in the same font on every platform.
 [[ -d "$ROOT/Resources/Fonts" ]] && cp -R "$ROOT/Resources/Fonts" "$APP/Contents/Resources/"
 "$PLUTIL" -lint "$APP/Contents/Info.plist" >/dev/null

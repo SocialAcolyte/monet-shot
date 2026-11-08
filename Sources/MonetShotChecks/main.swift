@@ -272,23 +272,30 @@ await check("takes: a second take loads, and zooms stay on their take") { dir in
     expect(abs(f2.width / f2.height - 16.0 / 9.0) < 0.01, "each take is framed at its own shape")
 }
 
-await check("music catalogue parses, and unusable tracks are skipped") { _ in
+await check("the music library parses, and tracks without a file are skipped") { dir in
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    try Data("x".utf8).write(to: dir.appendingPathComponent("morning.m4a"))
     let json = #"""
-    [{"title": "Morning", "filename": "Morning Light.mp3", "length": "00:02:34", "instruments": "Piano", "bpm": "92",
-      "description": "Soft and bright.", "feel": "Bright, Calming", "uploaded": "2024-01-02"},
-     {"title": "No file", "filename": null, "length": "00:01:00"},
-     {"title": "Too long", "filename": "Long.mp3", "length": "01:00:00"},
-     {"title": "Older", "filename": "Older.mp3", "length": "00:01:10", "feel": "Bright", "uploaded": "2012-05-05"}]
+    [{"id": "morning", "title": "Morning", "artist": "Someone", "duration": 154, "genres": ["dreamy"],
+      "license": "cc0", "licenseVersion": "1.0", "audioURL": "morning.m4a", "about": "Soft and bright."},
+     {"id": "gone", "title": "Gone", "artist": "Someone", "duration": 60, "genres": [], "license": "pdm", "audioURL": "gone.m4a"}]
     """#
-    let songs = try MusicCatalog.parse(Data(json.utf8))
-    expect(songs.count == 2, "only usable tracks are kept (got \(songs.count))")
+    let songs = try MusicCatalog.parse(Data(json.utf8), folder: dir)
+    expect(songs.count == 1, "only tracks with a file are kept (got \(songs.count))")
     let t = songs[0]
-    expect(t.title == "Morning" && t.duration == 154 && t.bpm == 92 && t.genres == ["Bright", "Calming"], "fields mapped, newest first")
-    expect(t.audioURL.hasSuffix("Morning%20Light.mp3") && t.needsCredit && t.licenseLabel == "CC BY 4.0", "file URL and licence")
-    expect(t.attribution?.contains("Kevin MacLeod") == true, "credit line ready")
-    var doc = EditDoc(); doc.music = MusicChoice(track: t, file: "music-x.mp3")
+    expect(t.title == "Morning" && t.duration == 154 && t.genres == ["dreamy"], "fields read")
+    expect(URL(string: t.audioURL)?.isFileURL == true && t.audioURL.hasSuffix("morning.m4a"), "file name becomes a file URL in the folder")
+    expect(!t.needsCredit && t.licenseLabel == "CC0", "CC0 needs no credit")
+    var doc = EditDoc(); doc.music = MusicChoice(track: t, file: "music-x.m4a")
     let back = try JSONDecoder.app.decode(EditDoc.self, from: JSONEncoder.app.encode(doc))
     expect(back.music == doc.music, "music choice round-trips in edit.json")
+}
+
+await check("the app's own music library is all there, and free of conditions") { _ in
+    let songs = try await MusicCatalog.all()
+    expect(songs.count >= 15, "the library has its tracks (\(songs.count))")
+    expect(songs.allSatisfy { !$0.needsCredit }, "every track is CC0 or public domain")
+    expect(songs.allSatisfy { s in s.genres.contains { g in MusicMood.all.contains { $0.feel == g } } }, "every track sits under a mood")
 }
 
 await check("cursor styles") { dir in
@@ -414,6 +421,38 @@ await check("hiding and cropping: what the renderer draws") { _ in
     let out = square.render(source: frame, take: 0, time: 0)
     expect(grey(out, out.extent.width * 0.25, out.extent.height / 2) < 0.05 && grey(out, out.extent.width * 0.75, out.extent.height / 2) > 0.95,
            "the render shows only the cropped part, filling the frame")
+}
+
+await check("the music grid finds the beat, the downbeat and the lift") { _ in
+    // 108 bpm, downbeats from 0.5 s, hard on beat one; eight quiet bars, then a louder section
+    let rate = 11_025.0, beat = 60.0 / 108, n = Int(rate * 40)
+    var s = [Float](repeating: 0, count: n)
+    var k = 0
+    var t = 0.5
+    while t < 40 {
+        let loud: Float = t < 0.5 + 8 * beat * 4 ? 0.25 : 0.8
+        let hit: Float = (k % 4 == 0 ? 1 : 0.45) * loud
+        let i0 = Int(t * rate)
+        for i in 0..<Int(rate * 0.12) where i0 + i < n { s[i0 + i] += hit * Float(sin(Double(i) * 0.35)) * Float(exp(-Double(i) / (rate * 0.03))) }
+        // a soft hat between beats
+        let h0 = Int((t + beat / 2) * rate)
+        for i in 0..<Int(rate * 0.02) where h0 + i < n { s[h0 + i] += 0.08 * loud * Float.random(in: -1...1) }
+        k += 1; t += beat
+    }
+    guard let g = MusicGrid.analyze(samples: s, rate: rate) else { expect(false, "a grid was found"); return }
+    expect(abs(g.bpm - 108) < 1.5, "tempo is about 108 bpm (\(g.bpm))")
+    let off = abs(g.firstDownbeat - 0.5).truncatingRemainder(dividingBy: g.bar)
+    expect(min(off, g.bar - off) < 0.06, "the downbeat is found (\(g.firstDownbeat))")
+    let lift = 0.5 + 8 * beat * 4
+    expect(g.lifts.contains { abs($0 - lift) < 0.15 }, "the louder section is a lift (\(g.lifts), want \(lift))")
+    expect(abs(g.nearestBarLine(lift + 0.4) - lift) < 0.06, "times snap to the nearest bar line")
+}
+
+if let file = ProcessInfo.processInfo.environment["MONETSHOT_GRID_FILE"] {
+    // a look at a real song: MONETSHOT_GRID_FILE=song.mp3 swift run MonetShotChecks
+    if let g = await MusicGrid.analyze(URL(fileURLWithPath: file)) {
+        print(String(format: "grid: %.2f bpm, bar %.4f s, first downbeat %.3f s, lifts %@", g.bpm, g.bar, g.firstDownbeat, g.lifts.map { String(format: "%.2f", $0) }.joined(separator: " ")))
+    } else { print("grid: none found") }
 }
 
 print(failures == 0 ? "All \(passed) checks passed" : "\(failures) failed, \(passed) passed")
