@@ -95,10 +95,12 @@ public enum MusicEnvelope {
     public static let duckLevel = 0.3
     public static let duckRamp = 0.45
 
-    /// Gain at output time `t`, as a fraction of the chosen volume.
-    public static func gain(at t: Double, length: Double, fadeIn: Bool, fadeOut: Bool, voice: [ClosedRange<Double>]) -> Double {
+    /// Gain at output time `t`, as a fraction of the chosen volume. `outro`
+    /// is how long the fade at the end lasts (nil = 2 s; never over a third).
+    public static func gain(at t: Double, length: Double, fadeIn: Bool, fadeOut: Bool, outro: Double? = nil,
+                            voice: [ClosedRange<Double>]) -> Double {
         var g = 1.0
-        let fi = min(1.2, length / 3), fo = min(2.0, length / 3)
+        let fi = min(1.2, length / 3), fo = min(outro ?? 2.0, length / 3)
         if fadeIn, fi > 0, t < fi { g *= max(0, t / fi) }
         if fadeOut, fo > 0, t > length - fo { g *= max(0, (length - t) / fo) }
         var duck = 0.0

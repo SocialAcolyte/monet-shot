@@ -172,6 +172,8 @@ pub fn run() {
             media::music_own_file,
             media::music_add,
             media::music_shape,
+            media::music_suggest,
+            media::music_voice,
             media::video_proxy,
             media::media_url,
             media::media_release,

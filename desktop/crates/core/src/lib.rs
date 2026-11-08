@@ -10,6 +10,7 @@ pub mod formats;
 pub mod json;
 pub mod model;
 pub mod music;
+pub mod music_fit;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod paths;
 pub mod plan;

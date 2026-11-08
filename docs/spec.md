@@ -33,6 +33,23 @@ A format (`format`: clean, fast, melancholic, cinematic) writes a pace and
 a look into the edit in one go; nothing it sets is locked. These keys are
 written only when used, so older edits are unchanged byte for byte.
 
+**Music.** The app ships its own library in `Resources/Music` (one copy,
+bundled by the Mac app and by Tauri): CC0 and public-domain tracks only,
+levelled to -16 LUFS, AAC 96 kbps, each listed in `library.json` with its
+licence, source page, moods, tempo (calm / steady / upbeat), energy, a
+64-bar waveform and its beat grid (`grid`: bar, first downbeat, lifts).
+`music` in edit.json is the chosen track (copied into the recording, so
+exports work offline), `offset` (seconds into the song at the video's first
+frame), `volume`, `fadeIn`, `fadeOut`. A chosen track starts on a downbeat
+(`MusicFit.place`), and its end fade starts on a phrase line, every four
+bars (`MusicFit.outro`, worked out from the track's grid each time the edit
+renders, so a trimmed video still ends on a phrase). With "Lower music
+while you talk" on, the music dips to 30 % wherever the edit's own sound
+(the camera's mic, the take's voice track) is above the take's quiet by its level
+alone (`VoiceActivity`). A file of your own gets its grid read once and kept
+with the choice. Favourites are this computer's own (UserDefaults on the
+Mac, the webview's storage on Windows and Linux), not part of a recording.
+
 **Vertical.** `layout` in edit.json (`vertical` 1080x1920, `square`
 1080x1080; absent = landscape, whose `outputWidth`/`canvasAspect` stay
 as they were). A take wider than the frame fills it through a window of

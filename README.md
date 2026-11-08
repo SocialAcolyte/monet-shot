@@ -115,14 +115,20 @@ crop away anything private before you share it. The look follows
     words in. Click a word in the transcript to fix it, or empty it to drop
     a filler. *Copy transcript* copies the text.
   - Every export also writes `<name>.srt` (subtitles) beside the video.
-- **Music.** *Music* (or **M**) opens the browser: Kevin MacLeod's library
-  from [incompetech.com](https://incompetech.com) (about 1,400 tracks, CC BY
-  4.0). Search, or pick a mood (Bright, Calming, Driving, Epic…), or *Use
-  your own* file. Click a row to preview; *Use* downloads it into the recording. In the inspector, slide
-  the bright window along the waveform to choose which part of the song
-  plays, and set volume and fades. CC BY tracks need a credit: *Copy credit*
-  puts it on the clipboard, and every export writes it beside the video as
-  `<name>.credits.txt`.
+- **Music.** *Music* (or **M**) opens the browser beside your video: 43
+  tracks that come with the app, all CC0 or public domain, so there is
+  nothing to credit and no conditions. *For this video* suggests a few that
+  suit its length and format (punchier ones for a vertical video); or pick a
+  mood (Dreamy, Grooving, Sunny, Mellow, Punchy, Classical) and a tempo
+  (Calm, Steady, Upbeat), or search. Click a track and it plays **under your
+  own video**, from where it would start; the waveform lights the part you
+  hear. The heart keeps a track in *Favourites*. *Use* puts it in the edit,
+  starting on a downbeat and fading out from a phrase line so it ends with
+  the video instead of mid-bar. *Your own* takes a file you've licensed
+  elsewhere. In the inspector, slide the bright window along the waveform to
+  choose which part plays (it snaps to bar lines), and set volume and fades.
+  With "Lower music while you talk" on, the music dips wherever your voice is
+  heard (the camera's mic, a voiceover), by its level alone.
 - **Export.** *Export MP4* (⌘E) renders the edit next to the recording at up
   to 4K, 60 fps.
 
@@ -166,8 +172,8 @@ MonetShot --aspect <rec.reel> vertical          # landscape | vertical | square 
 - Writes recordings to `~/Movies/MonetShot/` (one `.reel` folder each: the raw
   video, the cursor log, and the edit) and exports beside them.
 - A log at `~/Library/Logs/MonetShot/monetshot.log`.
-- The music catalogue is cached for a week in `~/Library/Caches/MonetShot/music/`.
-  Monet Shot talks to the network only for the music browser.
+- Your favourite tracks, in the app's preferences.
+- Monet Shot doesn't talk to the network: the music comes with the app.
 - Nothing else: no login item, no background service, no system settings.
 
 **Permissions.** None for the screen. Camera and Microphone are asked
@@ -219,7 +225,33 @@ your language once).
 
 Monet Shot comes with 20 paintings for the picture backdrop (Monet, Van Gogh, Turner, Sargent, Homer, Hokusai, Klimt, Seurat, Cézanne, Sorolla). All are public domain or CC0 scans from Wikimedia Commons; each one's title, artist, licence and source page are in `Resources/Backdrops/credits.json`.
 
+## Music
+
+The tracks in `Resources/Music` are CC0 or public domain: free to use
+anywhere, no credit needed. Each one's licence and source page are in
+`Resources/Music/library.json`. Thank you to the people who gave them away:
+
+- **HoliznaCC0**: Lost On The Freeway, Night Driving, Night Life, Day Trips,
+  Sky Scrapers, Make Love, Dancing, Moving Forward, Back In The 80s, The Last
+  Long Day, Roof Tops, Hope On Repeat, Spring In Sight, Spring On The
+  Horizon
+- **John Bartmann**: Lofi Jam, Disco in the Sky, Born to Boogie, Party Party
+  Disco Party, Rich Mahogany, Autotune Will Not Save You, Rusty Bicycle,
+  Guessing Game, Winter Rain, Grassroots Programming, Self-Driving Nights,
+  Spirit Of Java, Back To Basics
+- **Loyalty Freak Music**: Summer Pride, Monarch of the Street, People Are
+  Spinning, Chillin With a Drink at the Club, Lag, No Cadillac
+- **Zane Little**: Rhythm Factory, Goober Dynamics 1
+- **Tequila Moonrise**: Don't Ride the Dolphin
+- **Kimiko Ishizaka** (Open Goldberg Variations, Open Well-Tempered
+  Clavier): Bach, Aria; Prelude in C major
+- **Musopen** and **Luke Faulkner**: Chopin, Nocturnes Op. 9 No. 2 and
+  Op. 15 No. 2
+- **Robin Alciatore** (Musopen): Satie, Gymnopédie No. 1
+- **The United States Marine Chamber Orchestra**: Debussy, Danse sacrée and
+  Danse profane
+
 ## License
 
-MIT, see [LICENSE](LICENSE). Music found through the browser is Kevin
-MacLeod's, under CC BY 4.0, and needs crediting where you publish.
+MIT, see [LICENSE](LICENSE). The music that comes with the app is CC0 or
+public domain (above); music you bring is yours to license.

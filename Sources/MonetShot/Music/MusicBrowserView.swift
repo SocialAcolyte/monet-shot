@@ -1,65 +1,67 @@
 import MonetShotKit
 import SwiftUI
 
-/// The music browser: a tall charcoal panel over the editor, in the manner
-/// of a streaming app. Search and mood tiles up top, a long album-art list
-/// that keeps loading as you scroll, and a now-playing bar with Use.
+/// The music browser: a tall charcoal panel docked over the inspector, so
+/// your video stays in view. Click a track and it plays under the video
+/// itself, from where it would start; the waveform shows the part you hear.
+/// Shelves up top (for this video, favourites, the moods), tempo beside.
 struct MusicBrowserView: View {
     let model: MusicBrowserModel
     let close: () -> Void
 
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.5)
-                .ignoresSafeArea()
-                .onTapGesture(perform: close)
-            VStack(spacing: 0) {
-                header
-                    .padding(.horizontal, 24)
-                    .padding(.top, 22)
-                    .padding(.bottom, 14)
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        moods
-                        Text(model.query.isEmpty ? (model.mood?.name ?? "Instrumental") : "Results")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .padding(.top, 4)
-                        trackList
+        VStack(spacing: 0) {
+            header
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 12)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(model.heading).font(.system(size: 17, weight: .bold, design: .rounded))
+                        if let sub = model.subheading {
+                            Text(sub).font(.system(size: 11.5, design: .rounded)).foregroundStyle(Palette.dim)
+                        }
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
+                    .padding(.horizontal, 6)
+                    .padding(.bottom, 8)
+                    trackList
                 }
-                .scrollIndicators(.never)
-                if let t = model.previewing {
-                    NowPlayingBar(model: model, track: t)
-                        .transition(.move(edge: .bottom).combined(with: .opacity).animation(Motion.base()))
-                }
+                .padding(.horizontal, 14)
+                .padding(.bottom, 18)
             }
-            .frame(width: 760)
-            .frame(maxHeight: .infinity)
-            .background(Palette.panel)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.white.opacity(0.07), lineWidth: 1))
-            .shadow(color: .black.opacity(0.5), radius: 40, y: 18)
-            .padding(.vertical, 44)
+            .scrollIndicators(.never)
+            if let t = model.auditioning {
+                NowPlayingBar(model: model, track: t)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).animation(Motion.base()))
+            }
         }
+        .frame(width: 452)
+        .frame(maxHeight: .infinity)
+        .background(Palette.panel)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.white.opacity(0.07), lineWidth: 1))
+        .shadow(color: .black.opacity(0.45), radius: 30, x: -6, y: 10)
+        .padding(.vertical, 12)
+        .padding(.trailing, 12)
+        .frame(maxWidth: .infinity, alignment: .trailing)
         .foregroundStyle(Palette.moonWhite)
         .onAppear { model.start() }
         .onDisappear { model.stop() }
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Music").font(.system(size: 26, weight: .bold, design: .rounded))
+                    Text("Music").font(.system(size: 24, weight: .bold, design: .rounded))
                     Text("Free to use anywhere: no credit, no conditions")
                         .font(.system(size: 11.5, design: .rounded))
                         .foregroundStyle(Palette.faint)
                 }
                 Spacer()
                 Button(action: model.chooseOwnFile) {
-                    Label("Use your own", systemImage: "folder")
+                    Label("Your own", systemImage: "folder")
                 }
                 .buttonStyle(PillButtonStyle())
                 .help("Music you've licensed elsewhere (Artlist, Epidemic, your own)")
@@ -75,164 +77,210 @@ struct MusicBrowserView: View {
                 Image(systemName: "magnifyingglass").foregroundStyle(Palette.dim)
                 TextField("Songs, artists, moods", text: Binding(get: { model.query }, set: { model.setQuery($0) }))
                     .textFieldStyle(.plain)
-                    .font(.system(size: 14, design: .rounded))
-                if model.loading { ProgressView().controlSize(.small) }
+                    .font(.system(size: 13.5, design: .rounded))
             }
-            .padding(.horizontal, 14)
-            .frame(height: 38)
+            .padding(.horizontal, 13)
+            .frame(height: 34)
             .background(Capsule().fill(Palette.midnight))
+            shelves
+            HStack(spacing: 6) {
+                Text("Tempo").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(Palette.faint)
+                    .padding(.trailing, 4)
+                ForEach(MusicTempo.allCases) { t in
+                    Chip(title: t.name, tint: nil, on: model.tempo == t) { model.setTempo(t) }
+                }
+            }
         }
     }
 
-    private var moods: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 10) {
-            ForEach(MusicMood.all) { m in
-                let on = model.query.isEmpty && model.mood?.id == m.id
-                ZStack(alignment: .bottomLeading) {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(LinearGradient(colors: [Color(hex: m.tint), Color(hex: m.tint).opacity(0.55)],
-                                             startPoint: .topLeading, endPoint: .bottomTrailing))
-                    // A leaning disc in the corner, as album tiles do.
-                    Circle()
-                        .fill(Color.black.opacity(0.18))
-                        .frame(width: 46, height: 46)
-                        .overlay(Circle().fill(Color.white.opacity(0.12)).frame(width: 12, height: 12))
-                        .rotationEffect(.degrees(22))
-                        .offset(x: 92, y: -18)
-                    Text(m.name)
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .padding(10)
+    private var shelves: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 6) {
+                Chip(title: "For this video", systemImage: "sparkles", tint: nil,
+                     on: model.query.isEmpty && model.shelf == .suggested) { model.show(.suggested) }
+                Chip(title: "Favourites", systemImage: "heart", tint: nil,
+                     on: model.query.isEmpty && model.shelf == .favourites) { model.show(.favourites) }
+                ForEach(MusicMood.all) { m in
+                    Chip(title: m.name, tint: Color(hex: m.tint), on: model.query.isEmpty && model.shelf == .mood(m.id)) { model.choose(m) }
                 }
-                .frame(height: 64)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Palette.violet, lineWidth: 2).opacity(on ? 1 : 0))
-                .contentShape(Rectangle())
-                .onTapGesture { model.choose(m) }
-                .animation(Motion.snappy(), value: on)
             }
         }
+        .scrollIndicators(.never)
     }
 
     @ViewBuilder private var trackList: some View {
         if let p = model.problem, model.tracks.isEmpty {
-            Text(p).font(.system(size: 13, design: .rounded)).foregroundStyle(Palette.dim).padding(.vertical, 30)
-        } else if model.tracks.isEmpty && !model.loading {
-            Text("No tracks found. Try another word.").font(.system(size: 13, design: .rounded)).foregroundStyle(Palette.dim).padding(.vertical, 30)
+            Text(p).font(.system(size: 13, design: .rounded)).foregroundStyle(Palette.dim).padding(.vertical, 30).padding(.horizontal, 6)
+        } else if model.tracks.isEmpty && model.shelf != .favourites {
+            Text("Nothing here. Try another word or tempo.").font(.system(size: 13, design: .rounded)).foregroundStyle(Palette.dim)
+                .padding(.vertical, 30).padding(.horizontal, 6)
         }
         LazyVStack(spacing: 2) {
-            ForEach(Array(model.tracks.enumerated()), id: \.element.id) { i, t in
-                TrackRow(model: model, track: t, number: i + 1)
+            ForEach(model.tracks) { t in
+                TrackRow(model: model, track: t)
             }
         }
     }
 }
 
-/// One track: number (or a playing equaliser), artwork, title, artist and
-/// genre, licence, length. Click to preview; Use to put it under the video.
+/// A shelf or tempo chip: a quiet capsule, filled when chosen.
+private struct Chip: View {
+    let title: String
+    var systemImage: String?
+    let tint: Color?
+    let on: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                if let tint { Circle().fill(tint).frame(width: 7, height: 7) }
+                if let systemImage { Image(systemName: systemImage).font(.system(size: 10, weight: .semibold)) }
+                Text(title)
+            }
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .foregroundStyle(on ? Palette.charcoal : Palette.moonWhite.opacity(0.85))
+            .padding(.horizontal, 11)
+            .frame(height: 26)
+            .background(Capsule().fill(on ? Palette.moonWhite : Palette.midnight))
+        }
+        .buttonStyle(.plain)
+        .animation(Motion.snappy(), value: on)
+    }
+}
+
+/// One track: cover (with play), title, artist, mood and tempo, a heart and
+/// Use; under it the waveform, the part that plays under the video lit.
 private struct TrackRow: View {
     let model: MusicBrowserModel
     let track: Song
-    let number: Int
 
-    private var current: Bool { model.previewing?.id == track.id }
+    private var current: Bool { model.auditioning?.id == track.id }
 
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                if current && model.previewPlaying {
-                    Equalizer()
-                } else {
-                    Text("\(number)")
-                        .font(.system(size: 12.5, weight: .medium, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(current ? Palette.violet : Palette.faint)
+        VStack(spacing: 7) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Artwork(song: track, size: 42)
+                    if current {
+                        RoundedRectangle(cornerRadius: 42 * 0.14, style: .continuous).fill(Color.black.opacity(0.45))
+                        if model.playing { Equalizer() } else { Image(systemName: "play.fill").font(.system(size: 13, weight: .bold)) }
+                    }
                 }
+                .frame(width: 42, height: 42)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(track.title)
+                        .font(.system(size: 13.5, weight: .semibold, design: .rounded))
+                        .foregroundStyle(current ? Palette.violet : Palette.moonWhite)
+                        .lineLimit(1)
+                    Text(detail)
+                        .font(.system(size: 11.5, design: .rounded))
+                        .foregroundStyle(Palette.dim)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 8)
+                Text(MusicTime.clock(track.duration))
+                    .font(.system(size: 11.5, design: .rounded)).monospacedDigit()
+                    .foregroundStyle(Palette.faint)
+                Button { model.toggleFavourite(track) } label: {
+                    Image(systemName: model.isFavourite(track) ? "heart.fill" : "heart")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(model.isFavourite(track) ? Palette.clay : Palette.faint)
+                        .frame(width: 24, height: 24)
+                        .contentTransition(.symbolEffect(.replace))
+                }
+                .buttonStyle(.plain)
+                .help(model.isFavourite(track) ? "Remove from favourites" : "Keep in favourites")
+                Button { model.use(track) } label: {
+                    if model.adding == track.id { ProgressView().controlSize(.small).frame(width: 30) } else { Text("Use") }
+                }
+                .buttonStyle(PillButtonStyle(prominent: current))
+                .disabled(model.adding != nil)
             }
-            .frame(width: 26)
-            Artwork(song: track, size: 48)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(track.title)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(current ? Palette.violet : Palette.moonWhite)
-                    .lineLimit(1)
-                Text(([track.genres.prefix(2).joined(separator: ", ")] + [track.bpm.map { "\($0) bpm" } ?? ""]).filter { !$0.isEmpty }.joined(separator: " · "))
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(Palette.dim)
-                    .lineLimit(1)
-            }
-            Spacer(minLength: 12)
-            Text(track.licenseLabel)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(Palette.dim)
-                .padding(.horizontal, 7)
-                .frame(height: 18)
-                .background(Capsule().strokeBorder(Palette.line, lineWidth: 1))
-            Text(MusicTime.clock(track.duration))
-                .font(.system(size: 12.5, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(Palette.dim)
-                .frame(width: 40, alignment: .trailing)
-            Button { model.use(track) } label: {
-                if model.adding == track.id { ProgressView().controlSize(.small).frame(width: 34) } else { Text("Use") }
-            }
-            .buttonStyle(PillButtonStyle(prominent: current))
-            .disabled(model.adding != nil)
+            TrackWave(peaks: track.peaks ?? [], window: model.window(for: track),
+                      at: current ? model.auditionFraction : nil, lit: current)
+                .frame(height: 20)
+                .padding(.leading, 54)
         }
-        .padding(.horizontal, 10)
-        .frame(height: 64)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(current ? Palette.midnight : Color.clear))
         .contentShape(Rectangle())
-        .onTapGesture { model.togglePreview(track) }
+        .onTapGesture { model.toggleAudition(track) }
         .help(track.about ?? "")
         .animation(Motion.snappy(), value: current)
     }
+
+    private var detail: String {
+        [track.artist, track.genres.first?.capitalized ?? "", MusicTempo.of(track)?.name ?? ""]
+            .filter { !$0.isEmpty }.joined(separator: " · ")
+    }
 }
 
-/// The bar along the foot while something is previewing.
+/// A track's waveform: thin bars, the stretch under the video brighter, and
+/// while it plays, a line where it is.
+struct TrackWave: View {
+    let peaks: [Double]
+    let window: ClosedRange<Double>?
+    let at: Double?
+    let lit: Bool
+
+    var body: some View {
+        Canvas { ctx, size in
+            let bars = peaks.isEmpty ? Array(repeating: 0.25, count: 64) : peaks
+            let step = size.width / CGFloat(bars.count)
+            for (i, p) in bars.enumerated() {
+                let x = CGFloat(i) * step
+                let f = (Double(i) + 0.5) / Double(bars.count)
+                let inside = window.map { $0.contains(f) } ?? false
+                let h = max(2, CGFloat(p) * size.height)
+                let r = CGRect(x: x + step * 0.18, y: (size.height - h) / 2, width: max(1, step * 0.64), height: h)
+                let colour = inside ? (lit ? Palette.violet : Palette.moonWhite.opacity(0.62)) : Palette.moonWhite.opacity(0.16)
+                ctx.fill(Path(roundedRect: r, cornerRadius: r.width / 2), with: .color(colour))
+            }
+            if let at {
+                let x = CGFloat(at) * size.width
+                ctx.fill(Path(CGRect(x: x - 0.75, y: 0, width: 1.5, height: size.height)), with: .color(Palette.moonWhite))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// The bar along the foot while a track plays under the video.
 private struct NowPlayingBar: View {
     let model: MusicBrowserModel
     let track: Song
 
     var body: some View {
-        VStack(spacing: 0) {
-            GeometryReader { g in
-                ZStack(alignment: .leading) {
-                    Rectangle().fill(Palette.line)
-                    Rectangle().fill(Palette.violet).frame(width: g.size.width * model.previewProgress)
-                }
-                .contentShape(Rectangle())
-                .gesture(DragGesture(minimumDistance: 0).onEnded { v in model.seekPreview(to: max(0, min(1, v.location.x / g.size.width))) })
+        HStack(spacing: 12) {
+            Button { model.toggleAudition(track) } label: {
+                Image(systemName: model.playing ? "pause.fill" : "play.fill")
+                    .font(.system(size: 13, weight: .bold))
+                    .frame(width: 34, height: 34)
+                    .background(Circle().fill(Palette.moonWhite))
+                    .foregroundStyle(Palette.charcoal)
+                    .contentTransition(.symbolEffect(.replace))
             }
-            .frame(height: 3)
-            HStack(spacing: 14) {
-                Artwork(song: track, size: 46)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(track.title).font(.system(size: 14, weight: .semibold, design: .rounded)).lineLimit(1)
-                    Text(track.artist).font(.system(size: 12, design: .rounded)).foregroundStyle(Palette.dim).lineLimit(1)
-                }
-                Spacer()
-                Button { model.togglePreview(track) } label: {
-                    Image(systemName: model.previewPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 14, weight: .bold))
-                        .frame(width: 38, height: 38)
-                        .background(Circle().fill(Palette.moonWhite))
-                        .foregroundStyle(Palette.charcoal)
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                .buttonStyle(.plain)
-                Button { model.use(track) } label: {
-                    if model.adding == track.id {
-                        HStack(spacing: 6) { ProgressView().controlSize(.small); Text("Adding") }
-                    } else {
-                        Text("Use this track")
-                    }
-                }
-                .buttonStyle(PillButtonStyle(prominent: true))
-                .disabled(model.adding != nil)
+            .buttonStyle(.plain)
+            .keyboardShortcut(.space, modifiers: [])
+            VStack(alignment: .leading, spacing: 2) {
+                Text(track.title).font(.system(size: 13, weight: .semibold, design: .rounded)).lineLimit(1)
+                Text("Playing under your video").font(.system(size: 11, design: .rounded)).foregroundStyle(Palette.dim).lineLimit(1)
             }
-            .padding(.horizontal, 20)
-            .frame(height: 70)
+            Spacer()
+            Button { model.use(track) } label: {
+                if model.adding == track.id {
+                    HStack(spacing: 6) { ProgressView().controlSize(.small); Text("Adding") }
+                } else {
+                    Text("Use this track")
+                }
+            }
+            .buttonStyle(PillButtonStyle(prominent: true))
+            .disabled(model.adding != nil)
         }
+        .padding(.horizontal, 16)
+        .frame(height: 62)
         .background(Palette.charcoal)
     }
 }

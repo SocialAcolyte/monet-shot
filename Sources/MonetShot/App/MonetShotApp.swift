@@ -83,7 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if env["MONETSHOT_SNAPSHOT_MUSIC"] != nil {
                 editor.model.openMusic()
                 try? await Task.sleep(for: .seconds(2))
-                if let first = editor.model.musicBrowser.tracks.dropFirst(2).first { editor.model.musicBrowser.togglePreview(first) }
+                if let first = editor.model.musicBrowser.tracks.dropFirst(1).first { editor.model.musicBrowser.toggleAudition(first) }
                 try? await Task.sleep(for: .seconds(4))
             }
             editor.model.stillFrame = try? await Composer.frame(editor.model.shownProject, at: t)

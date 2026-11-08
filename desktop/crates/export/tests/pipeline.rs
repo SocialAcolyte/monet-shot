@@ -125,3 +125,65 @@ fn music_waveform_and_grid() {
     let g = monetshot_export::sound::grid(&song).unwrap().expect("a beat");
     assert!(g.bpm() > 60.0 && g.bpm() < 200.0, "{}", g.bpm());
 }
+
+/// Strength of `f` Hz in mono `s` at `rate` over [a, b) seconds (Goertzel).
+fn tone(s: &[f32], rate: f64, f: f64, a: f64, b: f64) -> f64 {
+    let (i0, i1) = ((a * rate) as usize, ((b * rate) as usize).min(s.len()));
+    let w = 2.0 * std::f64::consts::PI * f / rate;
+    let (mut s1, mut s2) = (0.0f64, 0.0f64);
+    for &x in &s[i0..i1] {
+        let s0 = x as f64 + 2.0 * w.cos() * s1 - s2;
+        s2 = s1;
+        s1 = s0;
+    }
+    (s1 * s1 + s2 * s2 - 2.0 * w.cos() * s1 * s2).sqrt() / (i1 - i0) as f64
+}
+
+#[test]
+fn music_ducks_under_a_voice() {
+    if ffmpeg::tools().is_err() {
+        eprintln!("no ffmpeg; skipped");
+        return;
+    }
+    let dir = tmp("duck");
+    let lib = dir.join("library");
+    std::fs::create_dir_all(&lib).unwrap();
+    let a = dir.join("a.mp4");
+    let cam = dir.join("cam.mp4");
+    let song = dir.join("song.m4a");
+    make(&["-f", "lavfi", "-i", "testsrc2=s=640x400:r=30:d=8", "-pix_fmt", "yuv420p"], &a);
+    // The camera's mic: quiet room, then talking (a 1 kHz tone) from 2 s to 5 s.
+    make(
+        &["-f", "lavfi", "-i", "color=c=orange:s=320x240:r=30:d=8", "-f", "lavfi", "-i", "sine=f=1000:d=8",
+          "-af", "volume='if(between(t,2,5),0.5,0.0005)':eval=frame", "-shortest", "-pix_fmt", "yuv420p"],
+        &cam,
+    );
+    make(&["-f", "lavfi", "-i", "sine=f=220:d=12", "-c:a", "aac"], &song);
+    let reel = imports::new_project_from_video(&a, &lib).unwrap();
+    let mut p = Project::load(&reel).unwrap();
+    std::fs::copy(&cam, reel.join("camera-1.mp4")).unwrap();
+    p.edit.camera_clips = vec![CameraClip::new("camera-1.mp4", 0.0, 8.0, false)];
+    std::fs::copy(&song, reel.join("music-x.m4a")).unwrap();
+    let track: Song = serde_json::from_str(r#"{"id":"x","title":"Tone","artist":"Test","duration":12,"genres":[],"license":"cc0","audioURL":"x"}"#).unwrap();
+    p.edit.music = Some(MusicChoice::new(track, "music-x.m4a"));
+    p.edit.output_width = 640;
+    p.save_edit().unwrap();
+    let p = Project::load(&reel).unwrap();
+
+    // Found by level alone.
+    let v = monetshot_export::voice_ranges(&p).unwrap();
+    assert_eq!(v.len(), 1, "one stretch of talk: {v:?}");
+    assert!((v[0].0 - 2.0).abs() < 0.1 && (v[0].1 - 5.0).abs() < 0.1, "talk from 2 s to 5 s: {v:?}");
+
+    let out = dir.join("out.mp4");
+    export(&p, &out, &|_| {}, &AtomicBool::new(false)).unwrap();
+    let mono = ffmpeg::decode_audio(&out, 0.0, None, 1, 44_100).unwrap();
+    let before = tone(&mono, 44_100.0, 220.0, 1.25, 1.5);
+    let under = tone(&mono, 44_100.0, 220.0, 3.0, 4.5);
+    let after = tone(&mono, 44_100.0, 220.0, 5.5, 5.95);
+    let duck = under / before.min(after);
+    eprintln!("music at 220 Hz: before {before:.4}, under the voice {under:.4}, after {after:.4} (x{duck:.2})");
+    assert!(duck > 0.2 && duck < 0.45, "the music dips to about 0.3 under the voice (x{duck:.2})");
+    assert!((before / after - 1.0).abs() < 0.2, "and comes back up ({before:.4} vs {after:.4})");
+    let _ = std::fs::remove_dir_all(dir);
+}

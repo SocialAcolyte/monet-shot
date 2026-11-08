@@ -461,6 +461,35 @@ pub fn music_gain(t: f64, length: f64, fade_in: bool, fade_out: bool, voice: JsV
     Ok(music_envelope::gain(t, length, fade_in, fade_out, &voice))
 }
 
+/// MusicEnvelope.gain with the fitted end fade (`outro` seconds; none = 2 s).
+#[wasm_bindgen(js_name = musicGainWith)]
+pub fn music_gain_with(t: f64, length: f64, fade_in: bool, fade_out: bool, outro: Option<f64>, voice: JsValue) -> R<f64> {
+    let voice: Vec<(f64, f64)> = from_js(&voice)?;
+    Ok(music_envelope::gain_with(t, length, fade_in, fade_out, outro, &voice))
+}
+
+/// MusicFit.place: where a song starts under a video and how long its end
+/// fade lasts. `grid` is {bar, firstDownbeat, lifts} or null.
+#[wasm_bindgen(js_name = musicPlace)]
+pub fn music_place(grid: JsValue, song_duration: f64, length: f64, from: Option<f64>, punchy: bool) -> R<JsValue> {
+    let grid: Option<MusicGrid> = if grid.is_null() || grid.is_undefined() { None } else { Some(from_js(&grid)?) };
+    let (offset, outro) = monetshot_core::music_fit::place(grid.as_ref(), song_duration, length, from, punchy);
+    to_js(&serde_json::json!({ "offset": offset, "outro": outro }))
+}
+
+/// MusicFit.outro: the end fade for music played from `offset`.
+#[wasm_bindgen(js_name = musicOutro)]
+pub fn music_outro(grid: JsValue, offset: f64, length: f64) -> R<f64> {
+    let grid: Option<MusicGrid> = if grid.is_null() || grid.is_undefined() { None } else { Some(from_js(&grid)?) };
+    Ok(monetshot_core::music_fit::outro(grid.as_ref(), offset, length))
+}
+
+/// MusicTempo.of: "calm", "steady", "upbeat" or null.
+#[wasm_bindgen(js_name = musicTempo)]
+pub fn music_tempo(song: JsValue) -> R<Option<String>> {
+    Ok(monetshot_core::music_fit::tempo(&from_js::<monetshot_core::music::Song>(&song)?).map(String::from))
+}
+
 /// The ripple ring's alpha profile (0...1) at distance `d`, radius `r`.
 #[wasm_bindgen(js_name = rippleProfile)]
 pub fn ripple_profile(d: f64, r: f64) -> f64 {

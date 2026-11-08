@@ -372,6 +372,79 @@ await check("the app's own music library is all there, and free of conditions") 
     expect(songs.count >= 15, "the library has its tracks (\(songs.count))")
     expect(songs.allSatisfy { !$0.needsCredit }, "every track is CC0 or public domain")
     expect(songs.allSatisfy { s in s.genres.contains { g in MusicMood.all.contains { $0.feel == g } } }, "every track sits under a mood")
+    expect(songs.count >= 40, "a library worth choosing from (\(songs.count) tracks)")
+    expect(songs.allSatisfy { MusicTempo.of($0) != nil && $0.energy != nil && ($0.peaks?.count ?? 0) >= 32 },
+           "every track has a tempo, an energy and a waveform")
+    expect(songs.allSatisfy { $0.licenseURL != nil && $0.pageURL != nil }, "every track names its licence and its source page")
+    for mood in MusicMood.all {
+        expect(songs.filter { $0.genres.contains(mood.feel) }.count >= 5, "\(mood.name) has at least five tracks")
+    }
+    for tempo in MusicTempo.allCases {
+        expect(songs.filter { MusicTempo.of($0) == tempo }.count >= 6, "\(tempo.name) has at least six tracks")
+    }
+    if let folder = MusicCatalog.folder {
+        let bytes = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.fileSizeKey]))?
+            .compactMap { try? $0.resourceValues(forKeys: [.fileSizeKey]).fileSize }.reduce(0, +) ?? 0
+        expect(bytes < 80_000_000, "the library stays under 80 MB (\(bytes / 1_000_000) MB)")
+    }
+    // a library track placed under a 30 s video: on a downbeat, the end fade from a phrase line
+    for song in songs where song.grid != nil {
+        let g = song.grid!
+        let p = MusicFit.place(grid: g, songDuration: song.duration, length: 30, from: song.start)
+        let beats = (p.offset - g.firstDownbeat) / g.bar
+        expect(abs(beats - beats.rounded()) < 1e-6 && p.offset + 30 <= song.duration + 0.01, "\(song.id) starts on a downbeat inside the song")
+        expect(p.outro >= min(1.5, 10) - 1e-9 && p.outro <= 10 + 1e-9, "\(song.id) fades over a bar or two (\(p.outro))")
+    }
+}
+
+await check("music fits the edit: downbeat in, phrase out") { _ in
+    let g = MusicGrid(bar: 2, firstDownbeat: 0.5, lifts: [16.5, 40.5])
+    for length in [10.0, 23.7, 31.3, 64.9] {
+        let p = MusicFit.place(grid: g, songDuration: 180, length: length)
+        let end = p.offset + length
+        let fadeStart = end - p.outro
+        let bars = (fadeStart - g.firstDownbeat) / g.bar
+        expect(abs(bars - bars.rounded()) < 1e-6, "the end fade starts on a bar line (\(length) s)")
+        if p.outro < length / 3 - 1e-9 {
+            expect(Int(bars.rounded()) % 4 == 0, "and on a phrase line (\(length) s: \(bars) bars)")
+            expect(p.outro >= 2 - 1e-9 && p.outro < 4 + 1e-9, "the fade lasts a bar or two (\(p.outro))")
+        }
+    }
+    let punchy = MusicFit.place(grid: g, songDuration: 180, length: 15, punchy: true)
+    expect(punchy.offset >= 16.5 - 1e-9 && punchy.offset < 16.5 + 4 * g.bar, "a punchy edit starts at the first lift (\(punchy.offset))")
+    let plain = MusicFit.place(grid: nil, songDuration: 60, length: 20)
+    expect(plain.offset == 0 && plain.outro == MusicFit.plainOutro, "no beat: from the top, the plain fade")
+    // the envelope follows the fitted fade
+    expect(near(MusicEnvelope.gain(at: 17, length: 20, fadeIn: true, fadeOut: true, outro: 6, voice: []), 0.5), "a 6 s outro is halfway down 3 s before the end")
+    expect(near(MusicEnvelope.gain(at: 17, length: 20, fadeIn: true, fadeOut: true, voice: []), 1), "the plain fade is 2 s")
+}
+
+await check("music ducks where the take has a voice, by its level") { _ in
+    let rate = 16_000.0
+    var s = [Float](repeating: 0, count: Int(rate * 12))
+    for i in s.indices {
+        let t = Double(i) / rate
+        s[i] = Float(0.002 * sin(2 * .pi * 50 * t))                       // room hum
+        if (2..<5).contains(t) || (5.3..<6).contains(t) || (9..<9.08).contains(t) {
+            s[i] += Float(0.2 * sin(2 * .pi * 220 * t))                   // talking (and a click at 9 s)
+        }
+    }
+    let r = VoiceActivity.ranges(samples: s, rate: rate)
+    expect(r.count == 1, "one stretch of talk; the short pause is bridged and the click ignored (\(r))")
+    if let v = r.first { expect(abs(v.lowerBound - 2) < 0.06 && abs(v.upperBound - 6) < 0.06, "from 2 s to 6 s (\(v))") }
+    expect(VoiceActivity.ranges(samples: [Float](repeating: 0, count: 16_000), rate: rate).isEmpty, "silence is no voice")
+}
+
+await check("suggestions suit the video") { _ in
+    let calm = Song(id: "calm", title: "C", artist: "x", duration: 200, genres: ["mellow"], license: "cc0", audioURL: "c", tempo: "calm", energy: 0.2)
+    let punchy = Song(id: "punchy", title: "P", artist: "x", duration: 120, genres: ["punchy"], license: "cc0", audioURL: "p", tempo: "upbeat", energy: 0.95)
+    let short = Song(id: "short", title: "S", artist: "x", duration: 20, genres: ["mellow"], license: "cc0", audioURL: "s", tempo: "steady", energy: 0.5)
+    let all = [calm, punchy, short]
+    expect(MusicSuggest.rank(all, length: 20, mood: nil, vertical: true).first?.id == "punchy", "vertical: the punchy one first")
+    expect(MusicSuggest.rank(all, length: 60, mood: "mellow", vertical: false).first?.id == "calm", "the format's mood, long enough")
+    expect(MusicSuggest.rank(all, length: 60, mood: "mellow", vertical: false).last?.id == "short", "a song that would loop comes last")
+    var twin = calm; twin.id = "twin"
+    expect(MusicSuggest.rank([calm, twin], length: 60, mood: nil, vertical: false, favourites: ["twin"]).first?.id == "twin", "a favourite wins a tie")
 }
 
 await check("cursor styles") { dir in

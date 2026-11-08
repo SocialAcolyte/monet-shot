@@ -394,6 +394,14 @@ do {
             }
         }
     }
+    // the fade at the end fitted to a phrase (MusicFit.outro); "outro" is absent above (nil)
+    for (len, outro) in [(20.0, 3.5), (20.0, 9.0), (6.0, 1.0), (30.0, 0.0)] {
+        for t in stride(from: -0.5, through: len + 0.5, by: max(0.05, len / 97)) {
+            env.append(.o(["t": n(t), "length": n(len), "fadeIn": .b(true), "fadeOut": .b(true), "outro": n(outro),
+                           "voice": .a([.a([n(len * 0.3), n(len * 0.5)])]),
+                           "gain": n(MusicEnvelope.gain(at: t, length: len, fadeIn: true, fadeOut: true, outro: outro, voice: [len * 0.3...len * 0.5]))]))
+        }
+    }
     write("camera_clips.json", .o(["insert": .a(inserts), "presence": .a(presence)]))
     write("music_envelope.json", .o(["cases": .a(env)]))
 }
@@ -463,6 +471,95 @@ func synthSong(bpm: Double, start: Double, quietBars: Int, seconds: Double) -> [
             s[h0 + i] += 0.08 * loud * (Float((noise >> 16) & 0x7FFF) / 16383.5 - 1)
         }
         k += 1; t += beat
+    }
+    return s
+}
+
+// MARK: - Music fit: voice, outro and placement, suggestions, tempo
+
+do {
+    // Voice: a synthetic take, the same in the Rust test (voice_take): 16 kHz,
+    // a faint hum, and bursts of a vowel-like tone at the listed times.
+    var voices: [J] = []
+    for (bursts, hum) in [([(1.0, 2.6), (2.9, 4.0), (7.0, 7.1), (9.0, 12.5)], 0.002), ([], 0.01), ([(0.0, 6.0)], 0.0),
+                          ([(0.5, 1.5), (1.8, 2.0)], 0.03)] as [([(Double, Double)], Double)] {
+        let s = voiceTake(bursts: bursts, hum: hum, seconds: 13)
+        let lv = VoiceActivity.levels(s, rate: 16_000)
+        voices.append(.o(["bursts": .a(bursts.map { .a([n($0.0), n($0.1)]) }), "hum": n(hum), "seconds": n(13 as Double),
+                          "levels": .a(lv.map(n)), "threshold": n(VoiceActivity.threshold(lv)),
+                          "ranges": .a(VoiceActivity.ranges(lv).map { .a([n($0.lowerBound), n($0.upperBound)]) })]))
+    }
+    var levelCases: [J] = []
+    for lv in [[Double](), [-60, -60, -20, -20, -60], Array(repeating: -30.0, count: 40), (0..<200).map { -70 + Double($0 % 23) * 2.5 }] {
+        levelCases.append(.o(["levels": .a(lv.map(n)), "threshold": n(VoiceActivity.threshold(lv)),
+                              "ranges": .a(VoiceActivity.ranges(lv).map { .a([n($0.lowerBound), n($0.upperBound)]) })]))
+    }
+    // Fit: grids, lengths, starts.
+    var fits: [J] = []
+    let grids: [MusicGrid?] = [nil, MusicGrid(bar: 2.2222, firstDownbeat: 0.41, lifts: [17.98, 53.53, 89.08]),
+                               MusicGrid(bar: 1.875, firstDownbeat: 0, lifts: []), MusicGrid(bar: 3.1, firstDownbeat: 1.7, lifts: [26.5])]
+    for (gi, g) in grids.enumerated() {
+        for song in [30.0, 140.0] {
+            for len in [4.0, 12.0, 29.3, 61.7, 200.0] {
+                for (from, punchy) in [(nil, false), (nil, true), (Optional(10.3), false)] as [(Double?, Bool)] {
+                    let p = MusicFit.place(grid: g, songDuration: song, length: len, from: from, punchy: punchy)
+                    var outros: [J] = []
+                    for off in [0.0, 3.3, 17.9] {
+                        outros.append(.a([n(off), n(MusicFit.outro(grid: g, offset: off, length: len))]))
+                    }
+                    fits.append(.o(["grid": .i(gi), "song": n(song), "length": n(len), "from": from.map(n) ?? .null, "punchy": .b(punchy),
+                                    "offset": n(p.offset), "outro": n(p.outro), "outros": .a(outros)]))
+                }
+            }
+        }
+    }
+    func gj(_ g: MusicGrid?) -> J {
+        guard let g else { return .null }
+        return .o(["bar": n(g.bar), "firstDownbeat": n(g.firstDownbeat), "lifts": .a(g.lifts.map(n))])
+    }
+    // Suggestions over a small made-up library.
+    let songs: [Song] = [
+        Song(id: "a", title: "A", artist: "x", duration: 150, genres: ["sunny", "grooving"], license: "cc0", audioURL: "a.m4a", bpm: 120, tempo: "upbeat", energy: 0.8),
+        Song(id: "b", title: "B", artist: "x", duration: 40, genres: ["mellow"], license: "cc0", audioURL: "b.m4a", bpm: 80, energy: 0.2),
+        Song(id: "c", title: "C", artist: "x", duration: 200, genres: ["dreamy"], license: "pdm", audioURL: "c.m4a", tempo: "calm", energy: 0.3, start: 12),
+        Song(id: "d", title: "D", artist: "x", duration: 120, genres: ["punchy", "grooving"], license: "cc0", audioURL: "d.m4a", bpm: 128, energy: 0.95),
+        Song(id: "e", title: "E", artist: "x", duration: 95, genres: ["sunny"], license: "cc0", audioURL: "e.m4a", bpm: 100),
+        Song(id: "f", title: "F", artist: "x", duration: 180, genres: [], license: "own", audioURL: "f.m4a",
+             grid: MusicGrid(bar: 2, firstDownbeat: 0.2, lifts: [])),
+        Song(id: "g", title: "G", artist: "x", duration: 130, genres: ["mellow", "dreamy"], license: "cc0", audioURL: "g.m4a", tempo: "steady", energy: 0.5),
+    ]
+    var suggests: [J] = []
+    for (len, mood, vertical, favs) in [(30.0, nil, false, []), (30, "sunny", false, []), (30, "sunny", true, []), (90, "mellow", false, ["c"]),
+                                        (170, "dreamy", false, []), (12, nil, true, ["b", "e"]), (0, nil, false, [])] as [(Double, String?, Bool, [String])] {
+        let r = MusicSuggest.rank(songs, length: len, mood: mood, vertical: vertical, favourites: Set(favs), count: 4)
+        let scores = songs.map { n(MusicSuggest.score($0, length: len, mood: mood, vertical: vertical, favourite: favs.contains($0.id))) }
+        suggests.append(.o(["length": n(len), "mood": mood.map(J.s) ?? .null, "vertical": .b(vertical), "favourites": .a(favs.map(J.s)),
+                            "ids": .a(r.map { .s($0.id) }), "scores": .a(scores)]))
+    }
+    var tempos: [J] = songs.map { .o(["id": .s($0.id), "tempo": MusicTempo.of($0).map { J.s($0.rawValue) } ?? .null]) }
+    // and the bundled library's own
+    if let lib = try? await MusicCatalog.all() {
+        tempos += lib.map { .o(["id": .s($0.id), "tempo": MusicTempo.of($0).map { J.s($0.rawValue) } ?? .null]) }
+    }
+    write("music_fit.json", .o(["voice": .a(voices), "levels": .a(levelCases), "grids": .a(grids.map(gj)), "fit": .a(fits),
+                                "songs": .s(String(data: try! JSONEncoder.app.encode(songs), encoding: .utf8)!),
+                                "suggest": .a(suggests), "tempo": .a(tempos)]))
+}
+
+/// A synthetic take for the voice fixtures (the Rust test makes the same):
+/// 16 kHz mono, a 50 Hz hum at `hum`, and a 220 Hz tone with two overtones
+/// at 0.2 inside each burst.
+func voiceTake(bursts: [(Double, Double)], hum: Double, seconds: Double) -> [Float] {
+    let rate = 16_000.0
+    let count = Int(rate * seconds)
+    var s = [Float](repeating: 0, count: count)
+    for i in 0..<count {
+        let t = Double(i) / rate
+        var v = hum * sin(2 * Double.pi * 50 * t)
+        if bursts.contains(where: { t >= $0.0 && t < $0.1 }) {
+            v += 0.2 * (sin(2 * Double.pi * 220 * t) + 0.5 * sin(2 * Double.pi * 440 * t) + 0.25 * sin(2 * Double.pi * 660 * t)) / 1.75
+        }
+        s[i] = Float(v)
     }
     return s
 }

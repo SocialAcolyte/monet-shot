@@ -9,7 +9,7 @@
   import Artwork from "./Artwork.svelte";
   import SnippetPicker from "./SnippetPicker.svelte";
   import { percent } from "../format";
-  import { copyCredit, licenseLabel, loadShape, needsCredit, removeMusic, type Song } from "./music";
+  import { copyCredit, licenseLabel, loadShape, needsCredit, refreshVoice, removeMusic, type Song } from "./music";
 
   let { store }: { store: EditorStore } = $props();
 
@@ -20,6 +20,15 @@
   $effect(() => {
     void store.edit.music?.file;
     loadShape(store);
+  });
+
+  // Where the music ducks: re-read when the voices or the cut change.
+  $effect(() => {
+    void store.edit.music?.file;
+    void store.edit.cameraClips;
+    void store.edit.cameraLook.duckMusic;
+    void store.version;
+    refreshVoice(store, 600);
   });
 
   let copied = $state(false);

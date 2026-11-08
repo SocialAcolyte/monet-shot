@@ -5,6 +5,7 @@
 use crate::ffmpeg::{self, command, decode_audio, decode_audio_at, pick_encoder, probe, tools, ExportError, VideoReader, FPS, RATE};
 use crate::paint::{shrink, Painter, Rgba8};
 use monetshot_core::camera::music_envelope;
+use monetshot_core::music_fit::voice;
 use monetshot_core::plan::Planner;
 use monetshot_core::timemap::TimeMap;
 use monetshot_core::Project;
@@ -65,9 +66,9 @@ fn camera_audio(project: &Project, map: &TimeMap) -> Vec<Placed> {
 
 /// The music's gain at each sample, as the Mac's audio mix sets it: sampled
 /// every 0.1 s, ramping where it changes, holding where it doesn't.
-fn music_gains(length: f64, volume: f64, fade_in: bool, fade_out: bool, voice: &[(f64, f64)]) -> Vec<(f64, f64, f32, f32)> {
+fn music_gains(length: f64, volume: f64, fade_in: bool, fade_out: bool, outro: Option<f64>, voice: &[(f64, f64)]) -> Vec<(f64, f64, f32, f32)> {
     let v = volume.clamp(0.0, 1.0) as f32;
-    let gain = |t: f64| v * music_envelope::gain(t, length, fade_in, fade_out, voice) as f32;
+    let gain = |t: f64| v * music_envelope::gain_with(t, length, fade_in, fade_out, outro, voice) as f32;
     let mut steps = vec![];
     let (mut t, mut held) = (0.0, None::<f32>);
     while t < length - 0.001 {
@@ -85,14 +86,15 @@ fn music_gains(length: f64, volume: f64, fade_in: bool, fade_out: bool, voice: &
     steps
 }
 
-/// The edit's sound, interleaved stereo at 44.1 kHz; None when there is none.
-fn mix_audio(project: &Project, map: &TimeMap) -> Result<Option<Vec<f32>>, ExportError> {
+/// Every voice in the edit (the camera's sound; any voiceover laid in
+/// beside it), interleaved stereo at 44.1 kHz, before the music; and
+/// whether there was any.
+fn voices_mix(project: &Project, map: &TimeMap) -> Result<(Vec<f32>, bool), ExportError> {
     let length = map.duration();
     let n = (length * RATE as f64).ceil() as usize;
     let mut mix = vec![0f32; n * 2];
     let mut any = false;
-    let pieces = camera_audio(project, map);
-    for p in &pieces {
+    for p in &camera_audio(project, map) {
         let pcm = decode_audio_at(&p.file, p.from, p.duration * p.speed, p.speed, 2, RATE)?;
         let pcm = &pcm[..pcm.len().min(((p.duration * RATE as f64).round() as usize) * 2)];
         let start = (p.at * RATE as f64).round() as usize * 2;
@@ -103,14 +105,40 @@ fn mix_audio(project: &Project, map: &TimeMap) -> Result<Option<Vec<f32>>, Expor
             }
         }
     }
+    Ok((mix, any))
+}
+
+/// Where someone is talking in interleaved stereo at 44.1 kHz, by level
+/// (`VoiceActivity`, as the Mac's `Composer.voice`).
+fn talking(mix: &[f32]) -> Vec<(f64, f64)> {
+    let mono: Vec<f32> = mix.chunks_exact(2).map(|c| 0.5 * (c[0] + c[1])).collect();
+    voice::ranges_of(&mono, RATE as f64)
+}
+
+/// Where the music ducks in this edit (output seconds): the voices' level,
+/// when "Lower music while you talk" is on. The preview asks for this too.
+pub fn voice_ranges(project: &Project) -> Result<Vec<(f64, f64)>, ExportError> {
+    if !project.edit.camera_look.duck_music {
+        return Ok(vec![]);
+    }
+    let planner = Planner::from_project(project);
+    let (mix, any) = voices_mix(project, &planner.map)?;
+    Ok(if any { talking(&mix) } else { vec![] })
+}
+
+/// The edit's sound, interleaved stereo at 44.1 kHz; None when there is none.
+fn mix_audio(project: &Project, map: &TimeMap) -> Result<Option<Vec<f32>>, ExportError> {
+    let length = map.duration();
+    let (mut mix, mut any) = voices_mix(project, map)?;
     if let Some(m) = &project.edit.music {
         let song_file = project.folder.join(&m.file);
         let song = if song_file.exists() { decode_audio(&song_file, 0.0, None, 2, RATE)? } else { vec![] };
         let song_len = song.len() as f64 / 2.0 / RATE as f64;
         if song_len > 0.5 && length > 0.0 {
-            let voice: Vec<(f64, f64)> =
-                if project.edit.camera_look.duck_music { pieces.iter().map(|p| (p.at, p.at + p.duration)).collect() } else { vec![] };
-            let steps = music_gains(length, m.volume, m.fade_in, m.fade_out, &voice);
+            let voice: Vec<(f64, f64)> = if project.edit.camera_look.duck_music && any { talking(&mix) } else { vec![] };
+            // The end fade from a phrase line of the song's beat (MusicFit.outro).
+            let outro = monetshot_core::music_fit::outro(m.track.grid.as_ref(), m.offset, length);
+            let steps = music_gains(length, m.volume, m.fade_in, m.fade_out, Some(outro), &voice);
             let gain_at = |t: f64| -> f32 {
                 let i = ((t / 0.1) as usize).min(steps.len().saturating_sub(1));
                 steps.get(i).map_or(0.0, |&(a, b, ga, gb)| {

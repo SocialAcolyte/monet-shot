@@ -291,6 +291,10 @@ export interface Core {
   safeArea(canvasWidth: number, canvasHeight: number): Rect;
   nearestBarLine(grid: unknown, t: number): number;
   musicGain(t: number, length: number, fadeIn: boolean, fadeOut: boolean, voice: unknown): number;
+  musicGainWith(t: number, length: number, fadeIn: boolean, fadeOut: boolean, outro: number | undefined, voice: unknown): number;
+  musicPlace(grid: unknown, songDuration: number, length: number, from: number | undefined, punchy: boolean): { offset: number; outro: number };
+  musicOutro(grid: unknown, offset: number, length: number): number;
+  musicTempo(song: unknown): string | undefined;
   newId(): string;
   transcriptEdit(transcript: Transcript, i: number, text: string): Transcript;
 }

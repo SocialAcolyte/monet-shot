@@ -95,6 +95,10 @@ export class EditorStore {
   showingMusic = $state(false);
   musicWave = $state<number[]>([]);
   musicGrid = $state<{ bar: number; lifts: number[]; [k: string]: unknown } | null>(null);
+  /** A library track playing under the video while you choose (file = its full path). */
+  audition = $state<MusicChoice | null>(null);
+  /** Where the music ducks (output seconds): the level of the edit's own voices. */
+  musicVoice = $state<[number, number][]>([]);
 
   /** null when idle; 0...1 while exporting. */
   exportProgress = $state<number | null>(null);
@@ -835,7 +839,17 @@ export class EditorStore {
   }
 
   closeMusic() {
+    if (this.audition) {
+      this.audition = null;
+      this.playing = false;
+    }
     this.showingMusic = false;
+  }
+
+  /** A tall canvas (a phone's): the browser suggests punchier tracks. */
+  get isVertical(): boolean {
+    const c = this.canvas;
+    return c.height > c.width;
   }
 
   setMusic(change: (m: MusicChoice) => void) {

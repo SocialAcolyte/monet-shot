@@ -58,6 +58,7 @@ final class EditorModel {
         renderer = EditorModel.renderer(for: project, framing: false)
         player.actionAtItemEnd = .pause
         musicBrowser.onUse = { [weak self] track in await self?.useMusic(track) ?? false }
+        musicBrowser.editor = self
     }
 
     // Captions (the rest is in EditorCaptions.swift).
@@ -626,27 +627,78 @@ final class EditorModel {
 
     func openMusic() {
         if playing { togglePlay() }
+        musicBrowser.setVideo(length: duration, vertical: isVertical, mood: format?.musicMood)
         showingMusic = true
     }
 
     func closeMusic() {
+        stopAudition()
         musicBrowser.stop()
         showingMusic = false
     }
 
-    /// Downloads the track into the recording and lays it under the video,
-    /// keeping the level and fades of any music it replaces.
+    /// A tall canvas (a phone's): the music browser suggests punchier tracks.
+    var isVertical: Bool { renderer.canvas.height > renderer.canvas.width }
+
+    /// A library track playing under the video while you choose (not yet in the edit).
+    private(set) var audition: MusicChoice?
+
+    /// Where `track` sits under this video: from a downbeat at its good start
+    /// (its first lift for a vertical video), the end fade on a phrase line.
+    private func fitted(_ track: Song, file: String, grid: MusicGrid?) -> MusicChoice {
+        var c = MusicChoice(track: track, file: file)
+        c.offset = MusicFit.place(grid: grid, songDuration: track.duration, length: duration, from: track.start, punchy: isVertical).offset
+        if let m = doc.music { c.volume = m.volume; c.fadeIn = m.fadeIn; c.fadeOut = m.fadeOut }
+        return c
+    }
+
+    /// Plays the edit from the top with `track` under it; again to pause or go on.
+    func toggleAudition(_ track: Song) {
+        if audition?.track.id == track.id {
+            togglePlay()
+            return
+        }
+        guard let url = URL(string: track.audioURL), url.isFileURL else { return }
+        audition = fitted(track, file: url.path, grid: track.grid)
+        Task {
+            await rebuildComposition()
+            seek(to: 0)
+            player.play()
+            playing = true
+        }
+    }
+
+    /// Back to the edit's own music.
+    func stopAudition() {
+        guard audition != nil else { return }
+        player.pause()
+        playing = false
+        audition = nil
+        Task { await rebuildComposition() }
+    }
+
+    /// Where the audition is in its song (seconds), for the browser's waveform.
+    var auditionSongTime: Double? { audition.map { $0.offset + time } }
+
+    /// Copies the track into the recording and lays it under the video,
+    /// fitted to it, keeping the level and fades of any music it replaces.
     func useMusic(_ track: Song) async -> Bool {
         do {
             let file = try await MusicCatalog.download(track, into: project.folder)
             let old = doc.music
-            var choice = MusicChoice(track: track, file: file)
-            if let old { choice.volume = old.volume; choice.fadeIn = old.fadeIn; choice.fadeOut = old.fadeOut }
+            audition = nil
+            if playing { togglePlay() }
+            var track = track
+            if track.grid == nil {
+                // a file of your own: find its beat once, and keep it with the choice
+                track.grid = await MusicGrid.analyze(project.folder.appendingPathComponent(file))
+            }
+            let choice = fitted(track, file: file, grid: track.grid)
             update { $0.music = choice }
             if let old, old.file != file { try? FileManager.default.removeItem(at: project.folder.appendingPathComponent(old.file)) }
             await loadMusicWave()
             closeMusic()
-            Log.info("music: \(track.title) by \(track.artist) (\(track.licenseLabel))")
+            Log.info("music: \(track.title) by \(track.artist) (\(track.licenseLabel)) from \(String(format: "%.2f", choice.offset)) s")
             return true
         } catch {
             Log.error("music download: \(error)")
@@ -725,7 +777,7 @@ final class EditorModel {
         guard let m = doc.music else { musicWave = []; musicGrid = nil; return }
         let url = project.folder.appendingPathComponent(m.file)
         musicWave = await MusicCatalog.waveform(url)
-        musicGrid = await MusicGrid.analyze(url)
+        if let g = m.track.grid { musicGrid = g } else { musicGrid = await MusicGrid.analyze(url) }
     }
 
     // MARK: backdrop picture
@@ -1034,12 +1086,15 @@ final class EditorModel {
     private func rebuildComposition() async {
         let r = renderer
         do {
-            if let item, itemMap?.sameTiming(r.map) == true, itemMusic == doc.music, itemCamera == doc.cameraClips, itemDuck == doc.cameraLook.duckMusic {
+            let music = audition ?? doc.music
+            if let item, itemMap?.sameTiming(r.map) == true, itemMusic == music, itemCamera == doc.cameraClips, itemDuck == doc.cameraLook.duckMusic {
                 // Only the look changed: swap the rendering, keep the item.
                 item.videoComposition = try await Composer.videoComposition(asset: item.asset, renderer: r)
             } else {
                 // Trim or cuts changed: rebuild the edited asset.
-                let p = try await Composer.prepare(project, renderer: r)
+                var heard = project
+                heard.edit.music = music
+                let p = try await Composer.prepare(heard, renderer: r)
                 let item = AVPlayerItem(asset: p.asset)
                 // Sped-up or slowed voices keep their pitch.
                 item.audioTimePitchAlgorithm = .spectral
@@ -1047,7 +1102,7 @@ final class EditorModel {
                 item.audioMix = p.audio
                 self.item = item
                 itemMap = r.map
-                itemMusic = doc.music
+                itemMusic = music
                 itemCamera = doc.cameraClips
                 itemDuck = doc.cameraLook.duckMusic
                 let wasPlaying = playing
