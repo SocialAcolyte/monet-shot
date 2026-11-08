@@ -224,7 +224,14 @@ Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 [System.Windows.Forms.Application]::Run(`$f)
 "@
   $enc = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($form))
-  $p = Start-Process pwsh -ArgumentList '-NoProfile', '-EncodedCommand', $enc -PassThru
+  # No console window: Start-Process gave pwsh one (a Windows Terminal
+  # window on the current image), and it sat over the pill's place, so the
+  # protection check compared the take with a desktop that had changed.
+  $psi = [System.Diagnostics.ProcessStartInfo]::new((Get-Command pwsh).Source)
+  $psi.UseShellExecute = $false
+  $psi.CreateNoWindow = $true
+  foreach ($a in '-NoProfile', '-EncodedCommand', $enc) { $psi.ArgumentList.Add($a) }
+  $p = [System.Diagnostics.Process]::Start($psi)
   $until = (Get-Date).AddSeconds(30)
   while ((Get-Date) -lt $until) {
     if (Window-Rect $title) { Start-Sleep -Milliseconds 300; return $p }
