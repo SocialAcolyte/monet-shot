@@ -140,8 +140,35 @@ Tests:
     guides and the take whole
   - Vertical comes back
   - Record Vertical flips and flips back
-- Screenshot: `9-editor-vertical.png`.
+- Run 42459382961 (on f2c50a0): stage 9 passed, the editor check 13 ok and
+  0 failed, and the export was H.264 1080x1920. Copies are in
+  `docs/v0.2/status/vertical/`: `windows-editor.jpg` (the WebView2 editor:
+  tall preview, guides, Shape) and `windows-export-2.5s.jpg` (an export
+  frame; the dialog text in the take reads clearly).
 - Stage 3 (preview vs the Mac's frames) includes the three vertical frames.
+
+**Two windows-run failures that came before this branch, fixed here** (1f1378d).
+Both also failed on v0.2 (run 42457241070) and feat/music. desktop-port at
+1c1355a was green.
+- Stage 3, "fixtures: 0 of N cases reported in 5 min".
+  - Cause: since 2811c92 (texts), the preview painter's `Sources` needs
+    `textArt`, but `app/ui/fixtures-test.html` didn't provide it.
+  - The first case with words (`charcoal-texts`) threw, so the page stopped
+    before logging any line. Its screenshot still said "painting…".
+  - Fix: the page passes core's `textArt`. A case that throws is now
+    reported as an error line, which windows-run still counts as missing, so
+    the other cases still get reported.
+  - The check is unchanged.
+- Stage 6, "protection: the pill's region differs from the bare desktop by
+  61.7".
+  - The pill was not captured. In the protected take, a console window titled
+    `Administrator: C:\Program Files\PowerShell…` covers the pill's place.
+  - Cause: `Start-Form` started the stand-in user app with `Start-Process
+    pwsh`, which on the current runner image opens a visible Windows
+    Terminal window. So the take was compared with a desktop that had
+    changed since the reference shot.
+  - Fix: `Start-Form` starts pwsh with `CreateNoWindow`.
+  - The check is right and unchanged.
 
 **Linux and Arch.** `cargo test --workspace` (core, export painter vs the
 vertical frames) and the Tauri/PKGBUILD builds. hyprland-run runs as before.
@@ -155,8 +182,8 @@ It has no vertical-specific stage.
   they call is tested.
 - Record Vertical on Linux/Omarchy wasn't run (no hyprland-run stage).
 - The desktop's Home toggle is only covered by the shared command.
-- No phone was used: legibility was judged from 1080x1920 frames looked at
-  on this Mac.
+- No phone was used: legibility was judged from 1080x1920 frames (the Mac's
+  and the Windows VM's) looked at on this Mac.
 - Recording a window or region already cropped to a tall shape (the brief's
   optional item) wasn't built. A tall window recording is shown whole in
   vertical, which covers it.
