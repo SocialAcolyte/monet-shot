@@ -90,6 +90,21 @@ crop away anything private before you share it. The look follows
     ring's right-click menu. You see yourself in a bubble during the 3‑2‑1;
     it hides when recording starts (it would be in the capture) and the
     camera keeps recording alongside, following the take's clips and cuts.
+- **Your voice and captions.** Pick a *Microphone* in the ring's
+  right-click menu (Windows/Linux: the tray menu) and your voice records
+  beside the screen, without the camera. It shows as a thin lane under the
+  clips, plays in the preview, goes into the export, and the music ducks
+  under it. With the camera on, the camera's microphone is your voice.
+  - When a take with a voice opens, it is transcribed on this computer:
+    Apple's on-device speech on the Mac; on Windows and Linux whisper.cpp,
+    whose small model (57 MB) downloads once, with progress, the first time.
+    Nothing is uploaded. *Transcribe* runs it again (any language, or
+    *Automatic*), with progress and a way to stop.
+  - *Captions* puts what you said over the video in short phrases at the
+    bottom, the word being said lit in clay, in the format's way of bringing
+    words in. Click a word in the transcript to fix it, or empty it to drop
+    a filler. *Copy transcript* copies the text.
+  - Every export also writes `<name>.srt` (subtitles) beside the video.
 - **Music.** *Music* (or **M**) opens the browser: Kevin MacLeod's library
   from [incompetech.com](https://incompetech.com) (about 1,400 tracks, CC BY
   4.0). Search, or pick a mood (Bright, Calming, Driving, Epic…), or *Use
@@ -151,7 +166,9 @@ to just the chosen display or window for that recording, which is also why
 it keeps working after each rebuild of an ad-hoc signed app. Pointer
 positions are polled and clicks come from a mouse event monitor; neither
 needs Accessibility. Monet Shot records sound only from the microphone, only
-while recording yourself, and never keystrokes.
+while recording yourself or with a *Microphone* chosen, and never keystrokes.
+Transcription runs on the Mac (Speech may download its on-device model for
+your language once).
 
 ## How it works
 
@@ -179,7 +196,9 @@ while recording yourself, and never keystrokes.
 ## Known limits
 
 - One display or window per take; a window is assumed not to move while
-  recording. No system audio; the camera brings your voice.
+  recording. No system audio; your voice comes from the microphone or the
+  camera. Clips of you recorded over the edit in the editor aren't
+  transcribed (a take's own voice and camera are).
 - Hidden boxes are fixed rectangles: they don't track something that
   moves or scrolls. Time them with *Start here* / *End here*, or crop it
   away.
