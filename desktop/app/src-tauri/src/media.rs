@@ -479,6 +479,9 @@ pub async fn music_add(folder: String, song: core::music::Song) -> Result<String
 /// file:// URL (as library.json songs carry after parsing) or a plain path.
 fn file_path(url: &str) -> Option<PathBuf> {
     let p = url.strip_prefix("file://").map(percent_decode).unwrap_or_else(|| url.to_string());
+    // file:///C:/a/b (core's file_url on Windows): the path is C:/a/b.
+    let b = p.as_bytes();
+    let p = if b.len() > 2 && b[0] == b'/' && b[1].is_ascii_alphabetic() && b[2] == b':' { p[1..].to_string() } else { p };
     let p = PathBuf::from(p);
     p.is_file().then_some(p)
 }

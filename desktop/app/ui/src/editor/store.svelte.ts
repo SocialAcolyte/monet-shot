@@ -226,9 +226,10 @@ export class EditorStore {
   }
 
   /** The planner sees the edit as the preview shows it: while framing,
-   *  uncropped, unzoomed and without the cursor (EditorModel.shown). */
+   *  uncropped, unzoomed, without the cursor and whole, not through a
+   *  vertical edit's follow window (EditorModel.shown). */
   private replan() {
-    const shown = this.framing ? { ...clone(this.edit), crops: [], segments: [], cursorVisible: false } : this.edit;
+    const shown = this.framing ? { ...clone(this.edit), crops: [], segments: [], cursorVisible: false, layout: null } : this.edit;
     this.ed.setEdit(shown);
     this.version++;
   }

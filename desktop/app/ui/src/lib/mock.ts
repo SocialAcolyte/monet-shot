@@ -11,6 +11,7 @@ let bar: BarState = {
   pausedSince: null,
   problem: null,
   cameraToo: false,
+  vertical: false,
 };
 let gen = 0;
 
@@ -32,6 +33,7 @@ async function countIn(g: number) {
 }
 
 mock("bar_state", () => bar);
+mock("bar_toggle_vertical", () => set({ vertical: !bar.vertical }));
 mock("bar_tap", () => {
   if (bar.phase.kind === "idle") {
     set({ phase: { kind: "picking" }, problem: null });

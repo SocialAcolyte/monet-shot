@@ -12,6 +12,7 @@ use crate::privacy::{BlurRegion, BlurStyle, NormRect};
 use crate::project::Project;
 use crate::text::text_motion;
 use crate::timemap::TimeMap;
+use crate::vertical::{self, CanvasLayout, FollowTrack};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
@@ -294,8 +295,20 @@ struct Look {
     cursor_track: SmoothTrack,
     focus_track: SmoothTrack,
     segments: Vec<ZoomSegment>,
+    /// A wide take in a tall or square frame: the window that follows the action.
+    follow: Option<FollowTrack>,
     radius: f64,
     shadow: Option<ShadowPlan>,
+}
+
+impl Look {
+    /// The camera at the take's time `t`.
+    fn camera(&self, t: f64) -> Camera {
+        match &self.follow {
+            Some(f) => f.camera(t, &self.segments),
+            None => camera_math::camera_at(t, &self.segments, &self.focus_track),
+        }
+    }
 }
 
 /// Built once per edit (it smooths every take's pointer), then asked for
@@ -349,8 +362,12 @@ impl Planner {
                 let meta = take.meta.clone();
                 let crop = doc.crop(index as i64);
                 let aspect = meta.aspect() * crop.w / crop.h;
+                // Vertical and square: a wider take fills the room, seen through a window.
+                let follows = doc.follows_action() && vertical::window(aspect, room.w / room.h).is_some();
                 let (mut fw, mut fh) = (room.w, room.w / aspect);
-                if fh > room.h {
+                if follows {
+                    fh = room.h;
+                } else if fh > room.h {
                     fh = room.h;
                     fw = fh * aspect;
                 }
@@ -358,7 +375,12 @@ impl Planner {
                 // so flipping keeps whole pixels.
                 let (x, y_ci, w, h) = ((room_mid_x - fw / 2.0).round(), (room_mid_y - fh / 2.0).round(), fw.round(), fh.round());
                 let frame = Rect::new(x, chf - y_ci - h, w, h);
-                let ppp = frame.w / (meta.pixel_width as f64 * crop.w / meta.point_scale.max(1.0));
+                let window = if follows { vertical::window(aspect, frame.w / frame.h) } else { None };
+                let ppp = if window.is_some() {
+                    frame.h / (meta.pixel_height as f64 * crop.h / meta.point_scale.max(1.0))
+                } else {
+                    frame.w / (meta.pixel_width as f64 * crop.w / meta.point_scale.max(1.0))
+                };
                 let radius = if framed { doc.corner_radius * frame.w.min(frame.h) } else { 0.0 };
                 let shadow = (framed && doc.shadow).then(|| {
                     let blur = 0.035 * short;
@@ -391,7 +413,9 @@ impl Planner {
                         }
                         z
                     })
-                    .collect();
+                    .collect::<Vec<ZoomSegment>>();
+                let focus_track = SmoothTrack::make(&samples, meta.duration, camera_math::CAMERA_OMEGA);
+                let follow = window.map(|w| FollowTrack::make(w, &segments, &focus_track, meta.duration));
                 Look {
                     dir: take.dir.clone(),
                     crop,
@@ -402,8 +426,9 @@ impl Planner {
                     has_cursor: !take.cursor.samples.is_empty(),
                     clicks,
                     cursor_track: SmoothTrack::make(&samples, meta.duration, camera_math::cursor_omega(doc.cursor_smoothing)),
-                    focus_track: SmoothTrack::make(&samples, meta.duration, camera_math::CAMERA_OMEGA),
+                    focus_track,
                     segments,
+                    follow,
                     radius,
                     shadow,
                     meta,
@@ -432,7 +457,7 @@ impl Planner {
 
     /// The camera in take `take` at take time `time` (cropped picture's coordinates).
     pub fn camera(&self, take: i64, time: f64) -> Camera {
-        self.look(take).map_or(Camera::IDENTITY, |l| camera_math::camera_at(time, &l.segments, &l.focus_track))
+        self.look(take).map_or(Camera::IDENTITY, |l| l.camera(time))
     }
 
     pub fn camera_at(&self, t: f64) -> Camera {
@@ -497,7 +522,7 @@ impl Planner {
             .overlays()
             .iter()
             .filter_map(|o| {
-                let st = text_motion::state(o, t, w, h)?;
+                let st = text_motion::state(&in_safe_area(o, w, h), t, w, h)?;
                 if st.opacity <= 0.001 {
                     return None;
                 }
@@ -550,7 +575,7 @@ impl Planner {
                 texts: vec![],
             };
         };
-        let cam = camera_math::camera_at(time, &l.segments, &l.focus_track);
+        let cam = l.camera(time);
         let (sw, sh) = (l.meta.pixel_width as f64, l.meta.pixel_height as f64);
         let whole = Rect::new(0.0, 0.0, sw, sh);
         let hides = hides(&l.blurs, time, sw, sh);
@@ -635,12 +660,23 @@ impl Planner {
         let look = &self.doc.camera_look;
         let (cw, ch) = (self.canvas.width as f64, self.canvas.height as f64);
         let short = cw.min(ch);
-        let h = (look.size * short).round();
-        let w = if look.shape.known() == CameraShape::Circle { h } else { (h * 4.0 / 3.0).round() };
         let m = (0.045 * short).round();
         let corner = look.corner.known();
         let right = matches!(corner, CameraCorner::BottomRight | CameraCorner::TopRight);
         let bottom = matches!(corner, CameraCorner::BottomRight | CameraCorner::BottomLeft);
+        let circle = look.shape.known() == CameraShape::Circle;
+        if self.doc.canvas_layout() == CanvasLayout::Vertical {
+            // On a phone: bigger, and inside the safe area: a bottom corner sits
+            // in the lower third, above the band captions use; a top one under its top.
+            let shape = if circle { 1.0 } else { 4.0 / 3.0 };
+            let h = (look.size * PHONE_BUBBLE * short).round().min(((cw - 2.0 * m) / shape).floor());
+            let w = if circle { h } else { (h * 4.0 / 3.0).round() };
+            let safe = vertical::safe_area(cw, ch);
+            let top = if bottom { safe.max_y() - (vertical::CAPTION_BAND * ch).round() - h } else { safe.y };
+            return Rect::new(if right { cw - m - w } else { m }, top, w, h);
+        }
+        let h = (look.size * short).round();
+        let w = if circle { h } else { (h * 4.0 / 3.0).round() };
         Rect::new(if right { cw - m - w } else { m }, if bottom { ch - m - h } else { m }, w, h)
     }
 
@@ -710,6 +746,21 @@ impl Planner {
             }),
         }
     }
+}
+
+/// How much bigger the camera bubble is in the vertical layout.
+pub const PHONE_BUBBLE: f64 = 1.5;
+
+/// On a tall canvas, a text's place (0...1 across the canvas) is taken as a
+/// place inside the safe area, so phone apps' buttons never cover it.
+pub fn in_safe_area(o: &crate::text::TextOverlay, w: f64, h: f64) -> crate::text::TextOverlay {
+    let mut out = o.clone();
+    if vertical::safe_area_is_inset(w, h) {
+        let safe = vertical::safe_area(w, h);
+        out.x = (safe.x + o.x * safe.w) / w;
+        out.y = (safe.y + o.y * safe.h) / h;
+    }
+    out
 }
 
 /// The hidden boxes showing at take time `time`, in source pixels.

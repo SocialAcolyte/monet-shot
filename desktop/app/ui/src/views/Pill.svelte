@@ -43,6 +43,7 @@
   }
 
   const tap = () => call("bar_tap");
+  const vertical = $derived(bar?.vertical ?? false);
 </script>
 
 <div class="stage" data-tauri-drag-region>
@@ -65,6 +66,19 @@
       <span class="note" transition:fade>Saving</span>
     {:else if bar?.problem}
       <span class="note" transition:fade>{bar.problem}</span>
+    {:else if phase === "idle"}
+      <!-- Record Vertical: the next take opens made for phones. -->
+      <button
+        class="shape"
+        class:on={vertical}
+        onclick={() => call("bar_toggle_vertical")}
+        title={vertical ? "Recording for phones (9:16). Click for landscape." : "Recording landscape. Click to record for phones (9:16)."}
+        aria-label={vertical ? "Record vertical: on" : "Record vertical: off"}
+        aria-pressed={vertical}
+        transition:fade
+      >
+        <span class="glyph"></span>
+      </button>
     {/if}
   </div>
 </div>
@@ -119,5 +133,32 @@
   .note {
     font-size: 12px;
     color: var(--dim);
+  }
+  .shape {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 5px;
+  }
+  .shape:hover {
+    background: var(--midnight);
+  }
+  /* A screen's shape: wide when landscape, tall when made for phones. */
+  .glyph {
+    width: 12px;
+    height: 8px;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1.5px var(--dim);
+    transition:
+      width var(--dur-base) var(--ease-base),
+      height var(--dur-base) var(--ease-base),
+      box-shadow var(--dur-base) var(--ease-base);
+  }
+  .shape.on .glyph {
+    width: 8px;
+    height: 12px;
+    box-shadow: inset 0 0 0 1.5px var(--moon-white);
   }
 </style>

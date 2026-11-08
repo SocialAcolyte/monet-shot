@@ -6,6 +6,7 @@
   import { Painter } from "../painter";
   import { Playback } from "../playback";
   import type { EditorStore } from "../store.svelte";
+  import SafeGuides from "./SafeGuides.svelte";
 
   let { store, playback = $bindable(), overlay }: { store: EditorStore; playback?: Playback; overlay?: Snippet<[{ w: number; h: number; k: number }]> } = $props();
 
@@ -18,6 +19,9 @@
   const c = $derived(store.canvas);
   const k = $derived(Math.min(aw / c.width, ah / c.height));
   const shown = $derived({ w: Math.max(1, Math.floor(c.width * k)), h: Math.max(1, Math.floor(c.height * k)) });
+  // A tall canvas: the phone apps' bands, while editing the finished look.
+  const safe = $derived(store.c.safeArea(c.width, c.height));
+  const guides = $derived(safe.h < c.height && !store.framing && store.cameraPhase.kind === "off");
 
   // Anything the picture depends on marks it for repainting.
   $effect(() => {
@@ -82,6 +86,7 @@
 <div class="area" bind:this={area} ondragover={dragover} role="presentation">
   <div class="shown" style:width="{shown.w}px" style:height="{shown.h}px">
     <canvas bind:this={canvas} style:width="{shown.w}px" style:height="{shown.h}px" onclick={click}></canvas>
+    {#if guides}<SafeGuides {safe} canvas={c} w={shown.w} h={shown.h} />{/if}
     {#if overlay}{@render overlay({ w: shown.w, h: shown.h, k })}{/if}
     {#if failed}<p class="failed">The preview can't draw here: {failed}</p>{/if}
     {#if notice}<p class="notice">{notice}</p>{/if}

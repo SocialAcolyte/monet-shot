@@ -82,6 +82,9 @@ final class StatusItemController: NSObject {
             let cam = item("Record My Camera Too", #selector(toggleCamera))
             cam.state = CameraRecorder.withScreen ? .on : .off
             menu.addItem(cam)
+            let tall = item("Record Vertical", #selector(toggleVertical))
+            tall.state = RecordLayout.vertical ? .on : .off
+            menu.addItem(tall)
         }
         menu.addItem(item("Open Monet Shot", #selector(home), key: "o"))
         menu.addItem(.separator())
@@ -114,6 +117,7 @@ final class StatusItemController: NSObject {
 
     @objc private func record() { model.tap() }
     @objc private func toggleCamera() { CameraRecorder.withScreen.toggle() }
+    @objc private func toggleVertical() { RecordLayout.vertical.toggle() }
     @objc private func home() { openHome() }
     @objc private func stop() { model.stopRecording() }
     @objc private func pause() { model.togglePause() }

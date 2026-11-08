@@ -39,8 +39,15 @@ public final class Renderer: @unchecked Sendable {
         let cursorTrack: SmoothTrack
         let focusTrack: SmoothTrack
         let segments: [ZoomSegment]
+        /// A wide take in a tall or square frame: the window that follows the action.
+        let follow: FollowTrack?
         let mask: CIImage?
         let shadow: CIImage?
+
+        /// The camera at the take's time `t`.
+        func camera(at t: Double) -> Camera {
+            follow?.camera(at: t, segments: segments) ?? CameraMath.camera(at: t, segments: segments, focus: focusTrack)
+        }
     }
 
     public convenience init(project: Project) {
@@ -68,11 +75,16 @@ public final class Renderer: @unchecked Sendable {
             let meta = take.meta
             let crop = doc.crop(take: index)
             let aspect = CGFloat(meta.aspect * crop.w / crop.h)
+            // Vertical and square: a wider take fills the room, seen through a window.
+            let follows = doc.followsAction && FollowFraming.window(takeAspect: Double(aspect), frameAspect: Double(room.width / room.height)) != nil
             var fw = room.width, fh = room.width / aspect
-            if fh > room.height { fh = room.height; fw = fh * aspect }
+            if follows { fh = room.height } else if fh > room.height { fh = room.height; fw = fh * aspect }
             let frame = CGRect(x: (room.midX - fw / 2).rounded(), y: (room.midY - fh / 2).rounded(),
                                width: fw.rounded(), height: fh.rounded())
-            let ppp = frame.width / (CGFloat(meta.pixelWidth) * CGFloat(crop.w) / CGFloat(max(meta.pointScale, 1)))
+            let window = follows ? FollowFraming.window(takeAspect: Double(aspect), frameAspect: Double(frame.width / frame.height)) : nil
+            let ppp = window != nil
+                ? frame.height / (CGFloat(meta.pixelHeight) * CGFloat(crop.h) / CGFloat(max(meta.pointScale, 1)))
+                : frame.width / (CGFloat(meta.pixelWidth) * CGFloat(crop.w) / CGFloat(max(meta.pointScale, 1)))
             let radius = framed ? CGFloat(doc.cornerRadius) * min(frame.width, frame.height) : 0
             let mask: CIImage? = radius > 0.5 ? CIFilter(name: "CIRoundedRectangleGenerator", parameters: [
                 "inputExtent": CIVector(cgRect: frame), "inputRadius": radius, "inputColor": CIColor.white,
@@ -101,6 +113,7 @@ public final class Renderer: @unchecked Sendable {
                 }
                 return z
             }
+            let focusTrack = SmoothTrack.make(from: samples, duration: meta.duration, omega: CameraMath.cameraOmega)
             return TakeLook(
                 meta: meta, crop: crop, blurs: doc.blurs.filter { $0.take == index },
                 frameRect: frame, pxPerPoint: ppp,
@@ -109,8 +122,10 @@ public final class Renderer: @unchecked Sendable {
                 clicks: crop.isFull ? take.cursor.clicks : take.cursor.clicks.map(local),
                 cursorTrack: SmoothTrack.make(from: samples, duration: meta.duration,
                                               omega: CameraMath.cursorOmega(smoothing: doc.cursorSmoothing)),
-                focusTrack: SmoothTrack.make(from: samples, duration: meta.duration, omega: CameraMath.cameraOmega),
-                segments: segments, mask: mask, shadow: shadow)
+                focusTrack: focusTrack,
+                segments: segments,
+                follow: window.map { FollowTrack.make(window: $0, segments: segments, focus: focusTrack, duration: meta.duration) },
+                mask: mask, shadow: shadow)
         }
 
         let picture = doc.backdrop == .image
@@ -144,7 +159,7 @@ public final class Renderer: @unchecked Sendable {
     /// turns them back into the whole frame's.
     public func camera(take: Int, time: Double) -> Camera {
         guard let l = look(take) else { return .identity }
-        return CameraMath.camera(at: time, segments: l.segments, focus: l.focusTrack)
+        return l.camera(at: time)
     }
 
     /// The camera at output time `t`.
@@ -165,7 +180,7 @@ public final class Renderer: @unchecked Sendable {
         let canvasRect = CGRect(origin: .zero, size: canvas)
         guard let l = look(take) else { return backdrop }
         let frameRect = l.frameRect
-        let cam = CameraMath.camera(at: time, segments: l.segments, focus: l.focusTrack)
+        let cam = l.camera(at: time)
         let source = Renderer.framed(Renderer.obscure(source, l.blurs, at: time), crop: l.crop)
         let src = source.extent
         let pw = src.width, ph = src.height
@@ -386,13 +401,26 @@ extension Renderer {
     public var bubbleRect: CGRect {
         let look = doc.cameraLook
         let short = min(canvas.width, canvas.height)
-        let h = (CGFloat(look.size) * short).rounded()
-        let w = look.shape == .circle ? h : (h * 4 / 3).rounded()
         let m = (0.045 * short).rounded()
         let right = look.corner == .bottomRight || look.corner == .topRight
         let bottom = look.corner == .bottomRight || look.corner == .bottomLeft
+        if doc.canvasLayout == .vertical {
+            // On a phone: bigger, and inside the safe area: a bottom corner sits
+            // in the lower third, above the band captions use; a top one under its top.
+            let shape: CGFloat = look.shape == .circle ? 1 : 4.0 / 3.0
+            let h = min((CGFloat(look.size) * Renderer.phoneBubble * short).rounded(), ((canvas.width - 2 * m) / shape).rounded(.down))
+            let w = look.shape == .circle ? h : (h * 4 / 3).rounded()
+            let safe = safeArea(canvasWidth: Double(canvas.width), canvasHeight: Double(canvas.height))
+            let top = bottom ? CGFloat(safe.maxY) - (CGFloat(SafeArea.captionBand) * canvas.height).rounded() - h : CGFloat(safe.minY)
+            return CGRect(x: right ? canvas.width - m - w : m, y: canvas.height - top - h, width: w, height: h)
+        }
+        let h = (CGFloat(look.size) * short).rounded()
+        let w = look.shape == .circle ? h : (h * 4 / 3).rounded()
         return CGRect(x: right ? canvas.width - m - w : m, y: bottom ? m : canvas.height - m - h, width: w, height: h)
     }
+
+    /// How much bigger the camera bubble is in the vertical layout.
+    public static let phoneBubble: Double = 1.5
 
     /// One finished frame with you on camera over it. `overlay` says the
     /// camera frame came from a clip recorded in the editor (which may fill
@@ -418,7 +446,7 @@ extension Renderer {
     func withTexts(_ frame: CIImage, at t: Double) -> CIImage {
         var out = frame
         for o in doc.overlays {
-            guard let st = TextMotion.state(o, at: t, width: canvas.width, height: canvas.height), st.opacity > 0.001,
+            guard let st = TextMotion.state(Renderer.inSafeArea(o, width: canvas.width, height: canvas.height), at: t, width: canvas.width, height: canvas.height), st.opacity > 0.001,
                   let art = TextArt.image(st, tone: o.tone, backing: o.hasBacking) else { continue }
             let s = CGFloat(st.scale)
             let w = CGFloat(art.width) * s, h = CGFloat(art.height) * s
@@ -437,6 +465,17 @@ extension Renderer {
             out = img.composited(over: out)
         }
         return out.cropped(to: CGRect(origin: .zero, size: canvas))
+    }
+
+    /// On a tall canvas, a text's place (0...1 across the canvas) is taken
+    /// as a place inside the safe area, so phone apps' buttons never cover it.
+    public static func inSafeArea(_ o: TextOverlay, width: Double, height: Double) -> TextOverlay {
+        guard SafeArea.isInset(canvasWidth: width, canvasHeight: height) else { return o }
+        let safe = safeArea(canvasWidth: width, canvasHeight: height)
+        var out = o
+        out.x = (Double(safe.minX) + o.x * Double(safe.width)) / width
+        out.y = (Double(safe.minY) + o.y * Double(safe.height)) / height
+        return out
     }
 
     /// While a clip fades in or out, the finished frame dissolves into the

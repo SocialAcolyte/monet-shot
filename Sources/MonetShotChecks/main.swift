@@ -28,6 +28,81 @@ await check("config round-trips") { dir in
     expect(store.loadConfig() == c, "saved config loads back")
 }
 
+// MARK: vertical (phones): layout, safe area, follow framing
+
+await check("vertical layout round-trips and leaves landscape untouched") { _ in
+    var d = EditDoc(); d.outputWidth = 3840; d.canvasAspect = 1
+    let before = try JSONEncoder.app.encode(d)
+    d.setLayout(.vertical)
+    let tall = String(decoding: try JSONEncoder.app.encode(d), as: UTF8.self)
+    expect(tall.contains("\"layout\" : \"vertical\""), "vertical is written")
+    expect(d.canvasSize(recordingAspect: 1.6) == (1080, 1920), "vertical is 1080x1920")
+    d.setLayout(.square)
+    expect(d.canvasSize(recordingAspect: 1.6) == (1080, 1080), "square is 1080x1080")
+    d.setLayout(.landscape)
+    expect(try JSONEncoder.app.encode(d) == before, "back to landscape: byte-for-byte the old edit")
+    let odd = try JSONDecoder.app.decode(EditDoc.self, from: Data(#"{"layout": "diagonal", "padding": 0.1}"#.utf8))
+    expect(odd.canvasLayout == .landscape && odd.padding == 0.1, "an unknown layout draws as landscape, the rest still loads")
+}
+
+await check("safe area: phone bands on tall canvases only") { _ in
+    let s = safeArea(canvasWidth: 1080, canvasHeight: 1920)
+    expect(s == CGRect(x: 86, y: 230, width: 908, height: 1306), "1080x1920 keeps clear of the top 12% and bottom 20% (\(s))")
+    expect(safeArea(canvasWidth: 1920, canvasHeight: 1080) == CGRect(x: 0, y: 0, width: 1920, height: 1080), "landscape is clear edge to edge")
+    expect(safeArea(canvasWidth: 1080, canvasHeight: 1080).width == 1080, "square is clear edge to edge")
+}
+
+await check("follow framing: a tall window that holds, then glides") { _ in
+    // The pointer rests left, wobbles a little (inside the dead zone), then crosses to the right.
+    var samples: [CursorSample] = []
+    for i in 0...600 {
+        let t = Double(i) / 60
+        let x = t < 5 ? 0.3 + 0.01 * sin(t * 9) : 0.85
+        samples.append(CursorSample(t: t, x: x, y: 0.5))
+    }
+    let meta = RecordingMeta(pixelWidth: 2880, pixelHeight: 1800, pointScale: 2, duration: 10, source: "display")
+    var d = EditDoc(); d.setLayout(.vertical)
+    let r = Renderer(doc: d, meta: meta, cursor: CursorTrack(samples: samples))
+    let f = r.frameRect()
+    expect(r.canvas == CGSize(width: 1080, height: 1920), "canvas is 1080x1920")
+    let pad = (0.07 * 1080).rounded()
+    expect(f.width >= 1080 - 2 * pad - 1 && f.height >= 1920 - 2 * pad - 1, "the recording fills the phone frame inside the padding (\(f))")
+    let c1 = r.camera(take: 0, time: 1), c2 = r.camera(take: 0, time: 3)
+    expect(c1.window < 0.4 && c1.window > 0.25, "the window is tall (\(c1.window))")
+    expect(abs(c1.centerX - c2.centerX) < 0.003, "a small wobble doesn't move it (\(c1.centerX) vs \(c2.centerX))")
+    expect(abs(c1.centerX - 0.3) < 0.02, "it is on the pointer (\(c1.centerX))")
+    let late = r.camera(take: 0, time: 9.5)
+    expect(late.centerX > 0.8 - late.window / 2 && late.centerX <= 1 - late.window / 2 + 1e-9, "it ends on the right, inside the picture (\(late.centerX))")
+    var fastest = 0.0
+    var last = r.camera(take: 0, time: 0).centerX
+    for k in 1...600 {
+        let x = r.camera(take: 0, time: Double(k) / 60).centerX
+        fastest = max(fastest, abs(x - last) * 60)
+        last = x
+    }
+    expect(fastest < 0.9, "the glide is calm: at most \(fastest) picture widths a second")
+    let v = late.viewport
+    expect(v.x >= -1e-9 && v.x + v.w <= 1 + 1e-9 && v.h == 1, "the window stays inside the picture, full height")
+    // Full height of a Retina take on a 1920 canvas: text is at least its own pixel size.
+    expect(f.height / 1800 > 0.9, "legible: \(f.height / 1800) output px per recorded px")
+}
+
+await check("vertical: camera bubble and texts inside the safe area") { _ in
+    let meta = RecordingMeta(pixelWidth: 1920, pixelHeight: 1080, pointScale: 1, duration: 5, source: "display")
+    for corner in CameraCorner.allCases {
+        var d = EditDoc(); d.setLayout(.vertical); d.cameraLook.corner = corner; d.cameraLook.size = 0.5
+        let r = Renderer(doc: d, meta: meta, cursor: CursorTrack())
+        let b = r.bubbleRect
+        let top = r.canvas.height - b.maxY
+        let safe = safeArea(canvasWidth: 1080, canvasHeight: 1920)
+        expect(top >= safe.minY && top + b.height <= safe.maxY && b.minX >= 0 && b.maxX <= 1080, "\(corner) bubble inside the safe area (\(b))")
+    }
+    var o = TextOverlay(text: "Hi", at: 0, duration: 2, style: .caption, animation: .fade)
+    o.y = 1
+    let st = TextMotion.state(Renderer.inSafeArea(o, width: 1080, height: 1920), at: 1, width: 1080, height: 1920)!
+    expect(st.centerY <= 1920 * 0.8 + 0.5, "a caption at the very bottom sits on the safe line (\(st.centerY))")
+}
+
 await check("missing keys fall back to defaults") { dir in
     try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     try Data(#"{"enabled": false}"#.utf8).write(to: dir.appendingPathComponent("config.json"))

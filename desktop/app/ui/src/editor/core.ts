@@ -177,6 +177,8 @@ export interface Edit {
   clickRipple: boolean;
   outputWidth: number;
   canvasAspect: number;
+  /** "vertical" | "square"; absent = landscape (outputWidth x canvasAspect). */
+  layout?: string | null;
   cuts: unknown[];
   trimStart: number;
   trimEnd?: number | null;
@@ -259,6 +261,8 @@ export interface Core {
   normRectSpanning(ax: number, ay: number, bx: number, by: number): NormRect;
   setCrop(edit: Edit, rect: NormRect, take: number): Edit;
   canvasSize(edit: Edit, recordingAspect: number): { width: number; height: number };
+  /** The part of a canvas phone apps leave clear (px, top-left); the whole canvas unless it is tall. */
+  safeArea(canvasWidth: number, canvasHeight: number): Rect;
   nearestBarLine(grid: unknown, t: number): number;
   musicGain(t: number, length: number, fadeIn: boolean, fadeOut: boolean, voice: unknown): number;
   newId(): string;

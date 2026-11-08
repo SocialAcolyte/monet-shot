@@ -1,4 +1,3 @@
-1c1355ad53e567457ceaec3db6ef39a88a61a437
+8f2376309f0ca694c02c9822e8c376348b912657
 # plus uncommitted MonetShotKit changes at generation time:
-# M Sources/MonetShotKit/Music/Music.swift
-# ?? Sources/MonetShotKit/Music/MusicGrid.swift
+# M Sources/MonetShotKit/Core/Vertical.swift

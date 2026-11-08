@@ -117,6 +117,7 @@ fn same_camera(a: Camera, b: &Value, what: &str) {
     near(a.scale, f(&b["scale"]), what);
     near(a.center_x, f(&b["centerX"]), what);
     near(a.center_y, f(&b["centerY"]), what);
+    near(a.window, b.get("window").map_or(1.0, f), what);
 }
 fn edit(v: &Value) -> EditDoc {
     from_json(v.as_str().unwrap().as_bytes()).unwrap()
@@ -344,7 +345,7 @@ fn camera() {
         near(camera_math::ease(f(&q["u"])), f(&q["ease"]), "ease");
     }
     for q in arr(&fx["viewport"]) {
-        let c = Camera { scale: f(&q["camera"]["scale"]), center_x: f(&q["camera"]["centerX"]), center_y: f(&q["camera"]["centerY"]) };
+        let c = Camera::new(f(&q["camera"]["scale"]), f(&q["camera"]["centerX"]), f(&q["camera"]["centerY"]));
         let v = c.viewport();
         for (a, b) in [v.0, v.1, v.2, v.3].iter().zip(arr(&q["viewport"])) {
             near(*a, f(b), "viewport");

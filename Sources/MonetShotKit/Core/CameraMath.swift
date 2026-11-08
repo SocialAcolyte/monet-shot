@@ -88,12 +88,23 @@ public struct Camera: Equatable, Sendable {
     public var scale: Double
     public var centerX: Double
     public var centerY: Double
+    /// The view's shape, as its normalised width over its height: 1 shows
+    /// the picture's own shape; below 1 a taller window cut from a wider
+    /// picture (the vertical layout's follow framing, `FollowFraming`).
+    public var window: Double = 1
 
     public static let identity = Camera(scale: 1, centerX: 0.5, centerY: 0.5)
 
+    public init(scale: Double, centerX: Double, centerY: Double, window: Double = 1) {
+        self.scale = scale
+        self.centerX = centerX
+        self.centerY = centerY
+        self.window = window
+    }
+
     /// The visible part of the content (normalised, top-left origin).
     public var viewport: (x: Double, y: Double, w: Double, h: Double) {
-        let w = 1 / scale, h = 1 / scale
+        let w = min(1, window) / scale, h = min(1, 1 / window) / scale
         return (centerX - w / 2, centerY - h / 2, w, h)
     }
 

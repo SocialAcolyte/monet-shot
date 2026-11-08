@@ -36,6 +36,18 @@ pub fn camera_too() -> bool {
     load().get("cameraWithScreen").and_then(Value::as_bool).unwrap_or(false)
 }
 
+/// "Record Vertical": new recordings open in the vertical layout, remembered
+/// as on the Mac (RecordLayout, the `recordVertical` default).
+pub fn vertical() -> bool {
+    load().get("recordVertical").and_then(Value::as_bool).unwrap_or(false)
+}
+
+pub fn save_vertical(on: bool) {
+    let mut m = load();
+    m.insert("recordVertical".into(), Value::Bool(on));
+    save(&m);
+}
+
 pub fn save_camera_too(on: bool) {
     let mut m = load();
     m.insert("cameraWithScreen".into(), Value::Bool(on));

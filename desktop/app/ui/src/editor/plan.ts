@@ -16,7 +16,7 @@ export interface FramePlan {
   frame: Rect;
   cornerRadius: number;
   source: SourcePlan;
-  camera: { scale: number; centerX: number; centerY: number };
+  camera: { scale: number; centerX: number; centerY: number; window: number };
   ripples: RipplePlan[];
   cursor: CursorPlan | null;
   webcam: WebcamPlan[];

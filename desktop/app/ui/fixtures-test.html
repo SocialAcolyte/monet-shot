@@ -7,7 +7,7 @@
       body { margin: 16px; background: #17191b; color: #e6e3dd; font: 12px ui-rounded, system-ui, sans-serif; }
       .case { display: grid; grid-template-columns: repeat(3, 320px); gap: 8px; margin-bottom: 18px; }
       .case h2 { grid-column: 1 / -1; margin: 0; font-size: 13px; }
-      canvas, img { width: 320px; height: 180px; display: block; background: #000; }
+      canvas, img { width: 320px; height: auto; display: block; background: #000; }
       pre { white-space: pre-wrap; }
     </style>
   </head>
@@ -27,12 +27,15 @@
       const dir = `${repo}/shared/fixtures/render`;
       const load = (src) => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = src; });
       await init();
-      const { cases } = await (await fetch(`${dir}/cases.json`)).json();
+      // The landscape cases, then vertical and square (render/vertical.json).
+      const list = async (f) => { const r = await fetch(`${dir}/${f}`); return r.ok ? (await r.json()).cases : []; };
+      const cases = [...(await list("cases.json")), ...(await list("vertical.json"))];
       const lines = [];
       // ?case=<name> paints one case; ?zoom=<x>,<y> shows a 160×90 crop of
       // ours | the Mac's at 6×.
       const q = new URLSearchParams(location.search);
       for (const c of cases.filter((c) => !q.get("case") || c.name === q.get("case"))) {
+       try {
         const takes = c.takes.map((t, i) => ({ meta: JSON.parse(t.meta), cursor: JSON.parse(t.cursor), dir: i ? `take-${i + 1}` : "" }));
         // The Mac case hands its renderer a camera frame directly; without an
         // overlay clip that is the take's own camera, so name one (starting
@@ -51,6 +54,9 @@
           webcam: () => cam,
           image: () => backdrop,
           cursorArt: (s, t, l, h) => core.cursorArt(s, t, l, h),
+          // The painter draws texts from core's picture (since 2811c92); without
+          // this, the first case with words threw and no case was reported.
+          textArt: (t) => core.textArt(t),
         };
         p.paint(plan, src);
         const mac = await load(`${dir}/${c.file}`);
@@ -108,6 +114,11 @@
           document.getElementById("out").prepend(z);
         }
         ed.free();
+       } catch (e) {
+        // One case that can't be painted is reported as such (it doesn't
+        // match "mean", so windows-run counts it as missing) and the rest go on.
+        lines.push(`${c.name.padEnd(28)} error ${e}`);
+       }
       }
       document.getElementById("summary").textContent = lines.join("\n");
       // In the app (MONETSHOT_DEV_PAGE), the numbers go to its log too.
