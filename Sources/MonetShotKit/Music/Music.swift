@@ -23,15 +23,27 @@ public struct Song: Codable, Equatable, Identifiable, Sendable {
     /// The composer's own one-line description.
     public var about: String?
     public var instruments: String?
+    /// "calm", "steady" or "upbeat" (the library's own reading).
+    public var tempo: String?
+    /// 0...1: how much drive it has (the library's own reading).
+    public var energy: Double?
+    /// Its beat, read once when the library was made.
+    public var grid: MusicGrid?
+    /// Seconds into the song where it's best to begin (past any silence).
+    public var start: Double?
+    /// A small waveform for the list, 0...1.
+    public var peaks: [Double]?
 
     public init(id: String, title: String, artist: String, album: String? = nil, duration: Double, genres: [String],
                 license: String, licenseVersion: String? = nil, licenseURL: String? = nil, audioURL: String,
                 artworkURL: String? = nil, pageURL: String? = nil, attribution: String? = nil,
-                bpm: Int? = nil, about: String? = nil, instruments: String? = nil) {
+                bpm: Int? = nil, about: String? = nil, instruments: String? = nil, tempo: String? = nil,
+                energy: Double? = nil, grid: MusicGrid? = nil, start: Double? = nil, peaks: [Double]? = nil) {
         self.id = id; self.title = title; self.artist = artist; self.album = album; self.duration = duration
         self.genres = genres; self.license = license; self.licenseVersion = licenseVersion; self.licenseURL = licenseURL
         self.audioURL = audioURL; self.artworkURL = artworkURL; self.pageURL = pageURL; self.attribution = attribution
         self.bpm = bpm; self.about = about; self.instruments = instruments
+        self.tempo = tempo; self.energy = energy; self.grid = grid; self.start = start; self.peaks = peaks
     }
 
     public var licenseLabel: String {
@@ -79,7 +91,8 @@ public struct MusicMood: Equatable, Sendable, Identifiable {
         MusicMood(id: "grooving", name: "Grooving", feel: "grooving", tint: 0xC96F4A),
         MusicMood(id: "sunny", name: "Sunny", feel: "sunny", tint: 0xB89B4A),
         MusicMood(id: "mellow", name: "Mellow", feel: "mellow", tint: 0x5F7A73),
-        MusicMood(id: "impressionist", name: "Impressionist", feel: "impressionist", tint: 0x5A6F88),
+        MusicMood(id: "punchy", name: "Punchy", feel: "punchy", tint: 0xA0505E),
+        MusicMood(id: "classical", name: "Classical", feel: "classical", tint: 0x5A6F88),
     ]
 }
 
@@ -122,7 +135,10 @@ public enum MusicCatalog {
     private static let lock = NSLock()
 
     /// The whole library, in its listed order.
-    public static func all() async throws -> [Song] {
+    public static func all() async throws -> [Song] { try allNow() }
+
+    /// The whole library, read once (a local file: no waiting).
+    public static func allNow() throws -> [Song] {
         if let l = lock.withLock({ loaded }) { return l }
         guard let folder else { throw MusicError.download }
         let songs = try parse(Data(contentsOf: folder.appendingPathComponent("library.json")), folder: folder)

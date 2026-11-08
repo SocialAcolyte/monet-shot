@@ -144,6 +144,8 @@ The library is `Resources/Music/library.json` + its files (bundled as
 | `music_own_file` | `path` | `Song` | a file you have the rights to (`license: "own"`) |
 | `music_add` | `folder, song` | file name | copies it into the recording (`music-<id>.<ext>`); the page sets `edit.music` (keeping the old volume/fades) and removes the old file |
 | `music_shape` | `folder, file` | `{wave: number[240], grid: {bar, firstDownbeat, lifts} \| null}` | waveform + beat grid for the snippet picker (one ffmpeg decode at 11025 Hz) |
+| `music_suggest` | `length, mood, vertical, favourites` | songs | up to six library tracks for this video (`MusicSuggest.rank`: the format's mood, length, vertical = punchier, favourites) |
+| `music_voice` | `folder, edit?` | `[start, end][]` | where the music ducks: the level of the edit's own sound (camera mic, any voiceover), `VoiceActivity` |
 
 Preview playback in the browser uses an `<audio>` on the asset protocol.
 

@@ -43,7 +43,7 @@ struct EditorView: View {
         .overlay {
             if model.showingMusic {
                 MusicBrowserView(model: model.musicBrowser, close: model.closeMusic)
-                    .transition(.opacity.animation(Motion.base()))
+                    .transition(.move(edge: .trailing).combined(with: .opacity).animation(Motion.base()))
             }
         }
         .preferredColorScheme(.dark)

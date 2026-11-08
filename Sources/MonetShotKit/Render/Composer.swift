@@ -83,14 +83,36 @@ public enum Composer {
         for t in [overlayV, overlayA, takeV, takeA] where t.segments.isEmpty { comp.removeTrack(t) }
     }
 
-    /// Where someone is talking (camera sound), in output time.
-    static func voice(in comp: AVComposition) -> [ClosedRange<Double>] {
-        comp.tracks(withMediaType: .audio)
-            .filter { $0.trackID == TrackID.overlayAudio || $0.trackID == TrackID.takeCameraAudio }
-            .flatMap(\.segments)
-            .filter { !$0.isEmpty }
-            .map { $0.timeMapping.target.start.seconds...$0.timeMapping.target.end.seconds }
-            .sorted { $0.lowerBound < $1.lowerBound }
+    /// Where someone is talking, in output time: every sound in the edit so
+    /// far (the camera's mic, a voiceover), read for its level by
+    /// `VoiceActivity`. Call before the music is laid in.
+    static func voice(in comp: AVComposition) async -> [ClosedRange<Double>] {
+        let tracks = comp.tracks(withMediaType: .audio).filter { !$0.segments.isEmpty }
+        guard !tracks.isEmpty, let reader = try? AVAssetReader(asset: comp) else { return [] }
+        let rate = 16_000.0
+        let out = AVAssetReaderAudioMixOutput(audioTracks: tracks, audioSettings: [
+            AVFormatIDKey: kAudioFormatLinearPCM, AVLinearPCMBitDepthKey: 32,
+            AVLinearPCMIsFloatKey: true, AVLinearPCMIsBigEndianKey: false, AVLinearPCMIsNonInterleaved: false,
+            AVNumberOfChannelsKey: 1, AVSampleRateKey: rate,
+        ])
+        out.audioTimePitchAlgorithm = .spectral
+        guard reader.canAdd(out) else { return [] }
+        reader.add(out)
+        guard reader.startReading() else { return [] }
+        let length = (try? await comp.load(.duration).seconds) ?? 0
+        var samples = [Float](repeating: 0, count: max(0, Int(length * rate)))
+        while let buffer = out.copyNextSampleBuffer(), let block = CMSampleBufferGetDataBuffer(buffer) {
+            // Placed by its own time: the mix skips stretches with no sound at all.
+            let at = Int((CMSampleBufferGetPresentationTimeStamp(buffer).seconds * rate).rounded())
+            var size = 0
+            var ptr: UnsafeMutablePointer<Int8>?
+            guard at >= 0, CMBlockBufferGetDataPointer(block, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &size, dataPointerOut: &ptr) == noErr,
+                  let ptr else { continue }
+            ptr.withMemoryRebound(to: Float.self, capacity: size / 4) { p in
+                for i in 0..<(size / 4) where at + i < samples.count { samples[at + i] = p[i] }
+            }
+        }
+        return VoiceActivity.ranges(samples: samples, rate: rate)
     }
 
     /// A video composition that runs every frame of the edited asset through
@@ -124,7 +146,10 @@ public enum Composer {
     /// the mix that sets its level and fades.
     public static func addMusic(_ project: Project, to comp: AVMutableComposition, length: Double) async throws -> AVAudioMix? {
         guard let m = project.edit.music, length > 0 else { return nil }
-        let song = AVURLAsset(url: project.folder.appendingPathComponent(m.file))
+        // Read before the music goes in: only the voices count.
+        let voice = project.edit.cameraLook.duckMusic ? await Self.voice(in: comp) : []
+        // A file name inside the recording; an absolute path while auditioning a library track.
+        let song = AVURLAsset(url: m.file.hasPrefix("/") ? URL(fileURLWithPath: m.file) : project.folder.appendingPathComponent(m.file))
         guard let source = try? await song.loadTracks(withMediaType: .audio).first,
               let songLength = try? await song.load(.duration).seconds, songLength > 0.5,
               let track = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
@@ -141,10 +166,10 @@ public enum Composer {
         }
         let p = AVMutableAudioMixInputParameters(track: track)
         let v = Float(min(max(m.volume, 0), 1))
-        // The level, sampled every 0.1 s: fades, and ducks under your voice.
-        let voice = project.edit.cameraLook.duckMusic ? Self.voice(in: comp) : []
+        // The level, sampled every 0.1 s: fades (the end one from a phrase line), and ducks under your voice.
+        let outro = MusicFit.outro(grid: m.track.grid, offset: m.offset, length: length)
         func gain(_ t: Double) -> Float {
-            v * Float(MusicEnvelope.gain(at: t, length: length, fadeIn: m.fadeIn, fadeOut: m.fadeOut, voice: voice))
+            v * Float(MusicEnvelope.gain(at: t, length: length, fadeIn: m.fadeIn, fadeOut: m.fadeOut, outro: outro, voice: voice))
         }
         let step = 0.1
         var t = 0.0

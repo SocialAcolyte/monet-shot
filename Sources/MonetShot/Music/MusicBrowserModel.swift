@@ -4,37 +4,40 @@ import UniformTypeIdentifiers
 import Observation
 import MonetShotKit
 
-/// The music browser's state: search, moods, the paged track list, and a
-/// preview player. Views read it and call its methods.
+/// The music browser's state: what's listed (suggestions for this video,
+/// favourites, a mood, or a search), the tempo filter and your favourites.
+/// Clicking a track plays it under your own video: the editor does that
+/// (`EditorModel.toggleAudition`), this only asks.
 @MainActor
 @Observable
 final class MusicBrowserModel {
+    enum Shelf: Hashable {
+        case suggested, favourites
+        case mood(String)
+    }
+
     private(set) var query = ""
-    private(set) var mood: MusicMood? = MusicMood.all.first
+    private(set) var shelf: Shelf = .suggested
+    private(set) var tempo: MusicTempo?
     private(set) var tracks: [Song] = []
-    private(set) var loading = false
     private(set) var problem: String?
-    private(set) var previewing: Song?
-    private(set) var previewPlaying = false
-    private(set) var previewProgress: Double = 0
-    /// The track being downloaded into the recording.
+    /// The track being copied into the recording.
     private(set) var adding: String?
+    private(set) var favourites: Set<String> = MusicBrowserModel.loadFavourites()
 
-    @ObservationIgnored private var generation = 0
-    @ObservationIgnored private var searchTask: Task<Void, Never>?
-    @ObservationIgnored private let player = AVPlayer()
-    @ObservationIgnored private var timeObserver: Any?
-
+    /// The editor whose video the tracks play under.
+    @ObservationIgnored weak var editor: EditorModel?
     /// Called with the chosen track; returns when it's in the recording (or failed).
     @ObservationIgnored var onUse: (Song) async -> Bool = { _ in false }
 
-    init() {
-        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(value: 1, timescale: 10), queue: .main) { [weak self] t in
-            MainActor.assumeIsolated {
-                guard let self, let d = self.previewing?.duration, d > 0 else { return }
-                self.previewProgress = min(1, t.seconds / d)
-            }
-        }
+    @ObservationIgnored private var library: [Song] = []
+    @ObservationIgnored private var video = (length: 0.0, vertical: false, mood: String?.none)
+    @ObservationIgnored private var searchTask: Task<Void, Never>?
+
+    /// The video the suggestions are for.
+    func setVideo(length: Double, vertical: Bool, mood: String?) {
+        video = (length, vertical, mood)
+        reload()
     }
 
     func start() {
@@ -42,13 +45,13 @@ final class MusicBrowserModel {
     }
 
     func stop() {
-        player.pause()
-        previewPlaying = false
+        searchTask?.cancel()
     }
+
+    // MARK: what's listed
 
     func setQuery(_ q: String) {
         query = q
-        if !q.isEmpty { mood = nil } else if mood == nil { mood = MusicMood.all.first }
         searchTask?.cancel()
         searchTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(200))   // wait for typing to pause
@@ -57,31 +60,110 @@ final class MusicBrowserModel {
         }
     }
 
-    func choose(_ m: MusicMood) {
-        mood = m
+    func show(_ s: Shelf) {
+        shelf = s
         query = ""
         reload()
     }
 
-    /// The whole list for the current search or mood; the catalogue is local
-    /// once fetched, so this is instant after the first time.
-    func reload() {
-        generation += 1
-        let gen = generation, q = query, m = mood
-        loading = true
-        problem = nil
-        Task {
-            do {
-                let result = try await MusicCatalog.search(q, mood: q.isEmpty ? m : nil)
-                guard gen == generation else { return }
-                tracks = result
-            } catch {
-                if gen == generation { problem = "Couldn't reach the music library. Check your connection." }
-                Log.error("music: \(error)")
-            }
-            if gen == generation { loading = false }
+    func choose(_ m: MusicMood) { show(.mood(m.id)) }
+
+    func setTempo(_ t: MusicTempo?) {
+        tempo = tempo == t ? nil : t
+        reload()
+    }
+
+    /// The heading over the list.
+    var heading: String {
+        if !query.isEmpty { return "Results" }
+        switch shelf {
+        case .suggested: return "For this video"
+        case .favourites: return "Favourites"
+        case .mood(let id): return MusicMood.all.first { $0.id == id }?.name ?? "Music"
         }
     }
+
+    /// A line under the heading.
+    var subheading: String? {
+        guard query.isEmpty else { return nil }
+        switch shelf {
+        case .suggested:
+            let len = MusicTime.clock(video.length)
+            return video.vertical ? "Punchier picks for a \(len) vertical video" : "Picked for a \(len) video"
+        case .favourites: return favourites.isEmpty ? "Tap the heart on a track to keep it here" : nil
+        case .mood: return nil
+        }
+    }
+
+    func reload() {
+        problem = nil
+        do {
+            if library.isEmpty { library = try MusicCatalog.allNow() }
+        } catch {
+            problem = "The music library isn't here. Reinstall Monet Shot to get it back."
+            Log.error("music: \(error)")
+            tracks = []
+            return
+        }
+        let pool = library.filter { tempo == nil || MusicTempo.of($0) == tempo }
+        if !query.isEmpty {
+            let words = query.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+            tracks = pool.filter { s in
+                let hay = [s.title, s.artist, s.about ?? "", s.genres.joined(separator: " "), s.instruments ?? "",
+                           MusicTempo.of(s)?.rawValue ?? ""].joined(separator: " ").lowercased()
+                return words.allSatisfy { hay.contains($0) }
+            }
+            return
+        }
+        switch shelf {
+        case .suggested:
+            tracks = MusicSuggest.rank(pool, length: video.length, mood: video.mood, vertical: video.vertical,
+                                       favourites: favourites, count: 8)
+        case .favourites:
+            tracks = pool.filter { favourites.contains($0.id) }
+        case .mood(let id):
+            tracks = pool.filter { $0.genres.contains(id) }
+        }
+    }
+
+    // MARK: favourites, remembered between launches
+
+    private static let favouritesKey = "musicFavourites"
+
+    private static func loadFavourites() -> Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: favouritesKey) ?? [])
+    }
+
+    func isFavourite(_ s: Song) -> Bool { favourites.contains(s.id) }
+
+    func toggleFavourite(_ s: Song) {
+        if favourites.contains(s.id) { favourites.remove(s.id) } else { favourites.insert(s.id) }
+        UserDefaults.standard.set(favourites.sorted(), forKey: Self.favouritesKey)
+        if shelf == .favourites { reload() }
+    }
+
+    // MARK: hearing and using
+
+    var auditioning: Song? { editor?.audition?.track }
+    var playing: Bool { editor?.playing ?? false }
+
+    /// Where the audition is in its song, 0...1 of the track.
+    var auditionFraction: Double? {
+        guard let a = editor?.audition, let t = editor?.auditionSongTime, a.track.duration > 0 else { return nil }
+        return min(1, t / a.track.duration)
+    }
+
+    /// The stretch of a track that plays under this video, as fractions of it.
+    func window(for s: Song) -> ClosedRange<Double>? {
+        guard s.duration > 0, video.length > 0 else { return nil }
+        let start: Double
+        if let a = editor?.audition, a.track.id == s.id { start = a.offset } else {
+            start = MusicFit.place(grid: s.grid, songDuration: s.duration, length: video.length, from: s.start, punchy: video.vertical).offset
+        }
+        return min(1, start / s.duration)...min(1, (start + video.length) / s.duration)
+    }
+
+    func toggleAudition(_ s: Song) { editor?.toggleAudition(s) }
 
     /// Music you've licensed elsewhere (a file on this Mac).
     func chooseOwnFile() {
@@ -92,30 +174,9 @@ final class MusicBrowserModel {
         Task { use(await MusicCatalog.ownFile(url)) }
     }
 
-    func togglePreview(_ t: Song) {
-        if previewing?.id == t.id {
-            if previewPlaying { player.pause() } else { player.play() }
-            previewPlaying.toggle()
-            return
-        }
-        guard let url = URL(string: t.audioURL) else { return }
-        previewing = t
-        previewProgress = 0
-        player.replaceCurrentItem(with: AVPlayerItem(url: url))
-        player.play()
-        previewPlaying = true
-    }
-
-    func seekPreview(to fraction: Double) {
-        guard let d = previewing?.duration else { return }
-        player.seek(to: CMTime(seconds: d * fraction, preferredTimescale: 600))
-        previewProgress = fraction
-    }
-
     func use(_ t: Song) {
         guard adding == nil else { return }
         adding = t.id
-        stop()
         Task {
             let ok = await onUse(t)
             adding = nil

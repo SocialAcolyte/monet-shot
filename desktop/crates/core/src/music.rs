@@ -40,6 +40,21 @@ pub struct Song {
     pub about: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instruments: Option<String>,
+    /// "calm", "steady" or "upbeat" (the library's own reading).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tempo: Option<String>,
+    /// 0...1: how much drive it has.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub energy: Option<f64>,
+    /// Its beat, read once when the library was made.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grid: Option<MusicGrid>,
+    /// Seconds into the song where it's best to begin.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub start: Option<f64>,
+    /// A small waveform for the list, 0...1.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub peaks: Option<Vec<f64>>,
     #[serde(flatten, default, skip_serializing_if = "Map::is_empty")]
     pub extra: Extra,
 }
@@ -89,6 +104,11 @@ impl Song {
             bpm: None,
             about: None,
             instruments: None,
+            tempo: None,
+            energy: None,
+            grid: None,
+            start: None,
+            peaks: None,
             extra: Extra::new(),
         }
     }
@@ -139,7 +159,8 @@ pub const MOODS: &[MusicMood] = &[
     MusicMood { id: "grooving", name: "Grooving", feel: "grooving", tint: 0xC96F4A },
     MusicMood { id: "sunny", name: "Sunny", feel: "sunny", tint: 0xB89B4A },
     MusicMood { id: "mellow", name: "Mellow", feel: "mellow", tint: 0x5F7A73 },
-    MusicMood { id: "impressionist", name: "Impressionist", feel: "impressionist", tint: 0x5A6F88 },
+    MusicMood { id: "punchy", name: "Punchy", feel: "punchy", tint: 0xA0505E },
+    MusicMood { id: "classical", name: "Classical", feel: "classical", tint: 0x5A6F88 },
 ];
 
 /// `file://` URL for a path, percent-encoded as Foundation's `absoluteString`.

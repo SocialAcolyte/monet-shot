@@ -5,7 +5,7 @@ import Foundation
 /// where it lifts (a louder section coming in on a downbeat). The snippet
 /// window uses it so a video starts on a downbeat, and so a lift can land on
 /// a zoom.
-public struct MusicGrid: Equatable, Sendable {
+public struct MusicGrid: Codable, Equatable, Sendable {
     /// Seconds per bar of four beats.
     public var bar: Double
     /// The first downbeat, 0 ..< bar.

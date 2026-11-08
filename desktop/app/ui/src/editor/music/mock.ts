@@ -12,13 +12,16 @@ const song = (id: string, title: string, artist: string, duration: number, genre
   bpm,
   license: "cc0",
   audioURL: "",
+  energy: bpm ? Math.min(0.95, (bpm - 60) / 80) : 0.2,
+  peaks: Array.from({ length: 64 }, (_, i) => 0.3 + 0.6 * Math.abs(Math.sin((i + id.length * 3) / 5)) * (0.5 + 0.5 * Math.sin(i / 17))),
+  grid: bpm ? { bar: 240 / bpm, firstDownbeat: 0.2, lifts: [16 * (240 / bpm)] } : null,
 });
 
 const songs: Song[] = [
   song("1", "Lost On The Freeway", "HoliznaCC0", 154, ["grooving", "lofi"], 108),
   song("2", "Night Driving", "HoliznaCC0", 132, ["mellow"], 92),
   song("3", "Disco In The Sky", "John Bartmann", 181, ["sunny", "disco"], 118),
-  song("4", "Clair de Lune", "Debussy, played by a friend", 296, ["impressionist", "dreamy"]),
+  song("4", "Clair de Lune", "Debussy, played by a friend", 296, ["classical", "dreamy"]),
   song("5", "Day Trips", "HoliznaCC0", 140, ["dreamy"], 84),
 ];
 
@@ -30,6 +33,8 @@ mock("music_library", (a) => {
     return mood ? s.genres.includes(mood) : true;
   });
 });
+mock("music_suggest", () => songs.slice(0, 4));
+mock("music_voice", () => []);
 mock("music_add", (a) => `music-${(a as { song: Song }).song.id}.m4a`);
 mock("music_own_file", (a) => ({ ...song("own", String((a as { path: string }).path), "Your music", 120, []), license: "own" }));
 mock("music_shape", () => ({

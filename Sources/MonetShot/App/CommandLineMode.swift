@@ -90,9 +90,16 @@ enum CommandLineMode {
         let found = try await MusicCatalog.search(query)
         guard let track = found.first else { return "no tracks for \(query)" }
         let file = try await MusicCatalog.download(track, into: folder)
-        p.edit.music = MusicChoice(track: track, file: file)
+        var choice = MusicChoice(track: track, file: file)
+        // Fitted as the browser fits it: a downbeat in, the end fade from a phrase line.
+        let r = Renderer(project: p)
+        let place = MusicFit.place(grid: track.grid, songDuration: track.duration, length: r.map.duration, from: track.start,
+                                   punchy: r.canvas.height > r.canvas.width)
+        choice.offset = place.offset
+        p.edit.music = choice
         try p.saveEdit()
         return "\(found.count) results; using \"\(track.title)\" by \(track.artist) (\(track.licenseLabel), \(Int(track.duration))s)"
+            + String(format: " from %.2f s, end fade %.2f s", place.offset, place.outro)
     }
 
     private static func add(_ folder: URL, _ items: [URL]) async throws -> String {

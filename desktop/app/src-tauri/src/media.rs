@@ -446,6 +446,31 @@ pub fn music_library(app: AppHandle, query: String, mood: Option<String>) -> Res
     Ok(core::music::search(&songs, &query, if query.trim().is_empty() { mood.as_deref() } else { None }).into_iter().cloned().collect())
 }
 
+/// A few tracks that suit this video, best first (`MusicSuggest.rank`): its
+/// length, the format's mood, vertical = punchier, favourites lifted.
+#[tauri::command]
+pub fn music_suggest(app: AppHandle, length: f64, mood: Option<String>, vertical: bool, favourites: Vec<String>) -> Result<Vec<core::music::Song>, String> {
+    let songs = library(&app)?;
+    let favs: std::collections::HashSet<String> = favourites.into_iter().collect();
+    Ok(core::music_fit::suggest(&songs, length, mood.as_deref(), vertical, &favs, 6).into_iter().cloned().collect())
+}
+
+/// Where the music ducks under a voice in this edit (output seconds), read
+/// from the level of the edit's own sound (`Composer.voice` on the Mac).
+/// `edit` is the editor's current edit.json, ahead of its save.
+#[tauri::command]
+pub async fn music_voice(folder: String, edit: Option<serde_json::Value>) -> Result<Vec<(f64, f64)>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut p = core::Project::load(Path::new(&folder)).map_err(err)?;
+        if let Some(e) = edit {
+            p.edit = serde_json::from_value(e).map_err(err)?;
+        }
+        monetshot_export::voice_ranges(&p).map_err(err)
+    })
+    .await
+    .map_err(err)?
+}
+
 /// A music file of your own, as a song (the page shows a file dialog first).
 #[tauri::command]
 pub async fn music_own_file(path: String) -> Result<core::music::Song, String> {

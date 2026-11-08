@@ -195,6 +195,49 @@ export default async function ({ view, call }) {
   const back = await call("editor_load", { path: s.folder });
   await ok(back.edit.backdropImage === s.edit.backdropImage && back.edit.outputWidth === s.edit.outputWidth, "edit.json is saved");
 
+  // Music: the browser beside the video, a track heard under it, then used.
+  await settle();
+  s.openMusic();
+  await until(() => document.querySelectorAll('.panel[aria-label="Music"] li').length > 0, 10000);
+  const rows = () => [...document.querySelectorAll('.panel[aria-label="Music"] li')];
+  await ok(rows().length >= 4, "the music browser suggests tracks for this video", `${rows().length}`);
+  await ok(rows().every((li) => li.querySelectorAll("svg.wave rect").length >= 32), "every track shows its waveform");
+  const chip = (t) => [...document.querySelectorAll('.panel[aria-label="Music"] .chip')].find((b) => b.textContent.trim() === t);
+  await click(chip("Punchy"));
+  await until(() => rows().length > 0);
+  const punchy = rows().length;
+  await click(chip("Upbeat"));
+  await wait(300);
+  await ok(punchy >= 5 && rows().length > 0 && rows().length <= punchy, "moods and tempo filter the list", `${punchy} punchy, ${rows().length} upbeat`);
+  await click(chip("Upbeat"));
+  await click(chip("For this video"));
+  await until(() => rows().length > 0);
+  const favs = () => JSON.parse(localStorage.getItem("monetshot.musicFavourites") ?? "[]");
+  const before = favs().length;
+  const heart = rows()[0].querySelector(".heart");
+  await click(heart);
+  await ok(favs().length === before + 1, "the heart keeps a favourite (remembered)", favs().join(","));
+  await click(heart);
+  // Hear one under the video.
+  await click(rows()[1].querySelector(".row"));
+  await until(() => s.audition && s.playing, 3000);
+  await wait(2500);
+  const audio = document.querySelector("audio");
+  await ok(!!s.audition && !!audio && !audio.paused && audio.currentTime > (s.audition?.offset ?? 0) + 0.5,
+    "a track plays under the video", `${s.audition?.track.title} from ${(s.audition?.offset ?? 0).toFixed(2)} s, at ${audio?.currentTime.toFixed(2)} s`);
+  await log("music browser open");
+  await wait(6000); // the run takes its screenshot now
+  const heard = s.audition;
+  await click(document.querySelector('.panel[aria-label="Music"] footer .pill-button'));
+  await until(() => s.edit.music && !s.showingMusic, 20000);
+  const m = s.edit.music;
+  const g = m?.track.grid;
+  const onBeat = g ? Math.abs(((m.offset - g.firstDownbeat) / g.bar) - Math.round((m.offset - g.firstDownbeat) / g.bar)) < 1e-6 : true;
+  await ok(!!m && m.track.id === heard?.track.id && Math.abs(m.offset - heard.offset) < 1e-9 && onBeat,
+    "Use puts it in the edit, from a downbeat", `${m?.track.title} from ${m?.offset.toFixed(3)} s`);
+  if (s.playing) key(" ");
+  await s.save();
+
   // Export (Ctrl/⌘+E) to the end.
   if (new URLSearchParams(location.search).has("t") === false) {
     key("e", { ctrlKey: true });

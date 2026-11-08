@@ -1,32 +1,46 @@
 <script lang="ts">
-  // The music browser (MusicBrowserView): a tall charcoal panel over the
-  // editor, in the manner of a streaming app. Search and mood tiles up top,
-  // the album-art list, and a now-playing bar with "Use this track".
+  // The music browser (MusicBrowserView): a tall charcoal panel docked over
+  // the inspector, so your video stays in view. Click a track and it plays
+  // under the video itself, from where it would start; the waveform shows
+  // the part you hear. Shelves (for this video, favourites, the moods) and
+  // tempo up top; a heart keeps a track; Use puts it in the edit.
   import { onDestroy, onMount } from "svelte";
-  import { FolderOpen, Search, X, Play, Pause } from "@lucide/svelte";
+  import { FolderOpen, Search, X, Play, Pause, Heart, Sparkles } from "@lucide/svelte";
   import type { EditorStore } from "../store.svelte";
   import Spinner from "../../components/Spinner.svelte";
   import Artwork from "./Artwork.svelte";
+  import TrackWave from "./TrackWave.svelte";
   import { call, inTauri } from "../../lib/ipc";
-  import { clock, library, licenseLabel, moods, playable, useMusic, type Mood, type Song } from "./music";
+  import {
+    clock,
+    library,
+    loadFavourites,
+    moods,
+    saveFavourites,
+    stopAudition,
+    suggestions,
+    tempos,
+    toggleAudition,
+    useMusic,
+    type Song,
+    type Tempo,
+  } from "./music";
 
   let { store }: { store: EditorStore } = $props();
 
+  type Shelf = { kind: "suggested" } | { kind: "favourites" } | { kind: "mood"; id: string };
   let query = $state("");
-  // A format can ask for its kind of music; otherwise the first mood.
-  let mood = $state<Mood | null>(moods.find((m) => m.id === store.musicMood) ?? moods[0]);
+  // A format's "Find … music" opens on its mood; otherwise on this video's picks.
+  let shelf = $state<Shelf>(store.musicMood && moods.some((m) => m.id === store.musicMood) ? { kind: "mood", id: store.musicMood } : { kind: "suggested" });
+  let tempo = $state<Tempo | null>(null);
   let tracks = $state<Song[]>([]);
   let loading = $state(false);
   let problem = $state<string | null>(null);
-  let previewing = $state<Song | null>(null);
-  let playing = $state(false);
-  let progress = $state(0);
+  let favourites = $state<string[]>(loadFavourites());
   /** The track being copied into the recording. */
   let adding = $state<string | null>(null);
 
-  const player = new Audio();
-  player.ontimeupdate = () => (progress = previewing && previewing.duration > 0 ? Math.min(1, player.currentTime / previewing.duration) : 0);
-  player.onended = () => (playing = false);
+  const tempoOf = (s: Song): string | undefined => store.c.musicTempo(s) ?? undefined;
 
   let generation = 0;
   async function reload() {
@@ -34,7 +48,12 @@
     loading = true;
     problem = null;
     try {
-      const r = await library(query, query.trim() ? null : (mood?.feel ?? null));
+      let r: Song[];
+      if (query.trim()) r = await library(query, null);
+      else if (shelf.kind === "suggested") r = await suggestionsFor();
+      else if (shelf.kind === "favourites") r = (await library("", null)).filter((s) => favourites.includes(s.id));
+      else r = await library("", shelf.id);
+      if (tempo && !(shelf.kind === "suggested" && !query.trim())) r = r.filter((s) => tempoOf(s) === tempo);
       if (gen === generation) tracks = r;
     } catch (e) {
       if (gen === generation) problem = "The music library isn't here. Reinstall Monet Shot to get it back.";
@@ -43,50 +62,42 @@
     if (gen === generation) loading = false;
   }
 
+  /** This video's picks, within the tempo when one is chosen. */
+  async function suggestionsFor(): Promise<Song[]> {
+    if (!tempo) return suggestions(store, favourites);
+    const all = (await library("", null)).filter((s) => tempoOf(s) === tempo);
+    const picked = await suggestions(store, favourites);
+    // the ranked picks in this tempo first, then the rest of the tempo
+    return [...picked.filter((s) => tempoOf(s) === tempo), ...all.filter((s) => !picked.some((p) => p.id === s.id))].slice(0, 8);
+  }
+
   let typing = 0;
   function setQuery(q: string) {
     query = q;
-    if (q) mood = null;
-    else if (!mood) mood = moods[0];
     clearTimeout(typing);
     typing = window.setTimeout(reload, 200); // wait for typing to pause
   }
 
-  function choose(m: Mood) {
-    mood = m;
+  function show(s: Shelf) {
+    shelf = s;
     query = "";
     reload();
   }
 
-  async function togglePreview(t: Song) {
-    if (previewing?.id === t.id) {
-      if (playing) player.pause();
-      else player.play();
-      playing = !playing;
-      return;
-    }
-    const src = await playable(t.audioURL, true);
-    if (!src) return;
-    previewing = t;
-    progress = 0;
-    player.src = src;
-    player.play().catch((e) => console.error("preview", e));
-    playing = true;
+  function setTempo(t: Tempo) {
+    tempo = tempo === t ? null : t;
+    reload();
   }
 
-  function seekPreview(e: MouseEvent) {
-    if (!previewing) return;
-    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    player.currentTime = previewing.duration * f;
-    progress = f;
+  function toggleFavourite(t: Song) {
+    favourites = favourites.includes(t.id) ? favourites.filter((x) => x !== t.id) : [...favourites, t.id];
+    saveFavourites(favourites);
+    if (shelf.kind === "favourites" && !query) reload();
   }
 
   async function use(t: Song) {
     if (adding) return;
     adding = t.id;
-    player.pause();
-    playing = false;
     const ok = await useMusic(store, t);
     adding = null;
     if (!ok) problem = "Couldn't add that track.";
@@ -109,26 +120,43 @@
   }
 
   function keys(e: KeyboardEvent) {
-    // Space previews the current track unless typing in the search.
-    if (e.key === " " && previewing && !(e.target instanceof HTMLInputElement)) {
+    // (Esc closes: the editor's own keys do that.)
+    if (e.key === " " && store.audition && !(e.target instanceof HTMLInputElement)) {
+      // Space pauses or goes on with the track under the video.
       e.preventDefault();
-      togglePreview(previewing);
+      store.togglePlay();
     }
   }
 
-  onMount(reload);
-  onDestroy(() => {
-    player.pause();
-    player.src = "";
-  });
+  /** The stretch of a track that plays under this video, as fractions of it. */
+  function partOf(t: Song): [number, number] | null {
+    const len = store.duration;
+    if (!(t.duration > 0) || !(len > 0)) return null;
+    const a = store.audition;
+    const start = a && a.track.id === t.id ? a.offset : store.c.musicPlace(t.grid ?? null, t.duration, len, t.start, store.isVertical).offset;
+    return [Math.min(1, start / t.duration), Math.min(1, (start + len) / t.duration)];
+  }
 
-  const heading = $derived(query ? "Results" : (mood?.name ?? "Instrumental"));
-  const detail = (t: Song) => [t.genres.slice(0, 2).join(", "), t.bpm ? `${t.bpm} bpm` : ""].filter(Boolean).join(" · ");
+  onMount(reload);
+  onDestroy(() => stopAudition(store));
+
+  const heading = $derived(
+    query ? "Results" : shelf.kind === "suggested" ? "For this video" : shelf.kind === "favourites" ? "Favourites" : (moods.find((m) => m.id === (shelf as { id: string }).id)?.name ?? "Music"),
+  );
+  const subheading = $derived.by(() => {
+    if (query) return null;
+    if (shelf.kind === "suggested") return store.isVertical ? `Punchier picks for a ${clock(store.duration)} vertical video` : `Picked for a ${clock(store.duration)} video`;
+    if (shelf.kind === "favourites" && !favourites.length) return "Tap the heart on a track to keep it here";
+    return null;
+  });
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const detail = (t: Song) => [t.artist, t.genres[0] ? cap(t.genres[0]) : "", tempoOf(t) ? cap(tempoOf(t)!) : ""].filter(Boolean).join(" · ");
+  const auditioning = $derived(store.audition?.track as Song | undefined);
+  const at = $derived(auditioning && auditioning.duration > 0 ? Math.min(1, ((store.audition?.offset ?? 0) + store.time) / auditioning.duration) : null);
 </script>
 
 <svelte:window onkeydown={keys} />
 
-<div class="scrim" role="presentation" onclick={() => store.closeMusic()}></div>
 <div class="panel" role="dialog" aria-label="Music">
   <header>
     <div class="titles">
@@ -138,98 +166,101 @@
       </div>
       <span class="spacer"></span>
       <button class="pill-button" onclick={ownFile} title="Music you've licensed elsewhere (Artlist, Epidemic, your own)">
-        <FolderOpen /> Use your own
+        <FolderOpen /> Your own
       </button>
       <button class="close" onclick={() => store.closeMusic()} aria-label="Close (Esc)"><X size={13} strokeWidth={3} /></button>
     </div>
     <label class="search">
       <Search size={15} />
-      <!-- svelte-ignore a11y_autofocus -->
-      <input autofocus placeholder="Songs, artists, moods" value={query} oninput={(e) => setQuery(e.currentTarget.value)} />
+      <input placeholder="Songs, artists, moods" value={query} oninput={(e) => setQuery(e.currentTarget.value)} />
       {#if loading}<Spinner />{/if}
     </label>
-  </header>
-
-  <div class="scroll">
-    <div class="moods">
+    <div class="chips shelves">
+      <button class="chip" class:on={!query && shelf.kind === "suggested"} onclick={() => show({ kind: "suggested" })}><Sparkles size={11} /> For this video</button>
+      <button class="chip" class:on={!query && shelf.kind === "favourites"} onclick={() => show({ kind: "favourites" })}><Heart size={11} /> Favourites</button>
       {#each moods as m (m.id)}
-        <button class="mood" class:on={!query && mood?.id === m.id} style:--tint={m.tint} onclick={() => choose(m)}>
-          <span class="disc"></span>
-          <span class="name">{m.name}</span>
+        <button class="chip" class:on={!query && shelf.kind === "mood" && shelf.id === m.id} onclick={() => show({ kind: "mood", id: m.id })}>
+          <i class="dot" style:background={m.tint}></i>{m.name}
         </button>
       {/each}
     </div>
+    <div class="chips">
+      <span class="label">Tempo</span>
+      {#each tempos as t (t)}
+        <button class="chip" class:on={tempo === t} onclick={() => setTempo(t)}>{cap(t)}</button>
+      {/each}
+    </div>
+  </header>
 
+  <div class="scroll">
     <h2>{heading}</h2>
+    {#if subheading}<p class="sub-heading">{subheading}</p>{/if}
 
     {#if problem && !tracks.length}
       <p class="empty">{problem}</p>
-    {:else if !tracks.length && !loading}
-      <p class="empty">No tracks found. Try another word.</p>
+    {:else if !tracks.length && !loading && !(shelf.kind === "favourites" && !query)}
+      <p class="empty">Nothing here. Try another word or tempo.</p>
     {/if}
 
     <ol>
-      {#each tracks as t, i (t.id)}
-        {@const current = previewing?.id === t.id}
+      {#each tracks as t (t.id)}
+        {@const current = auditioning?.id === t.id}
+        {@const fav = favourites.includes(t.id)}
         <li class:current title={t.about ?? ""}>
-          <button class="row" onclick={() => togglePreview(t)}>
-            <span class="num tabular">
-              {#if current && playing}<span class="eq"><i></i><i></i><i></i></span>{:else}{i + 1}{/if}
-            </span>
-            <Artwork song={t} size={48} />
-            <span class="text">
-              <span class="title">{t.title}</span>
-              <span class="sub">{detail(t)}</span>
-            </span>
-            <span class="licence">{licenseLabel(t)}</span>
-            <span class="len tabular">{clock(t.duration)}</span>
-          </button>
-          <button class="pill-button" class:prominent={current} disabled={adding != null} onclick={() => use(t)}>
-            {#if adding === t.id}<Spinner />{:else}Use{/if}
-          </button>
+          <div class="line">
+            <button class="row" onclick={() => toggleAudition(store, t)} aria-label="Play {t.title} under the video">
+              <span class="cover">
+                <Artwork song={t} size={42} />
+                {#if current}
+                  <span class="veil">
+                    {#if store.playing}<span class="eq"><i></i><i></i><i></i></span>{:else}<Play size={13} fill="currentColor" />{/if}
+                  </span>
+                {/if}
+              </span>
+              <span class="text">
+                <span class="title">{t.title}</span>
+                <span class="sub">{detail(t)}</span>
+              </span>
+              <span class="len tabular">{clock(t.duration)}</span>
+            </button>
+            <button class="heart" class:fav onclick={() => toggleFavourite(t)} aria-label={fav ? "Remove from favourites" : "Keep in favourites"} title={fav ? "Remove from favourites" : "Keep in favourites"}>
+              <Heart size={14} fill={fav ? "currentColor" : "none"} />
+            </button>
+            <button class="pill-button" class:prominent={current} disabled={adding != null} onclick={() => use(t)}>
+              {#if adding === t.id}<Spinner />{:else}Use{/if}
+            </button>
+          </div>
+          <TrackWave peaks={t.peaks ?? []} part={partOf(t)} at={current ? at : null} lit={current} />
         </li>
       {/each}
     </ol>
   </div>
 
-  {#if previewing}
+  {#if auditioning}
     <footer>
-      <div class="bar" role="slider" aria-label="Position" aria-valuenow={progress} tabindex="-1" onclick={seekPreview} onkeydown={() => {}}>
-        <span style:width="{progress * 100}%"></span>
-      </div>
-      <div class="now">
-        <Artwork song={previewing} size={46} />
-        <span class="text">
-          <span class="title">{previewing.title}</span>
-          <span class="sub">{previewing.artist}</span>
-        </span>
-        <span class="spacer"></span>
-        <button class="play" onclick={() => previewing && togglePreview(previewing)} aria-label={playing ? "Pause" : "Play"}>
-          {#if playing}<Pause size={15} fill="currentColor" />{:else}<Play size={15} fill="currentColor" />{/if}
-        </button>
-        <button class="pill-button prominent" disabled={adding != null} onclick={() => previewing && use(previewing)}>
-          {#if adding === previewing.id}<Spinner /> Adding{:else}Use this track{/if}
-        </button>
-      </div>
+      <button class="play" onclick={() => store.togglePlay()} aria-label={store.playing ? "Pause" : "Play"}>
+        {#if store.playing}<Pause size={14} fill="currentColor" />{:else}<Play size={14} fill="currentColor" />{/if}
+      </button>
+      <span class="text">
+        <span class="title">{auditioning.title}</span>
+        <span class="sub">Playing under your video</span>
+      </span>
+      <span class="spacer"></span>
+      <button class="pill-button prominent" disabled={adding != null} onclick={() => auditioning && use(auditioning)}>
+        {#if adding === auditioning.id}<Spinner /> Adding{:else}Use this track{/if}
+      </button>
     </footer>
   {/if}
 </div>
 
 <style>
-  .scrim {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 50;
-  }
   .panel {
     position: fixed;
     z-index: 51;
-    top: 44px;
-    bottom: 44px;
-    left: 50%;
-    width: min(760px, calc(100vw - 32px));
-    transform: translateX(-50%);
+    top: 12px;
+    bottom: 12px;
+    right: 12px;
+    width: min(452px, calc(100vw - 24px));
     display: flex;
     flex-direction: column;
     background: var(--panel);
@@ -237,21 +268,21 @@
     border-radius: 16px;
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0.07),
-      0 18px 80px rgba(0, 0, 0, 0.5);
+      -6px 10px 60px rgba(0, 0, 0, 0.45);
     overflow: hidden;
-    animation: rise var(--dur-base) var(--ease-base);
+    animation: slide var(--dur-base) var(--ease-base);
   }
-  @keyframes rise {
+  @keyframes slide {
     from {
       opacity: 0;
-      transform: translateX(-50%) translateY(12px);
+      transform: translateX(24px);
     }
   }
   header {
-    padding: 22px 24px 14px;
+    padding: 20px 20px 12px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
   .titles {
     display: flex;
@@ -260,7 +291,7 @@
   }
   h1 {
     margin: 0;
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 700;
   }
   .titles p {
@@ -283,9 +314,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 38px;
-    padding: 0 14px;
-    border-radius: 19px;
+    height: 34px;
+    padding: 0 13px;
+    border-radius: 17px;
     background: var(--midnight);
     color: var(--dim);
   }
@@ -296,65 +327,79 @@
     background: transparent;
     color: var(--moon-white);
     font: inherit;
-    font-size: 14px;
+    font-size: 13.5px;
+  }
+  .chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .shelves {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .shelves::-webkit-scrollbar {
+    display: none;
+  }
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--faint);
+    margin-right: 4px;
+  }
+  .chip {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 11px;
+    border-radius: 13px;
+    background: var(--midnight);
+    color: color-mix(in srgb, var(--moon-white) 85%, transparent);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+      background var(--dur-snappy) var(--ease-snappy),
+      color var(--dur-snappy) var(--ease-snappy);
+  }
+  .chip.on {
+    background: var(--moon-white);
+    color: var(--charcoal);
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
   }
   .scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 0 24px 24px;
+    padding: 0 14px 18px;
     scrollbar-width: none;
   }
   .scroll::-webkit-scrollbar {
     display: none;
   }
-  .moods {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-  }
-  .mood {
-    position: relative;
-    height: 64px;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: left;
-    background: linear-gradient(135deg, var(--tint), color-mix(in srgb, var(--tint) 55%, transparent));
-    box-shadow: inset 0 0 0 2px transparent;
-    transition: box-shadow var(--dur-snappy) var(--ease-snappy);
-  }
-  .mood.on {
-    box-shadow: inset 0 0 0 2px var(--violet);
-  }
-  .disc {
-    position: absolute;
-    width: 46px;
-    height: 46px;
-    right: -10px;
-    top: -6px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 6px, rgba(0, 0, 0, 0.18) 6.5px);
-    transform: rotate(22deg);
-  }
-  .mood .name {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    font-size: 14px;
-    font-weight: 700;
-  }
   h2 {
-    margin: 22px 0 12px;
+    margin: 4px 6px 2px;
     font-size: 17px;
     font-weight: 700;
   }
+  .sub-heading {
+    margin: 0 6px 8px;
+    font-size: 11.5px;
+    color: var(--dim);
+  }
   .empty {
-    margin: 30px 0;
+    margin: 30px 6px;
     font-size: 13px;
     color: var(--dim);
   }
   ol {
     list-style: none;
-    margin: 0;
+    margin: 8px 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -362,35 +407,41 @@
   }
   li {
     display: flex;
-    align-items: center;
-    gap: 14px;
-    height: 64px;
-    padding: 0 10px;
+    flex-direction: column;
+    gap: 7px;
+    padding: 8px;
     border-radius: 10px;
     transition: background var(--dur-snappy) var(--ease-snappy);
   }
   li.current {
     background: var(--midnight);
   }
+  .line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
   .row {
     flex: 1;
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     text-align: left;
-    height: 100%;
   }
-  .num {
-    width: 26px;
-    text-align: center;
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--faint);
+  .cover {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    flex: none;
   }
-  .current .num,
-  .current .title {
-    color: var(--violet);
+  .veil {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    display: grid;
+    place-items: center;
   }
   .text {
     flex: 1;
@@ -400,35 +451,38 @@
     gap: 3px;
   }
   .title {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .current .title {
+    color: var(--violet);
   }
   .sub {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--dim);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .licence {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--dim);
-    padding: 0 7px;
-    height: 18px;
-    line-height: 16px;
-    border-radius: 9px;
-    border: 1px solid var(--line);
-    white-space: nowrap;
-  }
   .len {
-    width: 40px;
-    text-align: right;
-    font-size: 12.5px;
-    color: var(--dim);
+    font-size: 11.5px;
+    color: var(--faint);
+  }
+  .heart {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    color: var(--faint);
+  }
+  .heart.fav {
+    color: var(--clay, #c96f4a);
+  }
+  li :global(.wave) {
+    margin-left: 54px;
   }
   .eq {
     display: inline-flex;
@@ -457,6 +511,11 @@
     }
   }
   footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 62px;
+    padding: 0 16px;
     background: var(--charcoal);
     animation: up var(--dur-base) var(--ease-base);
   }
@@ -466,26 +525,9 @@
       opacity: 0;
     }
   }
-  .bar {
-    height: 3px;
-    background: var(--line);
-    cursor: pointer;
-  }
-  .bar span {
-    display: block;
-    height: 100%;
-    background: var(--violet);
-  }
-  .now {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    height: 70px;
-    padding: 0 20px;
-  }
   .play {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: var(--moon-white);
     color: var(--charcoal);

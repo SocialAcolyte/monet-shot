@@ -19,7 +19,7 @@ pub mod sound;
 pub use art::{cursor_art, CursorArt};
 pub use text_art::{text_art, TextArt};
 #[cfg(feature = "pipeline")]
-pub use export::{default_output, export, render_still, thumb_is_fresh, thumb_time, write_thumb};
+pub use export::{default_output, export, render_still, thumb_is_fresh, thumb_time, voice_ranges, write_thumb};
 #[cfg(feature = "pipeline")]
 pub use ffmpeg::{probe, ExportError, Probe};
 #[cfg(feature = "paint")]

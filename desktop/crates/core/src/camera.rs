@@ -123,9 +123,15 @@ pub mod music_envelope {
     /// Gain at output time `t`, as a fraction of the chosen volume. `voice`
     /// is (start, end) ranges in output time.
     pub fn gain(t: f64, length: f64, fade_in: bool, fade_out: bool, voice: &[(f64, f64)]) -> f64 {
+        gain_with(t, length, fade_in, fade_out, None, voice)
+    }
+
+    /// As `gain`, with the fade at the end lasting `outro` seconds (None =
+    /// 2 s; never over a third of the video), as `MusicEnvelope.gain(outro:)`.
+    pub fn gain_with(t: f64, length: f64, fade_in: bool, fade_out: bool, outro: Option<f64>, voice: &[(f64, f64)]) -> f64 {
         let mut g = 1.0;
         let fi = 1.2f64.min(length / 3.0);
-        let fo = 2.0f64.min(length / 3.0);
+        let fo = outro.unwrap_or(2.0).min(length / 3.0);
         if fade_in && fi > 0.0 && t < fi {
             g *= (t / fi).max(0.0);
         }

@@ -319,10 +319,15 @@
     position: absolute;
     inset: 0;
   }
+  /* The browser docks on the right; the video stays live beside it. */
   .music {
     position: absolute;
     inset: 0;
     z-index: 10;
+    pointer-events: none;
+  }
+  .music :global(.panel) {
+    pointer-events: auto;
   }
   .failed {
     height: 100vh;

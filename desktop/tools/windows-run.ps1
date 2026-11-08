@@ -387,6 +387,8 @@ function Stage-Editor {
   Start-App $debug @{ MONETSHOT_HOME = $h; MONETSHOT_DEV_SCRIPT = $devScript } @($copy) | Out-Null
   # The screenshot: once the check says the editor opened.
   if (Wait-Log $h 'check: opened' 120) { Start-Sleep 3; Shot '2-editor' } else { Shot '2-editor-not-open' }
+  # The music browser beside the video, a track playing under it.
+  if (Wait-Log $h 'check: music browser open' 600) { Start-Sleep 2; Shot '2-music' } else { Shot '2-music-not-open' }
   $done = Wait-Log $h 'check: done (\d+) ok, (\d+) failed' 900
   Stop-App
   Save-Log $h '2-editor'
@@ -415,6 +417,14 @@ function Stage-Export {
   Write-Host "export: $($v.codec) $($v.width)x$($v.height), $($v.frames) frames, $($v.duration) s"
   if ($v.frames -gt 0 -and $v.duration -gt 1 -and $v.width -gt 0) { Ok "export plays: $($v.codec) $($v.width)x$($v.height), $($v.frames) frames, $($v.duration) s" }
   else { Fail "export: $($v.frames) frames, $($v.duration) s" }
+  # The editor check put a library track under it: the export carries it.
+  $loud = (& $ffmpeg -hide_banner -nostats -i $script:exported -vn -af ebur128 -f null - 2>&1 | Out-String)
+  $i = [regex]::Matches($loud, 'I:\s+(-?[\d.]+) LUFS')
+  if ($i.Count -gt 0) {
+    $lufs = [double]$i[$i.Count - 1].Groups[1].Value
+    Write-Host "export sound: $lufs LUFS integrated"
+    if ($lufs -gt -30) { Ok "the export carries the music ($lufs LUFS)" } else { Fail "export: too quiet for music under it ($lufs LUFS)" }
+  } else { Fail 'export: no sound to measure' }
 }
 
 # MARK: 3. fixtures

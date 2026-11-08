@@ -30,6 +30,9 @@ export class Playback implements Sources {
   private span = -1;
   /** The plan `tick` last returned (the one being painted). */
   private current: FramePlan | null = null;
+  /** The music under the video (the edit's, or a track being auditioned). */
+  private music: HTMLAudioElement | null = null;
+  private musicPath = "";
 
   constructor(private store: EditorStore) {
     // Off-screen but in the document, so every engine keeps decoding frames.
@@ -40,6 +43,12 @@ export class Playback implements Sources {
   }
 
   destroy() {
+    if (this.music) {
+      this.music.pause();
+      this.music.removeAttribute("src");
+      this.music.load();
+      this.music.remove();
+    }
     for (const v of [...this.takes, ...this.cams.values()]) {
       v.pause();
       v.removeAttribute("src");
@@ -178,6 +187,50 @@ export class Playback implements Sources {
     return this.store.textArt(text);
   }
 
+  // MARK: music
+
+  /** Plays the music along with the clock, as the export lays it: from its
+   *  offset (looping if the song runs out), faded, ducked under the voices.
+   *  An audition (a library track you're trying) wins over the edit's own. */
+  private followMusic(t: number) {
+    const s = this.store;
+    const m = s.audition ?? s.edit.music;
+    if (!m) {
+      if (this.music && !this.music.paused) this.music.pause();
+      return;
+    }
+    const path = m.file.startsWith("/") || /^[A-Za-z]:[\\/]/.test(m.file) ? m.file : join(s.folder, m.file);
+    if (!this.music) {
+      this.music = document.createElement("audio");
+      this.music.preload = "auto";
+      this.box.appendChild(this.music);
+    }
+    const a = this.music;
+    if (this.musicPath !== path) {
+      this.musicPath = path;
+      a.pause();
+      mediaUrl(path).then(
+        (url) => this.musicPath === path && (a.src = url),
+        (e) => console.error("music url", path, e),
+      );
+    }
+    const length = s.duration;
+    const song = a.duration > 0.5 ? a.duration : m.track.duration;
+    let at = Math.max(0, m.offset) + t;
+    if (song > 0.5) while (at >= song) at -= song; // from the top again, as the export
+    const outro = s.c.musicOutro((m.track.grid as unknown) ?? null, m.offset, length);
+    const g = s.c.musicGainWith(t, length, m.fadeIn, m.fadeOut, outro, s.musicVoice);
+    a.volume = Math.min(1, Math.max(0, m.volume * g));
+    a.muted = s.muted;
+    if (s.playing && t < length - 0.01) {
+      if (Math.abs(a.currentTime - at) > 0.25) a.currentTime = at;
+      if (a.paused) a.play().catch(() => {});
+    } else {
+      if (!a.paused) a.pause();
+      if (a.readyState >= 1 && Math.abs(a.currentTime - at) > 0.05) a.currentTime = at;
+    }
+  }
+
   // MARK: clock
 
   /** Keeps a video near `time`: seeks when far off, plays along while
@@ -225,6 +278,7 @@ export class Playback implements Sources {
     } else {
       this.span = -1;
     }
+    this.followMusic(s.time);
     if (!this.dirty) return null;
     this.dirty = s.playing;
     const plan = ed.plan(Math.min(s.time, Math.max(0, d - 0.0005)));

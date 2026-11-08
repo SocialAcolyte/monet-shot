@@ -462,7 +462,7 @@ fn camera_clips_and_music_envelope() {
     }
     for q in arr(&fixture("music_envelope.json")["cases"]) {
         let voice: Vec<(f64, f64)> = arr(&q["voice"]).iter().map(pair).collect();
-        let g = music_envelope::gain(f(&q["t"]), f(&q["length"]), q["fadeIn"].as_bool().unwrap(), q["fadeOut"].as_bool().unwrap(), &voice);
+        let g = music_envelope::gain_with(f(&q["t"]), f(&q["length"]), q["fadeIn"].as_bool().unwrap(), q["fadeOut"].as_bool().unwrap(), q["outro"].as_f64(), &voice);
         near(g, f(&q["gain"]), &format!("gain {q}"));
     }
 }
