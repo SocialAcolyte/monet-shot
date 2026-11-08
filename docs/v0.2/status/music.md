@@ -50,9 +50,9 @@ file stays. The desktop preview now plays the music at all (it didn't before), w
 | | Mac | Linux / Omarchy | Windows |
 |---|---|---|---|
 | Kit logic | MonetShotChecks (fit, phrase lines, voice ranges, suggestions, library: 43 tracks, moods, tempos, size) | fixtures `music_fit.json` (voice levels and ranges, place/outro over 4 grids x 2 songs x 5 lengths, suggestions, tempos), `music_envelope.json` (outros) in cargo test | same cargo tests |
-| Export with music | `--music` then `--render` on a copy of a real recording, Night Driving placed from 5.08 s (2 bars), end fade 4.65 s from a phrase line; earshot: -15.3 LUFS, -1.6 dBTP | `music_ducks_under_a_voice` (export crate) | CI VM: the editor check's export carries the music (ebur128 in windows-run) |
+| Export with music (Windows: run 42472139401, Day Trips from 10.67 s, its start in full swing: earshot -17.9 LUFS, -5.6 dBTP, full band 16.3 kHz) | `--music` then `--render` on a copy of a real recording, Night Driving placed from 5.08 s (2 bars), end fade 4.65 s from a phrase line; earshot: -15.3 LUFS, -1.6 dBTP | `music_ducks_under_a_voice` (export crate) | CI VM: the editor check's export carries the music (ebur128 in windows-run) |
 | Duck under voice | same export with a spoken camera clip at 4.0-14.1 s (macOS `say`), rendered with the duck on and off: the difference is exactly 3.55-14.45 s (the 0.45 s ramps), -10.5 dB, zero elsewhere | the export test: talk found at 2-5 s by level, the music's 220 Hz tone x0.2-0.45 under it, back after | the same test in cargo test on Windows |
-| Browser | snapshot `docs/v0.2/status/music-mac-browser.jpg` (Day Trips playing under the video) | editor.js in Hyprland (container) | editor.js on the CI VM + screenshot `2-music.png` (artifact `windows-run`) |
+| Browser | snapshot `docs/v0.2/status/music-mac-browser.jpg` (Day Trips playing under the video) | editor.js in Hyprland (container): 33 ok | editor.js on the CI VM: 33 ok (suggestions, waveforms, 9 punchy / 8 upbeat, the heart remembered, Day Trips heard from 10.66 s at 13.20 s, Use from the same downbeat); screenshot `docs/v0.2/status/music-windows-browser.jpg` |
 
 ## Not proven
 
@@ -89,3 +89,11 @@ file stays. The desktop preview now plays the music at all (it didn't before), w
 - `Resources/Music` replaces 0.2.0's 20 files (43 tracks, 76 MB; three of the 20 left out, see music-picks).
   Existing recordings keep working: their music file is a copy inside the .reel.
 - The library is the only large change; git history grows by ~76 MB.
+
+## CI
+
+Run 42472139401 (`35fb819`, the merge with 0.2.0): macos, ubuntu, arch, windows green; hyprland 42472104432
+green. windows-run: every music check and the music export pass; it fails on three captions checks that come
+with 0.2.0 (`fixtures: charcoal-captions mean 3.08/255`, `dusk-captions-tall 2.66/255`, `captions: progress
+is shown`); main's own windows-run (42471792857, 28bafb4) is red as well. Not touched here (captions' area).
+Earlier: GitHub release downloads 504'd from ~09:20 to ~10:50 UTC (ffmpeg sidecar, AppImage tooling).
