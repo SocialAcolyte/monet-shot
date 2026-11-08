@@ -8,7 +8,7 @@
 #   (from a checkout; set _src=git to build the tagged release instead)
 
 pkgname=monet-shot
-pkgver=0.2.0
+pkgver=0.2.1
 pkgrel=1
 pkgdesc="A screen recorder that makes your recordings look good: auto-zooms, paintings behind, your cursor"
 arch=('x86_64' 'aarch64')
