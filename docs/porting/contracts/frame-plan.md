@@ -67,7 +67,9 @@ interface FramePlan {
   frame: Rect;               // where the recording sits (whole pixels)
   cornerRadius: number;      // 0 = square corners
   source: SourcePlan;
-  camera: { scale: number; centerX: number; centerY: number }; // info (zoom lane); already applied in source.rect
+  camera: { scale: number; centerX: number; centerY: number; window: number }; // info (zoom lane); already applied in source.rect.
+                             // window < 1: a vertical/square layout shows a wide take through a tall window that
+                             // follows the action (vertical.rs); source.rect is that window, same shape as frame
   ripples: RipplePlan[];     // under the cursor
   cursor: CursorPlan | null;
   webcam: WebcamPlan[];      // candidates, priority order

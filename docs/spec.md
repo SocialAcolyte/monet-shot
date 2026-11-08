@@ -33,5 +33,18 @@ A format (`format`: clean, fast, melancholic, cinematic) writes a pace and
 a look into the edit in one go; nothing it sets is locked. These keys are
 written only when used, so older edits are unchanged byte for byte.
 
+**Vertical.** `layout` in edit.json (`vertical` 1080x1920, `square`
+1080x1080; absent = landscape, whose `outputWidth`/`canvasAspect` stay
+as they were). A take wider than the frame fills it through a window of
+the frame's shape and the take's full height, which follows the action:
+it holds while the zoom's point (or the camera copy of the pointer) stays
+within 22% of the window's width of its centre, then glides there (a
+critically damped spring at 4 rad/s, run both ways); zooms keep 60% of
+their depth. On a tall canvas texts are placed inside the safe area
+(`safeArea(canvasWidth, canvasHeight)`: clear of the top 12%, bottom 20%
+and 8% of each side), and the vertical camera bubble is 1.5x bigger, in
+the lower third above the caption band (10%). "Record Vertical"
+(`recordVertical`) starts a new recording's edit in the vertical layout.
+
 **Non-goals.** System audio, keystroke overlays, multi-display takes,
 cloud upload.

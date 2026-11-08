@@ -56,6 +56,16 @@ crop away anything private before you share it. The look follows
     zooms) or *Cinematic* (long fades in and out, titles in capitals) sets
     the pace and look in one go, and suggests a music mood. Everything
     stays adjustable; ⌘Z undoes it.
+  - **Shape.** *Landscape*, *Vertical* (1080×1920, for Reels, Shorts and
+    TikTok) or *Square* (1080×1080), at the top of the inspector. Vertical
+    doesn't shrink the screen into a strip: the recording fills the phone
+    frame at its full height and the frame follows the action like a
+    camera operator, holding still while you work in one place and gliding
+    to wherever you click or zoom next. Texts stay clear of the phone apps'
+    buttons (the dashed line in the preview), and the camera bubble sits
+    larger, in the lower third. *Landscape* brings the landscape edit back
+    as it was. **Record Vertical** in the ring's right-click menu (or the
+    shape toggle on Home) makes every new recording open vertical.
   - **Space** plays,
     **←/→** step a frame (with Shift, a second), **A** re-runs auto-zoom.
 - **Hide & crop.** *Hide* (or **B**) shows the take whole, so you can
@@ -133,6 +143,7 @@ MonetShot --frame  <rec.reel> <s> <out.png>   # one finished frame
 MonetShot --render <rec.reel> <out.mp4>       # the full export
 MonetShot --add    <rec.reel> <video|rec.reel>…  # add footage as clips at the end
 MonetShot --format <rec.reel> fast              # clean | fast | melancholic | cinematic
+MonetShot --aspect <rec.reel> vertical          # landscape | vertical | square (--vertical <rec.reel> for short)
 ```
 
 ## What it changes on your Mac

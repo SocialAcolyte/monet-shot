@@ -932,7 +932,8 @@ final class EditorModel {
     }
 
     /// The recording as the preview shows it: while framing, uncropped,
-    /// unzoomed and without the cursor.
+    /// unzoomed, without the cursor, and whole (a vertical edit's follow
+    /// window would hide most of it).
     var shownProject: Project { EditorModel.shown(project, framing: framing) }
 
     private func makeRenderer() -> Renderer { EditorModel.renderer(for: project, framing: framing) }
@@ -947,6 +948,7 @@ final class EditorModel {
         p.edit.crops = []
         p.edit.segments = []
         p.edit.cursorVisible = false
+        p.edit.layout = nil
         return p
     }
 
