@@ -255,6 +255,9 @@ public struct EditDoc: Codable, Equatable, Sendable {
     /// The format last applied (`EditFormat.id`), for the picker to show; the
     /// edit itself carries everything the format set.
     public var format: String?
+    /// Vertical or square (`CanvasLayout`); nil = landscape, the canvas
+    /// `outputWidth` x `canvasAspect` sets (and which it leaves untouched).
+    public var layout: CanvasLayout?
 
     public init() {}
 
@@ -291,6 +294,8 @@ public struct EditDoc: Codable, Equatable, Sendable {
         crops = try c.decodeIfPresent([TakeCrop].self, forKey: .crops) ?? d.crops
         texts = try c.decodeIfPresent([TextOverlay].self, forKey: .texts)
         format = try c.decodeIfPresent(String.self, forKey: .format)
+        // A layout this version doesn't know draws as landscape.
+        layout = (try? c.decodeIfPresent(CanvasLayout.self, forKey: .layout)) ?? nil
     }
 
     /// The clips that make the video: the explicit list, or (for a recording
@@ -311,6 +316,7 @@ public struct EditDoc: Codable, Equatable, Sendable {
 
     /// Canvas size in pixels for a recording of the given aspect.
     public func canvasSize(recordingAspect: Double) -> (width: Int, height: Int) {
+        if let size = canvasLayout.size { return size }
         let aspect = canvasAspect > 0 ? canvasAspect : recordingAspect
         let w = max(2, outputWidth)
         // Video encoders want even dimensions.

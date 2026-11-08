@@ -96,15 +96,23 @@ pub struct Camera {
     pub scale: f64,
     pub center_x: f64,
     pub center_y: f64,
+    /// The view's shape, normalised width over height: 1 is the picture's
+    /// own shape; below 1 a taller window cut from a wider picture (the
+    /// vertical layout's follow framing, `vertical::FollowTrack`).
+    pub window: f64,
 }
 
 impl Camera {
-    pub const IDENTITY: Camera = Camera { scale: 1.0, center_x: 0.5, center_y: 0.5 };
+    pub const IDENTITY: Camera = Camera { scale: 1.0, center_x: 0.5, center_y: 0.5, window: 1.0 };
+
+    pub fn new(scale: f64, center_x: f64, center_y: f64) -> Camera {
+        Camera { scale, center_x, center_y, window: 1.0 }
+    }
 
     /// The visible part of the content: (x, y, w, h), normalised.
     pub fn viewport(&self) -> (f64, f64, f64, f64) {
-        let w = 1.0 / self.scale;
-        let h = 1.0 / self.scale;
+        let w = 1f64.min(self.window) / self.scale;
+        let h = 1f64.min(1.0 / self.window) / self.scale;
         (self.center_x - w / 2.0, self.center_y - h / 2.0, w, h)
     }
 
@@ -209,7 +217,7 @@ pub fn camera_at(t: f64, segments: &[ZoomSegment], focus: &SmoothTrack) -> Camer
     let scale = 1.0 + (seg.scale.max(1.0) - 1.0) * w;
     let f = if seg.follows_cursor() { focus.position(t) } else { (seg.focus_x.unwrap(), seg.focus_y.unwrap()) };
     let half = 0.5 / scale;
-    Camera { scale, center_x: f.0.max(half).min(1.0 - half), center_y: f.1.max(half).min(1.0 - half) }
+    Camera::new(scale, f.0.max(half).min(1.0 - half), f.1.max(half).min(1.0 - half))
 }
 
 pub const RIPPLE_DURATION: f64 = 0.55;

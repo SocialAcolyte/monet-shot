@@ -1,5 +1,5 @@
 //! Our painter against frames the Mac's Renderer drew
-//! (`shared/fixtures/render/cases.json`). Set MONETSHOT_RENDER_OUT=<dir> to
+//! (`shared/fixtures/render/cases.json`, `vertical.json`). Set MONETSHOT_RENDER_OUT=<dir> to
 //! write ours beside them for a look.
 
 use monetshot_core::json::from_json;
@@ -40,8 +40,18 @@ fn compare(a: &Rgba8, b: &Rgba8) -> (f64, f64) {
 
 #[test]
 fn painter_matches_the_macs_renderer() {
+    matches_the_mac("cases.json");
+}
+
+/// Vertical and square frames (1080x1920, 1080x1080): the follow window.
+#[test]
+fn vertical_matches_the_macs_renderer() {
+    matches_the_mac("vertical.json");
+}
+
+fn matches_the_mac(file: &str) {
     let fx = repo().join("shared/fixtures/render");
-    let cases: Value = serde_json::from_slice(&std::fs::read(fx.join("cases.json")).unwrap()).unwrap();
+    let cases: Value = serde_json::from_slice(&std::fs::read(fx.join(file)).unwrap()).unwrap();
     let out = std::env::var_os("MONETSHOT_RENDER_OUT").map(PathBuf::from);
     let mut report = vec![];
     let mut failures = vec![];
