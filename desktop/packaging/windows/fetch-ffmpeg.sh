@@ -18,7 +18,7 @@ here="$(cd "$(dirname "$0")" && pwd)"
 release="https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
 if [[ -z "${FFMPEG_ZIP_URL:-}" ]]; then
   auth=(); [[ -n "${GITHUB_TOKEN:-}" ]] && auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
-  name="$(curl -fsSL "${auth[@]}" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/tags/latest \
+  name="$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 "${auth[@]}" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/tags/latest \
     | grep -oE '"name": *"ffmpeg-n[0-9]+\.[0-9]+-latest-win64-gpl-[0-9]+\.[0-9]+\.zip"' \
     | sed -E 's/.*"(ffmpeg-[^"]+)"/\1/' | sort -V | tail -1)"
   [[ -n "$name" ]] || { echo "no win64-gpl release build in BtbN's latest release" >&2; exit 1; }
@@ -31,11 +31,11 @@ work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
 echo "fetching $url"
-curl -fsSL -o "$work/ffmpeg.zip" "$url"
+curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 -o "$work/ffmpeg.zip" "$url"
 got="$(shasum -a 256 "$work/ffmpeg.zip" 2>/dev/null || sha256sum "$work/ffmpeg.zip")"; got="${got%% *}"
 if [[ -z "$want" ]]; then
   sums="$(dirname "$url")/checksums.sha256"
-  want="$(curl -fsSL "$sums" | awk -v f="$(basename "$url")" '$2==f || $2=="*"f {print $1}')"
+  want="$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 "$sums" | awk -v f="$(basename "$url")" '$2==f || $2=="*"f {print $1}')"
   [[ -n "$want" ]] || { echo "no checksum for $(basename "$url") in $sums" >&2; exit 1; }
   echo "checksum from the release: $want (pin it with FFMPEG_SHA256)"
 fi
