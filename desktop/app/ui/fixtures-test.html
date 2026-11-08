@@ -41,6 +41,9 @@
         // overlay clip that is the take's own camera, so name one (starting
         // with the take) or the plan has no webcam to draw.
         if (c.webcam && !c.overlay) for (const t of takes) { t.meta.camera = c.webcam; t.meta.cameraOffset = 0; }
+        // Captions cases carry each take's transcript.json (the Mac renderer
+        // was handed them; the app's editor_load gives them to the Editor too).
+        if (c.transcripts) c.transcripts.forEach((t, i) => { if (t && takes[i]) takes[i].transcript = JSON.parse(t); });
         const ed = new core.Editor(JSON.parse(c.edit), takes);
         const plan = ed.plan(c.t);
         const sources = await Promise.all(c.sources.map((s) => load(`${dir}/${s}`)));

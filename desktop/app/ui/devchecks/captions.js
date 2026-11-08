@@ -58,15 +58,20 @@ export default async function ({ view, call }) {
   // It starts by itself (Transcribe new takes is on by default).
   const began = await until(() => s.speech.busy != null || s.speech.words.length > 0, 15000);
   await ok(began, "transcription starts on open");
-  let sawDownload = false, sawListen = false;
+  // What the Captions section said while it worked (the model may already
+  // be down by the time this looks: it took 0.7 s on the VM).
+  const said = new Set();
+  let swept = false;
   const t0 = performance.now();
   const finished = await until(() => {
-    if (s.speech.busy?.stage === "download") sawDownload = true;
-    if (s.speech.busy?.stage === "listen" && s.speech.busy.progress > 0) sawListen = true;
+    const st = document.querySelector(".busy .status")?.textContent?.trim();
+    if (st) said.add(st);
+    if (document.querySelector(".busy .bar.sweep")) swept = true;
     return s.speech.busy == null;
   }, 600000);
   await ok(finished && !s.speech.error, "transcription finishes", `${((performance.now() - t0) / 1000).toFixed(1)} s${s.speech.error ? `: ${s.speech.error}` : ""}`);
-  await ok(sawDownload || sawListen, "progress is shown", `download ${sawDownload}, listening ${sawListen}`);
+  await ok([...said].some((x) => x.startsWith("Listening…")), "progress is shown", [...said].join(" / ") + (swept ? " (sweeping)" : ""));
+  await ok(![...said].some((x) => /\b0%/.test(x)), "no stuck 0%");
   const t = s.takes[0].transcript;
   const heard = (t?.words ?? []).map((w) => w.text).join(" ");
   const rate = wer(SENTENCE, heard);

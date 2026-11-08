@@ -28,12 +28,13 @@
   const same = (a: CaptionWord | null, b: CaptionWord) => !!a && a.take === b.take && a.index === b.index && a.span === b.span && a.text === b.text;
   /** The word being said at the playhead. */
   const now = $derived(words.findIndex((w) => store.time >= w.start && store.time < w.end + 0.05));
+  // whisper reports how far it is only between 30-second windows, so a
+  // short take says nothing until it's done: no number then, and the bar
+  // sweeps instead of sitting at 0%.
+  const known = $derived(!!sp.busy && sp.busy.progress > 0.005);
+  const pct = $derived(sp.busy ? ` ${Math.round(sp.busy.progress * 100)}%` : "");
   const status = $derived(
-    sp.busy
-      ? sp.busy.stage === "download"
-        ? `Getting the speech model… ${Math.round(sp.busy.progress * 100)}%`
-        : `Listening… ${Math.round(sp.busy.progress * 100)}%`
-      : null,
+    sp.busy ? (sp.busy.stage === "download" ? "Getting the speech model…" : "Listening…") + (known ? pct : "") : null,
   );
 </script>
 
@@ -44,7 +45,7 @@
     <ToggleRow label="Captions" on={sp.on} onchange={(v) => sp.setOn(v)} />
     {#if sp.busy}
       <div class="busy">
-        <div class="bar"><span style:width="{Math.round(sp.busy.progress * 100)}%"></span></div>
+        <div class="bar" class:sweep={!known} role="progressbar" aria-valuenow={known ? Math.round(sp.busy.progress * 100) : undefined}><span style:width={known ? `${Math.round(sp.busy.progress * 100)}%` : "40%"}></span></div>
         <span class="status tabular">{status}</span>
         <button class="icon" title="Stop" aria-label="Stop transcribing" onclick={() => sp.cancel()}><X size={13} /></button>
       </div>
@@ -104,6 +105,18 @@
     height: 100%;
     background: var(--violet);
     transition: width 0.2s linear;
+  }
+  .bar.sweep span {
+    transition: none;
+    animation: sweep 1.2s ease-in-out infinite;
+  }
+  @keyframes sweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
   }
   .status {
     flex: 1;
