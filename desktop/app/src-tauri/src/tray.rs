@@ -33,7 +33,7 @@ enum Look {
 struct TrayState {
     look: Option<Look>,
     title: Option<String>,
-    menu_key: Option<(bool, bool, bool, Vec<std::path::PathBuf>)>,
+    menu_key: Option<(bool, bool, bool, bool, Vec<std::path::PathBuf>)>,
 }
 
 static STATE: Mutex<TrayState> = Mutex::new(TrayState { look: None, title: None, menu_key: None });
