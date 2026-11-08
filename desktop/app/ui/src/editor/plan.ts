@@ -42,6 +42,9 @@ export interface TextPlan {
   color: Rgba;
   backing: Rgba | null;
   shadow: boolean;
+  /** The word being said (a caption), lit in `highlightColor`. */
+  highlight?: number;
+  highlightColor?: Rgba;
 }
 
 /** textArt(text) from core-wasm. */

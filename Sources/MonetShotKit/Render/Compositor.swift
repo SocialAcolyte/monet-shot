@@ -10,6 +10,7 @@ enum TrackID {
     static let takeCamera: CMPersistentTrackID = 3
     static let overlayAudio: CMPersistentTrackID = 4
     static let takeCameraAudio: CMPersistentTrackID = 5
+    static let takeVoice: CMPersistentTrackID = 6
 }
 
 /// The one instruction covering the whole video: which tracks to read and

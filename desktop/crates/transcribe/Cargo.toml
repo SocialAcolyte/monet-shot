@@ -1,0 +1,18 @@
+[package]
+name = "monetshot-transcribe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Speech to text on the device (whisper.cpp), word by word, for Monet Shot's captions"
+
+[lib]
+name = "monetshot_transcribe"
+
+[dependencies]
+monetshot-core = { workspace = true }
+monetshot-export = { path = "../export" }
+whisper-rs = "0.16"
+sha2 = "0.10"
+dirs = "6"
+log = "0.4"

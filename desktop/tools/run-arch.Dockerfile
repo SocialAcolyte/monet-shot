@@ -5,7 +5,7 @@ FROM archlinux:base-devel
 # pacman's download sandbox can't set up seccomp under emulation.
 RUN sed -i 's/^\[options\]/[options]\nDisableSandbox/' /etc/pacman.conf
 RUN pacman -Syu --noconfirm --needed \
-      rust clang pkgconf git rsync nodejs npm \
+      rust clang cmake pkgconf git rsync nodejs npm \
       pipewire ffmpeg webkit2gtk-4.1 gtk3 libayatana-appindicator librsvg openssl xdotool \
       gst-plugins-base gst-plugins-good gst-libav \
       xorg-server-xvfb xorg-xdpyinfo xorg-xwininfo imagemagick mesa mesa-utils openbox stalonetray dbus \

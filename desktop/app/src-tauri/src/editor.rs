@@ -21,6 +21,9 @@ pub struct TakeData {
     /// Absolute paths for the page to load (asset protocol).
     pub video: PathBuf,
     pub camera: Option<PathBuf>,
+    /// The file with your voice (absolute), and transcript.json if heard.
+    pub voice: Option<PathBuf>,
+    pub transcript: Option<monetshot_core::Transcript>,
 }
 
 #[derive(Serialize)]
@@ -45,6 +48,8 @@ pub fn load(folder: &Path) -> Result<EditorData, String> {
                 dir: t.folder.strip_prefix(&p.folder).map(|d| d.to_string_lossy().to_string()).unwrap_or_default(),
                 video: t.video_path(),
                 camera: t.camera_path(),
+                voice: t.meta.voice.as_ref().map(|v| t.folder.join(v)).filter(|p| p.is_file()),
+                transcript: monetshot_core::Transcript::load(&t.folder),
             })
         })
         .collect::<Result<Vec<_>, String>>()?;

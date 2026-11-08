@@ -54,8 +54,9 @@ pub fn text_art(plan: &TextPlan) -> TextArt {
         pm.fill_path(&rounded(rect, RADIUS as f32 * px), &paint(rgb(hex, b.a as f32)), tiny_skia::FillRule::Winding, Transform::identity(), None);
     }
 
-    // Coverage of the words, each at its own alpha.
+    // Coverage of the words, each at its own alpha (the word being said apart).
     let mut cov = vec![0f32; w * h];
+    let mut lit = vec![0f32; if plan.highlight.is_some() { w * h } else { 0 }];
     let scale = em_scale(&font, px);
     let mut word: i64 = -1;
     for (i, (glyphs, line_w)) in lines.iter().enumerate() {
@@ -75,13 +76,14 @@ pub fn text_art(plan: &TextPlan) -> TextArt {
             if alpha <= 0.001 {
                 continue;
             }
+            let into = if plan.highlight == Some(word as usize) { &mut lit } else { &mut cov };
             if let Some(o) = font.outline_glyph(g.with_scale_and_position(scale, ab_glyph::point(x0 + gx, baseline))) {
                 let b = o.px_bounds();
                 o.draw(|gx, gy, c| {
                     let (x, y) = (b.min.x as i64 + gx as i64, b.min.y as i64 + gy as i64);
                     if x >= 0 && y >= 0 && (x as usize) < w && (y as usize) < h {
                         let k = y as usize * w + x as usize;
-                        cov[k] = (cov[k] + c * alpha).min(1.0);
+                        into[k] = (into[k] + c * alpha).min(1.0);
                     }
                 });
             }
@@ -105,6 +107,9 @@ pub fn text_art(plan: &TextPlan) -> TextArt {
         let dy = (SHADOW_OFFSET as f32 * px).round() as usize;
         for y in dy..h {
             sh[y * w..y * w + w].copy_from_slice(&cov[(y - dy) * w..(y - dy) * w + w]);
+            for x in 0..w.min(lit.len()) {
+                sh[y * w + x] = (sh[y * w + x] + lit[(y - dy) * w + x]).min(1.0);
+            }
         }
         blur_alpha(&mut sh, w, h, SHADOW_SIGMA as f32 * px);
         for (k, a) in sh.iter().enumerate() {
@@ -114,6 +119,11 @@ pub fn text_art(plan: &TextPlan) -> TextArt {
     let col = [plan.color.r as f32, plan.color.g as f32, plan.color.b as f32];
     for (k, a) in cov.iter().enumerate() {
         over(k, col, *a);
+    }
+    if let Some(c) = &plan.highlight_color {
+        for (k, a) in lit.iter().enumerate() {
+            over(k, [c.r as f32, c.g as f32, c.b as f32], *a);
+        }
     }
     TextArt { width: w as u32, height: h as u32, rgba: pm.take() }
 }

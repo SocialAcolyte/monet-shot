@@ -34,7 +34,7 @@ optdepends=(
   'waybar: the record button in the bar on Omarchy 3 (Omarchy 4 uses its own shell)'
   'gst-plugin-va: hardware video decoding in the editor (VA-API)'
 )
-makedepends=('rust' 'rust-wasm' 'cargo' 'nodejs' 'npm' 'clang' 'pkgconf' 'git')
+makedepends=('rust' 'rust-wasm' 'cargo' 'nodejs' 'npm' 'clang' 'cmake' 'pkgconf' 'git')
 options=('!lto' '!debug')
 install=monet-shot.install
 

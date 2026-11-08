@@ -159,6 +159,7 @@ pub fn begin_recording(app: &AppHandle, take_into: Option<PathBuf>, camera_too: 
         let mut opts = StartOptions::new(monetshot_core::paths::library_dir());
         opts.take_into = take_into;
         opts.camera = camera_too.then(crate::camera::choice);
+        opts.mic = crate::speech::settings().mic;
         let sink_app = app.clone();
         let sink: capture::EventSink = Arc::new(move |e| on_capture(&sink_app, e));
         match backend().start(picked, opts, sink) {

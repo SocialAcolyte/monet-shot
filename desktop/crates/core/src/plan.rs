@@ -269,6 +269,11 @@ pub struct TextPlan {
     pub backing: Option<Rgba>,
     /// A soft shadow under unboxed light words (in the picture).
     pub shadow: bool,
+    /// The word being said (reading order) and its colour, in a caption.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub highlight: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub highlight_color: Option<Rgba>,
 }
 
 /// One take as the planner needs it.
@@ -321,6 +326,8 @@ pub struct Planner {
     pub backdrop: BackdropPlan,
     pub cursor_art_height: u32,
     looks: Vec<Look>,
+    /// What was said, as captions (empty unless the edit shows them).
+    pub captions: Vec<crate::text::TextOverlay>,
 }
 
 impl Planner {
@@ -338,7 +345,22 @@ impl Planner {
                     .unwrap_or_default(),
             })
             .collect();
-        Planner::new(&p.edit, &takes)
+        let planner = Planner::new(&p.edit, &takes);
+        #[cfg(not(target_arch = "wasm32"))]
+        let planner = planner.with_transcripts(&p.takes.iter().map(|t| crate::captions::Transcript::load(&t.folder)).collect::<Vec<_>>());
+        planner
+    }
+
+    /// The captions for these transcripts (`transcripts[k]` is take k's),
+    /// when the edit shows them.
+    pub fn with_transcripts(mut self, transcripts: &[Option<crate::captions::Transcript>]) -> Planner {
+        self.captions = if self.doc.captions == Some(true) {
+            let anim = self.doc.format.as_deref().and_then(crate::formats::named).map_or(crate::text::TextAnimation::Words, |f| f.caption_animation.clone());
+            crate::captions::overlays(transcripts, &self.map, self.canvas.width as f64, self.canvas.height as f64, anim)
+        } else {
+            vec![]
+        };
+        self
     }
 
     pub fn new(doc: &EditDoc, takes: &[PlanTake]) -> Planner {
@@ -439,7 +461,7 @@ impl Planner {
         let base = looks.iter().map(|l| l.cursor_base_height).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v)))).unwrap_or(40.0);
         let cursor_art_height = (base * 2.5).max(24.0).min(512.0).round() as u32;
         let backdrop = backdrop_plan(doc, cwf, chf);
-        Planner { doc: doc.clone(), map, canvas: Size { width: cw as u32, height: ch as u32 }, backdrop, cursor_art_height, looks }
+        Planner { doc: doc.clone(), map, canvas: Size { width: cw as u32, height: ch as u32 }, backdrop, cursor_art_height, looks, captions: vec![] }
     }
 
     fn look(&self, take: i64) -> Option<&Look> {
@@ -518,11 +540,15 @@ impl Planner {
     /// Every text showing at output time `t`.
     pub fn texts(&self, t: f64) -> Vec<TextPlan> {
         let (w, h) = (self.canvas.width as f64, self.canvas.height as f64);
+        // Your own texts move into a tall canvas's safe area; captions are
+        // already placed in it.
         self.doc
             .overlays()
             .iter()
+            .map(|o| in_safe_area(o, w, h))
+            .chain(self.captions.iter().filter(|o| o.covers(t)).cloned())
             .filter_map(|o| {
-                let st = text_motion::state(&in_safe_area(o, w, h), t, w, h)?;
+                let st = text_motion::state(&o, t, w, h)?;
                 if st.opacity <= 0.001 {
                     return None;
                 }
@@ -538,6 +564,8 @@ impl Planner {
                     color: Rgba::hex(o.tone.hex(), 1.0),
                     backing: backed.then(|| Rgba::hex(o.tone.backing_hex(), o.tone.backing_alpha())),
                     shadow: text_motion::has_shadow(&o.tone, backed),
+                    highlight: st.highlight,
+                    highlight_color: st.highlight.map(|_| Rgba::hex(o.tone.highlight_hex(), 1.0)),
                 })
             })
             .collect()

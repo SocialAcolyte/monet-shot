@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 pub mod camera;
+pub mod voice;
 pub mod ffmpeg;
 pub mod pipe;
 pub mod pointer;
@@ -179,12 +180,15 @@ pub struct StartOptions {
     pub take_into: Option<PathBuf>,
     /// "Record my camera too".
     pub camera: Option<CameraChoice>,
+    /// Your voice from this microphone ("default" = the system's) when the
+    /// camera isn't recording; None = no voice.
+    pub mic: Option<String>,
     pub fps: u32,
 }
 
 impl StartOptions {
     pub fn new(library: impl Into<PathBuf>) -> Self {
-        StartOptions { library: library.into(), take_into: None, camera: None, fps: 60 }
+        StartOptions { library: library.into(), take_into: None, camera: None, mic: None, fps: 60 }
     }
 }
 

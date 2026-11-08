@@ -14,6 +14,8 @@ const join = (folder: string, file: string) => `${folder.replace(/[\\/]+$/, "")}
 
 export class Playback implements Sources {
   private takes: HTMLVideoElement[] = [];
+  /** Each take's voice (the microphone alone), when it has one. */
+  private voices: (HTMLAudioElement | null)[] = [];
   private cams = new Map<string, HTMLVideoElement>();
   private images = new Map<string, HTMLImageElement | "failed">();
   private box: HTMLDivElement;
@@ -40,6 +42,7 @@ export class Playback implements Sources {
   }
 
   destroy() {
+    for (const a of this.voices) a?.pause();
     for (const v of [...this.takes, ...this.cams.values()]) {
       v.pause();
       v.removeAttribute("src");
@@ -126,6 +129,22 @@ export class Playback implements Sources {
       const i = this.takes.length;
       this.takes.push(this.makeVideo(t[i].video, false));
     }
+    while (this.voices.length < t.length) {
+      const k = t[this.voices.length];
+      // A voice in the camera's file plays with the camera.
+      this.voices.push(k.voice && k.voice !== k.camera ? this.makeAudio(k.voice) : null);
+    }
+  }
+
+  private makeAudio(path: string): HTMLAudioElement {
+    const a = document.createElement("audio");
+    a.preload = "auto";
+    mediaUrl(path).then(
+      (url) => (a.src = url),
+      (e) => console.error("media url", path, e),
+    );
+    this.box.appendChild(a);
+    return a;
   }
 
   // MARK: Sources
@@ -182,7 +201,7 @@ export class Playback implements Sources {
 
   /** Keeps a video near `time`: seeks when far off, plays along while
    *  playing at `rate` (a clip's speed; the browser keeps the pitch). */
-  private follow(v: HTMLVideoElement, time: number, rate = 1) {
+  private follow(v: HTMLMediaElement, time: number, rate = 1) {
     const playing = this.store.playing;
     if (v.playbackRate !== rate) v.playbackRate = rate;
     if (playing) {
@@ -235,6 +254,15 @@ export class Playback implements Sources {
         v.muted = this.store.muted;
         this.follow(v, plan.takeTime, plan.speed);
       } else if (!v.paused) v.pause();
+    });
+    // The voice of the take on screen runs with it; the others rest.
+    this.voices.forEach((a, i) => {
+      if (!a) return;
+      const t = plan.takeTime - Number(this.store.takes[i]?.meta.voiceOffset ?? 0);
+      if (i === plan.take && t >= 0 && !(a.duration && t > a.duration)) {
+        a.muted = this.store.muted;
+        this.follow(a, t, plan.speed);
+      } else if (!a.paused) a.pause();
     });
     for (const [file, v] of this.cams) {
       v.muted = this.store.muted;

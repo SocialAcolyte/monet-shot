@@ -108,5 +108,7 @@ mock("editor_load", async (a) => {
   };
 });
 mock("editor_save", () => {});
+mock("speech_settings", () => ({ mic: null, language: "auto", autoTranscribe: false, writeSubtitles: true }));
+mock("speech_set", () => {});
 mock("backdrop_gallery", () => []);
 mock("filmstrip", () => Promise.reject("no filmstrips in the browser"));

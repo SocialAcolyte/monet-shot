@@ -1,3 +1,10 @@
-8f2376309f0ca694c02c9822e8c376348b912657
+29673a4a98070cb6a08705bc5fd683a9108f4cda
 # plus uncommitted MonetShotKit changes at generation time:
-# M Sources/MonetShotKit/Core/Vertical.swift
+# AM Sources/MonetShotKit/Model/Captions.swift
+# UU Sources/MonetShotKit/Model/Project.swift
+# M  Sources/MonetShotKit/Model/Text.swift
+# M  Sources/MonetShotKit/Render/Composer.swift
+# M  Sources/MonetShotKit/Render/Compositor.swift
+# UU Sources/MonetShotKit/Render/Renderer.swift
+# M  Sources/MonetShotKit/Render/TextArt.swift
+# A  Sources/MonetShotKit/Render/Voice.swift
