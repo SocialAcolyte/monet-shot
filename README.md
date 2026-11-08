@@ -90,7 +90,7 @@ crop away anything private before you share it. The look follows
     ring's right-click menu. You see yourself in a bubble during the 3‑2‑1;
     it hides when recording starts (it would be in the capture) and the
     camera keeps recording alongside, following the take's clips and cuts.
-- **Music.** *Music* (or **M**) opens the browser beside your video: 44
+- **Music.** *Music* (or **M**) opens the browser beside your video: 43
   tracks that come with the app, all CC0 or public domain, so there is
   nothing to credit and no conditions. *For this video* suggests a few that
   suit its length and format (punchier ones for a vertical video); or pick a
@@ -204,7 +204,7 @@ anywhere, no credit needed. Each one's licence and source page are in
 - **HoliznaCC0**: Lost On The Freeway, Night Driving, Night Life, Day Trips,
   Sky Scrapers, Make Love, Dancing, Moving Forward, Back In The 80s, The Last
   Long Day, Roof Tops, Hope On Repeat, Spring In Sight, Spring On The
-  Horizon, Venus
+  Horizon
 - **John Bartmann**: Lofi Jam, Disco in the Sky, Born to Boogie, Party Party
   Disco Party, Rich Mahogany, Autotune Will Not Save You, Rusty Bicycle,
   Guessing Game, Winter Rain, Grassroots Programming, Self-Driving Nights,

@@ -40,12 +40,14 @@ public enum Composer {
     static func addCamera(_ project: Project, map: TimeMap, to comp: AVMutableComposition) async throws {
         let ts: CMTimeScale = 6000
         func place(_ source: AVAssetTrack, from: Double, to: Double, at: Double, speed: Double = 1, in track: AVMutableCompositionTrack) throws {
-            let end = track.timeRange.end
+            // An empty track ignores an empty range put before its first piece, and would
+            // start that piece at 0: lay the piece at the track's end, then open the gap before it.
+            let end = track.segments.isEmpty ? .zero : track.timeRange.end
             let start = CMTime(seconds: at, preferredTimescale: ts)
-            if start > end { track.insertEmptyTimeRange(CMTimeRange(start: end, end: start)) }
             let range = CMTimeRange(start: CMTime(seconds: from, preferredTimescale: ts), end: CMTime(seconds: to, preferredTimescale: ts))
-            let slot = max(start, track.timeRange.end)
-            try track.insertTimeRange(range, of: source, at: slot)
+            let slot = max(start, end)
+            try track.insertTimeRange(range, of: source, at: end)
+            if slot > end { track.insertEmptyTimeRange(CMTimeRange(start: end, end: slot)) }
             if abs(speed - 1) > 1e-6 {
                 track.scaleTimeRange(CMTimeRange(start: slot, duration: range.duration),
                                      toDuration: CMTime(seconds: (to - from) / speed, preferredTimescale: ts))
@@ -87,29 +89,46 @@ public enum Composer {
     /// far (the camera's mic, a voiceover), read for its level by
     /// `VoiceActivity`. Call before the music is laid in.
     static func voice(in comp: AVComposition) async -> [ClosedRange<Double>] {
-        let tracks = comp.tracks(withMediaType: .audio).filter { !$0.segments.isEmpty }
-        guard !tracks.isEmpty, let reader = try? AVAssetReader(asset: comp) else { return [] }
+        // Each piece of sound is read from its own file and laid at its place
+        // on the output clock (a mix reader drops the silence before a late
+        // first piece, which would shift every time).
         let rate = 16_000.0
-        let out = AVAssetReaderAudioMixOutput(audioTracks: tracks, audioSettings: [
-            AVFormatIDKey: kAudioFormatLinearPCM, AVLinearPCMBitDepthKey: 32,
-            AVLinearPCMIsFloatKey: true, AVLinearPCMIsBigEndianKey: false, AVLinearPCMIsNonInterleaved: false,
-            AVNumberOfChannelsKey: 1, AVSampleRateKey: rate,
-        ])
-        out.audioTimePitchAlgorithm = .spectral
-        guard reader.canAdd(out) else { return [] }
-        reader.add(out)
-        guard reader.startReading() else { return [] }
         let length = (try? await comp.load(.duration).seconds) ?? 0
         var samples = [Float](repeating: 0, count: max(0, Int(length * rate)))
-        while let buffer = out.copyNextSampleBuffer(), let block = CMSampleBufferGetDataBuffer(buffer) {
-            // Placed by its own time: the mix skips stretches with no sound at all.
-            let at = Int((CMSampleBufferGetPresentationTimeStamp(buffer).seconds * rate).rounded())
-            var size = 0
-            var ptr: UnsafeMutablePointer<Int8>?
-            guard at >= 0, CMBlockBufferGetDataPointer(block, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &size, dataPointerOut: &ptr) == noErr,
-                  let ptr else { continue }
-            ptr.withMemoryRebound(to: Float.self, capacity: size / 4) { p in
-                for i in 0..<(size / 4) where at + i < samples.count { samples[at + i] = p[i] }
+        for track in comp.tracks(withMediaType: .audio) {
+            for seg in track.segments where !seg.isEmpty {
+                guard let url = seg.sourceURL else { continue }
+                let asset = AVURLAsset(url: url)     // kept alive while it's read
+                guard let source = try? await asset.loadTracks(withMediaType: .audio).first(where: { $0.trackID == seg.sourceTrackID }),
+                      let reader = try? AVAssetReader(asset: asset) else { continue }
+                let from = seg.timeMapping.source, to = seg.timeMapping.target
+                reader.timeRange = from
+                let out = AVAssetReaderTrackOutput(track: source, outputSettings: [
+                    AVFormatIDKey: kAudioFormatLinearPCM, AVLinearPCMBitDepthKey: 32,
+                    AVLinearPCMIsFloatKey: true, AVLinearPCMIsBigEndianKey: false, AVLinearPCMIsNonInterleaved: false,
+                    AVNumberOfChannelsKey: 1, AVSampleRateKey: rate,
+                ])
+                guard reader.canAdd(out) else { continue }
+                reader.add(out)
+                guard reader.startReading() else { continue }
+                var piece: [Float] = []
+                while let buffer = out.copyNextSampleBuffer(), let block = CMSampleBufferGetDataBuffer(buffer) {
+                    var size = 0
+                    var ptr: UnsafeMutablePointer<Int8>?
+                    guard CMBlockBufferGetDataPointer(block, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &size, dataPointerOut: &ptr) == noErr,
+                          let ptr else { continue }
+                    ptr.withMemoryRebound(to: Float.self, capacity: size / 4) { p in
+                        piece.append(contentsOf: UnsafeBufferPointer(start: p, count: size / 4))
+                    }
+                }
+                // A sped-up or slowed piece is stretched onto its output length.
+                let start = Int(to.start.seconds * rate)
+                let count = Int(to.duration.seconds * rate)
+                guard !piece.isEmpty, count > 0 else { continue }
+                let step = Double(piece.count) / Double(count)
+                for i in 0..<count where start + i < samples.count && start + i >= 0 {
+                    samples[start + i] += piece[min(piece.count - 1, Int(Double(i) * step))]
+                }
             }
         }
         return VoiceActivity.ranges(samples: samples, rate: rate)

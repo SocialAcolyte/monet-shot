@@ -146,19 +146,42 @@
         "holiznacc0_day-trips",
         "loyalty-freak-music_summer-pride",
         "holiznacc0_sky-scrapers",
-        "zane-little_butterflies",
-        "zane-little_lovebug",
         "holiznacc0_make-love",
-        "zane-little_midnight-cruiser",
         "holiznacc0_dancing",
         "tequila-moonrise_don-t-ride-the-dolphin",
         "loyalty-freak-music_monarch-of-the-street",
         "john-bartmann_disco-in-the-sky",
         "holiznacc0_moving-forward",
-        "holiznacc0_unwind",
         "us-marine-chamber-orchestra_debussy-danse-sacree",
         "us-marine-chamber-orchestra_debussy-danse-profane",
-        "robin-alciatore-musopen_satie-gymnopedie-1"
+        "robin-alciatore-musopen_satie-gymnopedie-1",
+        "john-bartmann_born-to-boogie",
+        "john-bartmann_party-party-disco-party",
+        "john-bartmann_rich-mahogany",
+        "john-bartmann_autotune-will-not-save-you",
+        "holiznacc0_back-in-the-80s",
+        "john-bartmann_rusty-bicycle",
+        "john-bartmann_guessing-game",
+        "john-bartmann_winter-rain",
+        "john-bartmann_grassroots-programming",
+        "john-bartmann_self-driving-nights",
+        "john-bartmann_spirit-of-java",
+        "john-bartmann_back-to-basics",
+        "holiznacc0_the-last-long-day",
+        "holiznacc0_roof-tops",
+        "holiznacc0_hope-on-repeat",
+        "holiznacc0_spring-in-sight",
+        "holiznacc0_spring-on-the-horizon",
+        "loyalty-freak-music_people-are-spinning",
+        "loyalty-freak-music_chillin-with-a-drink-at-the-club",
+        "loyalty-freak-music_lag",
+        "loyalty-freak-music_no-cadillac",
+        "zane-little_rhythm-factory",
+        "zane-little_goober-dynamics-1",
+        "kimiko-ishizaka_bach-goldberg-aria",
+        "kimiko-ishizaka_bach-prelude-in-c",
+        "musopen_chopin-nocturne-op9-no2",
+        "luke-faulkner_chopin-nocturne-op15-no2"
       ],
       "mood" : null,
       "query" : ""
@@ -167,7 +190,7 @@
       "ids" : [
         "holiznacc0_night-driving",
         "holiznacc0_night-life",
-        "zane-little_midnight-cruiser"
+        "john-bartmann_self-driving-nights"
       ],
       "mood" : null,
       "query" : "night"
@@ -176,7 +199,8 @@
       "ids" : [
         "holiznacc0_night-driving",
         "holiznacc0_day-trips",
-        "holiznacc0_sky-scrapers"
+        "holiznacc0_sky-scrapers",
+        "john-bartmann_rusty-bicycle"
       ],
       "mood" : null,
       "query" : "warm piano"
@@ -191,7 +215,12 @@
         "holiznacc0_make-love",
         "holiznacc0_dancing",
         "holiznacc0_moving-forward",
-        "holiznacc0_unwind"
+        "holiznacc0_back-in-the-80s",
+        "holiznacc0_the-last-long-day",
+        "holiznacc0_roof-tops",
+        "holiznacc0_hope-on-repeat",
+        "holiznacc0_spring-in-sight",
+        "holiznacc0_spring-on-the-horizon"
       ],
       "mood" : null,
       "query" : "HOLIZNA"
@@ -208,9 +237,19 @@
         "holiznacc0_night-driving",
         "holiznacc0_night-life",
         "holiznacc0_sky-scrapers",
-        "zane-little_butterflies",
         "holiznacc0_dancing",
-        "tequila-moonrise_don-t-ride-the-dolphin"
+        "tequila-moonrise_don-t-ride-the-dolphin",
+        "john-bartmann_winter-rain",
+        "john-bartmann_grassroots-programming",
+        "john-bartmann_self-driving-nights",
+        "john-bartmann_spirit-of-java",
+        "holiznacc0_the-last-long-day",
+        "holiznacc0_roof-tops",
+        "holiznacc0_spring-on-the-horizon",
+        "loyalty-freak-music_people-are-spinning",
+        "loyalty-freak-music_lag",
+        "loyalty-freak-music_no-cadillac",
+        "musopen_chopin-nocturne-op9-no2"
       ],
       "mood" : "dreamy",
       "query" : ""
@@ -222,7 +261,17 @@
         "loyalty-freak-music_summer-pride",
         "holiznacc0_dancing",
         "holiznacc0_moving-forward",
-        "holiznacc0_unwind"
+        "robin-alciatore-musopen_satie-gymnopedie-1",
+        "john-bartmann_rusty-bicycle",
+        "john-bartmann_guessing-game",
+        "john-bartmann_winter-rain",
+        "holiznacc0_the-last-long-day",
+        "holiznacc0_hope-on-repeat",
+        "holiznacc0_spring-in-sight",
+        "loyalty-freak-music_lag",
+        "loyalty-freak-music_no-cadillac",
+        "kimiko-ishizaka_bach-goldberg-aria",
+        "kimiko-ishizaka_bach-prelude-in-c"
       ],
       "mood" : "mellow",
       "query" : ""
@@ -233,14 +282,18 @@
         "holiznacc0_night-driving",
         "holiznacc0_night-life",
         "loyalty-freak-music_summer-pride",
-        "holiznacc0_make-love"
+        "holiznacc0_make-love",
+        "john-bartmann_rich-mahogany",
+        "loyalty-freak-music_chillin-with-a-drink-at-the-club"
       ],
       "mood" : "sunny",
       "query" : "groove"
     },
     {
       "ids" : [
-        "john-bartmann_disco-in-the-sky"
+        "john-bartmann_disco-in-the-sky",
+        "john-bartmann_born-to-boogie",
+        "john-bartmann_rich-mahogany"
       ],
       "mood" : null,
       "query" : "disco-in"
