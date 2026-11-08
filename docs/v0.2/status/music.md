@@ -1,6 +1,7 @@
 # ms-music: better music selection (status)
 
-Branch `feat/music`. Brief: `docs/v0.2/music.md`.
+Branch `feat/music`, merged with `v0.2` at 0.2.0 (`28bafb4`: vertical, captions, Connor's 20-track library),
+so it can ship as 0.2.1. Brief: `docs/v0.2/music.md`.
 
 ## What was built
 
@@ -37,8 +38,10 @@ file stays. The desktop preview now plays the music at all (it didn't before), w
   Tracks without a beat (the classical ones) keep the plain 2 s fade from the top.
 - `VoiceActivity`: talk found by level alone (50 ms frames, above the take's own quiet by 12 dB, between -48
   and -26 dBFS; pauses under 0.5 s bridged, bursts under 0.2 s ignored). The music ducks (to 30 %) under any
-  sound in the edit, the camera's mic or a voiceover the captions branch adds: the Mac reads every audio
-  piece of the composition before the music goes in; the desktop reads its voices mix before the music.
+  voice in the edit, the camera's mic or the take's voice track from captions (`meta.voice`): the Mac reads
+  each piece of the camera and voice tracks (`TrackID.overlayAudio`, `takeCameraAudio`, `takeVoice`) at its
+  place on the output clock; the desktop reads its voices mix (camera audio + `subtitles::voice_audio`)
+  before the music goes in.
 - A file of your own gets its grid read once and kept with the choice (`track.grid`).
 - `--music` on the Mac command line fits the same way.
 
@@ -60,8 +63,8 @@ file stays. The desktop preview now plays the music at all (it didn't before), w
   tone; the Mac test used `say`, a synthetic voice).
 - The vertical shelf (punchier picks, starting at the first lift) is unit-tested; a real 9:16 edit needs the
   vertical branch.
-- The captions branch's voiceover track: ducking reads any audio in the edit, so it should duck under it with
-  no change; not run together.
+- Ducking under captions' voice track (`meta.voice`) is wired on both sides (it is one of the tracks read)
+  but no take with a separate voice file was exported to measure it; the measured case is camera sound.
 
 ## Fixes outside music (small, needed for the duck)
 
@@ -74,3 +77,15 @@ file stays. The desktop preview now plays the music at all (it didn't before), w
 - What the Windows VM export taught: Day Trips placed from its first downbeat gave a 5 s video only its
   filtered intro (earshot: -27.8 LUFS, 3.2 kHz wide, against -24.7 LUFS for those 5 s of the track). Each
   track's `start` is now the first bar line where it's in full swing.
+
+## Merge notes
+
+- Already merged with `v0.2` = `main` at 28bafb4 (merge commit on this branch). Conflicts were in
+  `Composer.swift` (`voice(in:)`: this branch's level reading kept, limited to the camera and voice tracks),
+  `playback.ts` (captions' voice elements and this branch's music element both kept), README and spec (both
+  sections kept; the old incompetech text dropped), `shared/LAST_SYNC` (regenerated). Fixtures regenerated
+  after the merge: only `music.json`, `music_envelope.json` and the new `music_fit.json` differ from v0.2.
+- `media.rs` keeps vertical's Windows file-URL fix (cherry-picked earlier, so it merged as the same change).
+- `Resources/Music` replaces 0.2.0's 20 files (43 tracks, 76 MB; three of the 20 left out, see music-picks).
+  Existing recordings keep working: their music file is a copy inside the .reel.
+- The library is the only large change; git history grows by ~76 MB.
