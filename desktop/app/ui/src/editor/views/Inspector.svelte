@@ -111,11 +111,32 @@
 
   const canvasSize = $derived(store.c.canvasSize(e, (store.takes[0]?.meta.pixelWidth ?? 16) / (store.takes[0]?.meta.pixelHeight ?? 9)));
   const aspect = $derived(e.canvasAspect === 0 ? 0 : Math.abs(e.canvasAspect - 1) < 0.01 ? 1 : 16 / 9);
+  // Landscape, or made for phones and feeds (CanvasLayout). Landscape removes
+  // the key, so the landscape choices below come back exactly as they were.
+  const layout = $derived(e.layout === "vertical" || e.layout === "square" ? e.layout : "landscape");
+  const setLayout = (v: string) =>
+    store.update((d) => {
+      if (v === "landscape") delete d.layout;
+      else d.layout = v;
+    });
 
 </script>
 
 <div class="inspector">
   <div class="scroll">
+    <Section title="Shape">
+      <Segmented
+        options={[{ value: "landscape", label: "Landscape" }, { value: "vertical", label: "Vertical" }, { value: "square", label: "Square" }]}
+        value={layout}
+        onchange={setLayout}
+      />
+      {#if layout === "vertical"}
+        <Hint text="For phones. The frame follows the action; the dashed line marks what Reels, Shorts and TikTok leave clear." />
+      {:else if layout === "square"}
+        <Hint text="For feeds. The frame follows the action." />
+      {/if}
+    </Section>
+
     <Section title="Format">
       <div class="formats">
         {#each store.formats as f (f.id)}
@@ -338,16 +359,18 @@
     <CameraSection {store} />
 
     <Section title="Output">
-      <Segmented
-        options={[{ value: 1920, label: "1080p" }, { value: 2560, label: "1440p" }, { value: 3840, label: "4K" }]}
-        value={e.outputWidth}
-        onchange={(v) => set("outputWidth", v)}
-      />
-      <Segmented
-        options={[{ value: 16 / 9, label: "16:9" }, { value: 1, label: "Square" }, { value: 0, label: "As recorded" }]}
-        value={aspect}
-        onchange={(v) => set("canvasAspect", v)}
-      />
+      {#if layout === "landscape"}
+        <Segmented
+          options={[{ value: 1920, label: "1080p" }, { value: 2560, label: "1440p" }, { value: 3840, label: "4K" }]}
+          value={e.outputWidth}
+          onchange={(v) => set("outputWidth", v)}
+        />
+        <Segmented
+          options={[{ value: 16 / 9, label: "16:9" }, { value: 1, label: "Square" }, { value: 0, label: "As recorded" }]}
+          value={aspect}
+          onchange={(v) => set("canvasAspect", v)}
+        />
+      {/if}
       <Hint text="{canvasSize.width} × {canvasSize.height}, 60 fps" />
     </Section>
   </div>

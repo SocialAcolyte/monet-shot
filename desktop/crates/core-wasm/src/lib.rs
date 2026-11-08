@@ -389,6 +389,13 @@ pub fn set_crop(edit: JsValue, rect: JsValue, take: i32) -> R<JsValue> {
     to_js(&doc)
 }
 
+/// The part of a canvas phone apps leave clear (px, top-left): the
+/// captions' and texts' room on a tall canvas, the whole canvas otherwise.
+#[wasm_bindgen(js_name = safeArea)]
+pub fn safe_area_js(canvas_width: f64, canvas_height: f64) -> R<JsValue> {
+    to_js(&monetshot_core::vertical::safe_area(canvas_width, canvas_height))
+}
+
 /// EditDoc.canvasSize(recordingAspect:) -> {width, height}
 #[wasm_bindgen(js_name = canvasSize)]
 pub fn canvas_size(edit: JsValue, recording_aspect: f64) -> R<JsValue> {

@@ -130,6 +130,19 @@ fn picked(app: &AppHandle, gen: u64, r: Result<Option<Picked>, String>) {
     }
 }
 
+/// "Record Vertical": the new recording's edit starts in the vertical layout.
+fn start_vertical(folder: &std::path::Path) {
+    match monetshot_core::Project::load(folder) {
+        Ok(mut p) => {
+            p.edit.set_layout(monetshot_core::CanvasLayout::Vertical);
+            if let Err(e) = p.save_edit() {
+                log::info(&format!("vertical: could not save the edit: {e}"));
+            }
+        }
+        Err(e) => log::info(&format!("vertical: could not open {}: {e}", folder.display())),
+    }
+}
+
 pub fn cancel_pending(app: &AppHandle) {
     next_gen();
     windows::close_picker(app);
@@ -166,6 +179,9 @@ fn on_capture(app: &AppHandle, e: capture::Event) {
         capture::Event::Warning(w) => log::info(&format!("capture warning: {w}")),
         capture::Event::Finished { folder } => {
             STATE.lock().unwrap().recording = None;
+            if app.state::<crate::bar::Bar>().snapshot().vertical {
+                start_vertical(&folder);
+            }
             send(app, Event::Finished { folder });
         }
         capture::Event::FinishedTake { project, clips, .. } => {

@@ -138,7 +138,7 @@ fn set_title(app: &AppHandle, s: &BarState) {
 pub fn refresh_menu(app: &AppHandle) {
     let snap = app.state::<Bar>().snapshot();
     let recording = matches!(snap.phase, Phase::Recording { .. });
-    let key = (recording, snap.paused, snap.camera_too, library::recent(6));
+    let key = (recording, snap.paused, snap.camera_too, snap.vertical, library::recent(6));
     {
         let mut st = STATE.lock().unwrap();
         if st.menu_key.as_ref() == Some(&key) {
@@ -173,6 +173,7 @@ fn build_menu(app: &AppHandle, s: &BarState) -> tauri::Result<Menu<Wry>> {
             menu.append(&MenuItem::with_id(app, "choose", "Choose what to record…", true, None::<&str>)?)?;
         }
         menu.append(&CheckMenuItem::with_id(app, "camera", "Record My Camera Too", true, s.camera_too, None::<&str>)?)?;
+        menu.append(&CheckMenuItem::with_id(app, "vertical", "Record Vertical", true, s.vertical, None::<&str>)?)?;
     }
     menu.append(&MenuItem::with_id(app, "home", "Open Monet Shot", true, Some("CmdOrCtrl+O"))?)?;
     menu.append(&PredefinedMenuItem::separator(app)?)?;
@@ -200,6 +201,7 @@ fn on_menu(app: &AppHandle, id: &str) {
             bar.tap(app);
         }
         "camera" => bar.toggle_camera_too(app),
+        "vertical" => bar.toggle_vertical(app),
         "pause" => bar.toggle_pause(app),
         "stop" => bar.stop(app),
         "home" => windows::show_home(app),

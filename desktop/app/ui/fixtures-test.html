@@ -27,7 +27,9 @@
       const dir = `${repo}/shared/fixtures/render`;
       const load = (src) => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = src; });
       await init();
-      const { cases } = await (await fetch(`${dir}/cases.json`)).json();
+      // The landscape cases, then vertical and square (render/vertical.json).
+      const list = async (f) => { const r = await fetch(`${dir}/${f}`); return r.ok ? (await r.json()).cases : []; };
+      const cases = [...(await list("cases.json")), ...(await list("vertical.json"))];
       const lines = [];
       // ?case=<name> paints one case; ?zoom=<x>,<y> shows a 160×90 crop of
       // ours | the Mac's at 6×.

@@ -49,6 +49,8 @@ pub struct BarState {
     pub problem: Option<String>,
     /// "Record My Camera Too".
     pub camera_too: bool,
+    /// "Record Vertical": new recordings open made for phones.
+    pub vertical: bool,
 }
 
 pub struct Bar {
@@ -65,7 +67,7 @@ pub fn now_ms() -> u64 {
 }
 
 impl Bar {
-    pub fn new(camera_too: bool) -> Self {
+    pub fn new(camera_too: bool, vertical: bool) -> Self {
         Bar {
             state: Mutex::new(BarState {
                 phase: Phase::Idle,
@@ -74,6 +76,7 @@ impl Bar {
                 paused_since: None,
                 problem: None,
                 camera_too,
+                vertical,
             }),
             countdown_gen: Mutex::new(0),
             problem_gen: Mutex::new(0),
@@ -208,6 +211,11 @@ impl Bar {
     pub fn toggle_camera_too(&self, app: &AppHandle) {
         self.set(app, |s| s.camera_too = !s.camera_too);
         crate::settings::save_camera_too(self.snapshot().camera_too);
+    }
+
+    pub fn toggle_vertical(&self, app: &AppHandle) {
+        self.set(app, |s| s.vertical = !s.vertical);
+        crate::settings::save_vertical(self.snapshot().vertical);
     }
 
     /// The recorder reports.

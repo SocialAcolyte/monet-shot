@@ -20,6 +20,8 @@ export interface BarState {
   pausedSince: number | null;
   problem: string | null;
   cameraToo: boolean;
+  /** "Record Vertical": new recordings open made for phones. */
+  vertical: boolean;
 }
 
 type Mock = (args?: Record<string, unknown>) => unknown;

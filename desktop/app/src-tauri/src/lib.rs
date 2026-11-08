@@ -42,9 +42,57 @@ fn command(app: &AppHandle, args: &[String]) {
     }
 }
 
-/// Runs a command that needs no app (`status`); true when it did.
+/// `monet-shot --aspect <rec.reel> landscape|vertical|square`, `--vertical
+/// <rec.reel>`, `--render <rec.reel> <out.mp4>`: as the Mac's `MonetShot`
+/// flags, without starting the app. Exits with 0 when it worked.
+fn edit_cli(args: &[String]) -> Option<i32> {
+    use monetshot_core::{CanvasLayout, Project};
+    let flag = args.get(1)?.as_str();
+    let run = |work: &dyn Fn() -> Result<String, String>| match work() {
+        Ok(out) => {
+            println!("{out}");
+            0
+        }
+        Err(e) => {
+            eprintln!("error: {e}");
+            1
+        }
+    };
+    match (flag, args.len()) {
+        ("--aspect", 4) | ("--vertical", 3) => Some(run(&|| {
+            let name = if flag == "--vertical" { "vertical" } else { args[3].as_str() };
+            let layout = CanvasLayout::parse(name);
+            if matches!(layout, CanvasLayout::Other(_)) {
+                return Err(format!("no layout \"{name}\"; try landscape, vertical, square"));
+            }
+            let folder = std::path::Path::new(&args[2]);
+            let mut p = Project::load(folder).map_err(|e| e.to_string())?;
+            p.edit.set_layout(layout.clone());
+            p.save_edit().map_err(|e| e.to_string())?;
+            let (w, h) = p.edit.canvas_size(p.meta().aspect());
+            Ok(format!("{}: {w}x{h}", layout.label()))
+        })),
+        ("--render", 4) => Some(run(&|| {
+            let p = Project::load(std::path::Path::new(&args[2])).map_err(|e| e.to_string())?;
+            let out = std::path::PathBuf::from(&args[3]);
+            let t0 = std::time::Instant::now();
+            monetshot_export::export(&p, &out, &|_| {}, &std::sync::atomic::AtomicBool::new(false)).map_err(|e| e.to_string())?;
+            Ok(format!("exported {} in {:.1}s", out.display(), t0.elapsed().as_secs_f64()))
+        })),
+        ("--aspect" | "--vertical" | "--render", _) => {
+            eprintln!("usage: monet-shot --aspect <rec.reel> <landscape|vertical|square>\n       monet-shot --vertical <rec.reel>\n       monet-shot --render <rec.reel> <out.mp4>");
+            Some(2)
+        }
+        _ => None,
+    }
+}
+
+/// Runs a command that needs no app (`status`, the edit flags); true when it did.
 pub fn run_cli() -> bool {
     let args: Vec<String> = std::env::args().collect();
+    if let Some(code) = edit_cli(&args) {
+        std::process::exit(code);
+    }
     if args.get(1).map(String::as_str) != Some("status") {
         return false;
     }
@@ -72,7 +120,7 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| command(app, &argv)))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .manage(bar::Bar::new(settings::camera_too()))
+        .manage(bar::Bar::new(settings::camera_too(), settings::vertical()))
         // A closed window's media URLs stop working (media.rs).
         .on_window_event(|w, e| {
             if let tauri::WindowEvent::Destroyed = e {
@@ -84,6 +132,7 @@ pub fn run() {
             commands::bar_tap,
             commands::bar_cancel,
             commands::bar_toggle_pause,
+            commands::bar_toggle_vertical,
             commands::bar_stop,
             commands::show_home,
             commands::picker_sources,
