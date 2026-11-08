@@ -16,6 +16,7 @@ tauri-build = { version = "2", features = [] }
 monetshot-core = { workspace = true }
 monetshot-capture = { path = "../../crates/capture" }
 monetshot-export = { path = "../../crates/export" }
+monetshot-transcribe = { path = "../../crates/transcribe" }
 tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api", "protocol-asset"] }
 tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"

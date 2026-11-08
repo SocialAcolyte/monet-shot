@@ -34,6 +34,10 @@ pub(crate) struct TakeInput<'a> {
     pub bars: Vec<Bar>,
     /// camera.mp4 and the take time it starts at.
     pub camera: Option<(PathBuf, f64)>,
+    /// voice.m4a (the microphone alone) and the take time it starts at.
+    pub voice: Option<(PathBuf, f64)>,
+    /// The camera file has your voice in it.
+    pub camera_heard: bool,
 }
 
 pub(crate) fn write(i: TakeInput) -> Result<Event, CaptureError> {
@@ -51,6 +55,15 @@ pub(crate) fn write(i: TakeInput) -> Result<Event, CaptureError> {
         meta.camera = file.file_name().and_then(|n| n.to_str()).map(String::from);
         meta.camera_offset = *offset;
         log::info!("camera saved with the take, {offset:.2}s offset");
+        if i.camera_heard {
+            meta.voice = meta.camera.clone();
+            meta.voice_offset = Some(*offset);
+        }
+    }
+    if let Some((file, offset)) = &i.voice {
+        meta.voice = file.file_name().and_then(|n| n.to_str()).map(String::from);
+        meta.voice_offset = Some(*offset);
+        log::info!("voice saved with the take, {offset:.2}s offset");
     }
     let to_core = |s: &Sample| core::CursorSample::new(s.t, s.x, s.y);
     let track = core::CursorTrack { samples: i.samples.iter().map(to_core).collect(), clicks: i.clicks.iter().map(to_core).collect(), ..Default::default() };

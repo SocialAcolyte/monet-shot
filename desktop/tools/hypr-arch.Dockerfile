@@ -9,7 +9,7 @@
 ARG BASE=monetshot-run-arch
 FROM ${BASE}
 RUN pacman -Syu --noconfirm --needed \
-      rust-wasm hyprland xorg-xwayland xdg-desktop-portal xdg-desktop-portal-hyprland \
+      rust-wasm cmake hyprland xorg-xwayland xdg-desktop-portal xdg-desktop-portal-hyprland \
       pipewire wireplumber seatd ydotool grim jq socat python foot \
       quickshell qt6-wayland qt6-svg waybar ttf-jetbrains-mono-nerd mako \
     && pacman -Scc --noconfirm

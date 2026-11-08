@@ -2,7 +2,7 @@
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      build-essential curl ca-certificates git pkg-config clang libclang-dev \
+      build-essential curl ca-certificates git pkg-config clang libclang-dev cmake \
       libpipewire-0.3-dev ffmpeg \
       libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev libxdo-dev \
     && rm -rf /var/lib/apt/lists/* \

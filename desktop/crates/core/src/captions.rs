@@ -8,7 +8,6 @@ use crate::text::{text_motion, TextAnimation, TextOverlay, TextStyle};
 use crate::timemap::TimeMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
-use std::path::Path;
 
 /// `transcript.json` in a take's folder. Times are the take's own.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
@@ -39,13 +38,13 @@ pub const FILE_NAME: &str = "transcript.json";
 impl Transcript {
     /// The take's transcript, if it has one.
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn load(take_folder: &Path) -> Option<Transcript> {
+    pub fn load(take_folder: &std::path::Path) -> Option<Transcript> {
         let b = std::fs::read(take_folder.join(FILE_NAME)).ok()?;
         crate::json::from_json(&b).ok()
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn save(&self, take_folder: &Path) -> std::io::Result<()> {
+    pub fn save(&self, take_folder: &std::path::Path) -> std::io::Result<()> {
         crate::project::write_json(self, &take_folder.join(FILE_NAME))
     }
 

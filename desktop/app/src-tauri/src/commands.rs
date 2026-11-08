@@ -232,6 +232,7 @@ pub async fn export_start(app: AppHandle, folder: PathBuf) -> Result<PathBuf, St
         let cancel = std::sync::atomic::AtomicBool::new(false);
         match monetshot_export::export(&p, &out, &progress, &cancel) {
             Ok(()) => {
+                crate::speech::after_export(&p, &out);
                 crate::log::info(&format!("export finished {}", out.display()));
                 Ok(out)
             }

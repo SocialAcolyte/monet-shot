@@ -11,6 +11,7 @@ mod log;
 mod media;
 mod recorder;
 mod settings;
+mod speech;
 mod tray;
 mod windows;
 
@@ -105,6 +106,12 @@ pub fn run() {
             commands::add_footage,
             commands::export_start,
             commands::ui_log,
+            speech::speech_settings,
+            speech::speech_set,
+            speech::microphones,
+            speech::transcribe,
+            speech::transcribe_cancel,
+            speech::transcript_save,
             media::camera_open,
             media::camera_close,
             media::camera_devices,

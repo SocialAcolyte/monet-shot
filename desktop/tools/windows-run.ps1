@@ -38,7 +38,7 @@
 # desktop/packaging/windows/bin (fetch-ffmpeg.sh).
 param(
   [string]$Out = $(if ($env:RUNNER_TEMP) { Join-Path $env:RUNNER_TEMP 'ms-run' } else { Join-Path ([IO.Path]::GetTempPath()) 'ms-run' }),
-  [string[]]$Stages = @('record', 'editor', 'fixtures', 'hevc', 'export', 'install', 'window', 'home')
+  [string[]]$Stages = @('record', 'editor', 'fixtures', 'hevc', 'export', 'install', 'window', 'home', 'captions')
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3
@@ -417,6 +417,55 @@ function Stage-Export {
   else { Fail "export: $($v.frames) frames, $($v.duration) s" }
 }
 
+# MARK: 9. captions
+
+# A take whose voice is the test sentence (`say` on the Mac): the editor
+# transcribes it on open (whisper; the model downloaded into this home on
+# first use), devchecks/captions.js checks what it heard, fixes a word and
+# exports; then a frame of the export with its caption, and the .srt.
+function Stage-Captions {
+  Section '9. captions (debug exe, whisper, devchecks/captions.js)'
+  Start-Vite
+  $h = Join-Path $Out 'home-captions'
+  if (Test-Path $h) { Remove-Item -Recurse -Force $h }
+  $reel = Join-Path $h 'recordings\voice-test.reel'
+  New-Item -ItemType Directory -Force $reel | Out-Null
+  & $ffmpeg -v error -y -f lavfi -i 'testsrc2=size=1280x720:rate=30' -t 7 -pix_fmt yuv420p -c:v libx264 (Join-Path $reel 'screen.mp4')
+  Copy-Item (Join-Path $repo 'shared\fixtures\voice\sentence.m4a') (Join-Path $reel 'voice.m4a')
+  $meta = '{"createdAt":"2026-11-08T00:00:00Z","duration":7,"pixelHeight":720,"pixelWidth":1280,"pointScale":1,"source":"display","video":"screen.mp4","voice":"voice.m4a","voiceOffset":0.5}'
+  [IO.File]::WriteAllText((Join-Path $reel 'meta.json'), $meta)
+  [IO.File]::WriteAllText((Join-Path $reel 'edit.json'), '{"outputWidth":1920}')
+  $devScript = Join-Path $desktop 'app\ui\devchecks\captions.js'
+  Start-App $debug @{ MONETSHOT_HOME = $h; MONETSHOT_DEV_SCRIPT = $devScript } @($reel) | Out-Null
+  if (Wait-Log $h 'check: shot captions-editor' 900) { Start-Sleep 2; Shot '9-captions-editor' | Out-Null } else { Shot '9-captions-no-shot' | Out-Null }
+  $done = Wait-Log $h 'check: done (\d+) ok, (\d+) failed' 900
+  Stop-App
+  Save-Log $h '9-captions'
+  $log = Read-Log $h
+  ($log -split "`n" | Where-Object { $_ -match 'check:|ERROR|transcri|subtitles|speech model' }) -join "`n" | Write-Host
+  if (-not $done) { Fail 'captions: the check never finished'; return }
+  $good = [int]$done.Groups[1].Value; $bad = [int]$done.Groups[2].Value
+  if ($bad -eq 0 -and $good -gt 0) { Ok "captions check: $good ok, 0 failed" } else { Fail "captions: check: done $good ok, $bad failed" }
+  $video = Join-Path $h 'recordings\voice-test.mp4'
+  $srt = Join-Path $h 'recordings\voice-test.srt'
+  if (Test-Path $video) {
+    Copy-Item $video (Join-Path $Out 'captions-export.mp4') -Force
+    foreach ($t in @(1.6, 3.2, 5.0)) {
+      & $ffmpeg -v error -y -ss $t -i $video -frames:v 1 (Join-Path $Out ("9-captioned-{0}s.png" -f $t))
+    }
+    $a = & $ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of csv=p=0 $video
+    if ($a -match 'aac') { Ok 'captions export has the voice (aac)' } else { Fail "captions export: no audio stream ($a)" }
+  } else { Fail "captions: no export at $video" }
+  if (Test-Path $srt) {
+    Copy-Item $srt (Join-Path $Out 'captions-export.srt') -Force
+    $text = Get-Content -Raw $srt
+    Write-Host $text
+    if ($text -match '^1\r?\n00:00:0') { Ok 'subtitles written beside the export' } else { Fail "captions: the .srt looks wrong" }
+  } else { Fail "captions: no subtitles at $srt" }
+  $model = Join-Path $h 'models\ggml-base-q5_1.bin'
+  if ((Test-Path $model) -and (Test-Path "$model.sha256")) { Ok "speech model downloaded and checked ($((Get-Item $model).Length) bytes)" } else { Fail 'captions: the speech model is not where it should be' }
+}
+
 # MARK: 3. fixtures
 
 function Stage-Fixtures {
@@ -745,6 +794,7 @@ try {
         'install' { Stage-Install }
         'window' { Stage-Window }
         'home' { Stage-Home }
+        'captions' { Stage-Captions }
         default { throw "unknown stage $s" }
       }
     } catch {

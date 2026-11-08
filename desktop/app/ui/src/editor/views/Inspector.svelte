@@ -12,6 +12,7 @@
   import CursorTile from "../parts/CursorTile.svelte";
   import MusicSection from "../music/MusicSection.svelte";
   import CameraSection from "../camera/CameraSection.svelte";
+  import CaptionsSection from "./CaptionsSection.svelte";
   import type { EditorStore } from "../store.svelte";
   import { SPEEDS, TEXT_ANIMATIONS, TEXT_STYLES, TEXT_TONES, hasBacking, outputDuration, rate, speedLabel, type Edit, type Format } from "../core";
   import { moods } from "../music/music";
@@ -208,6 +209,8 @@
         </div>
       {/if}
     </Section>
+
+    <CaptionsSection {store} />
 
     <Section title="Zoom">
       {#if store.selected}

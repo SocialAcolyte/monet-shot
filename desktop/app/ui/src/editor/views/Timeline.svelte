@@ -197,6 +197,16 @@
     </div>
   {/each}
 
+  <!-- Your voice, in the gap under the clips: where a clip's take has one, and each word heard. -->
+  {#each store.editor.spans() as sp, i (i)}
+    {#if store.takes[sp.take]?.voice}
+      <span class="voice" style:left="{X(sp.at) + 1}px" style:top="{stripY + stripH + 4}px" style:width="{Math.max(2, ((sp.end - sp.start) / sp.speed) * pps - 2)}px"></span>
+    {/if}
+  {/each}
+  {#each store.speech.words as wd, k (k)}
+    <span class="said" style:left="{X(wd.start)}px" style:top="{stripY + stripH + 4}px" style:width="{Math.max(1.5, (wd.end - wd.start) * pps)}px"></span>
+  {/each}
+
   <!-- The zoom track: empty space deselects, a double-click adds. -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
@@ -357,6 +367,21 @@
     font-weight: 500;
     color: var(--faint);
     white-space: nowrap;
+  }
+  .voice,
+  .said {
+    position: absolute;
+    height: 4px;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .voice {
+    background: var(--violet);
+    opacity: 0.28;
+  }
+  .said {
+    background: var(--violet);
+    opacity: 0.85;
   }
   .lane {
     position: absolute;

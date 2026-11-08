@@ -43,6 +43,9 @@ struct TakeIn {
     cursor: CursorTrack,
     #[serde(default)]
     dir: String,
+    /// transcript.json, if the take has one.
+    #[serde(default)]
+    transcript: Option<monetshot_core::captions::Transcript>,
 }
 
 #[derive(Serialize)]
@@ -67,6 +70,7 @@ struct Viewport {
 #[wasm_bindgen]
 pub struct Editor {
     takes: Vec<PlanTake>,
+    transcripts: Vec<Option<monetshot_core::captions::Transcript>>,
     planner: Planner,
 }
 
@@ -78,16 +82,50 @@ impl Editor {
     pub fn new(edit: JsValue, takes: JsValue) -> R<Editor> {
         let doc: EditDoc = from_js(&edit)?;
         let takes: Vec<TakeIn> = from_js(&takes)?;
+        let transcripts: Vec<_> = takes.iter().map(|t| t.transcript.clone()).collect();
         let takes: Vec<PlanTake> = takes.into_iter().map(|t| PlanTake { meta: t.meta, cursor: t.cursor, dir: t.dir }).collect();
-        let planner = Planner::new(&doc, &takes);
-        Ok(Editor { takes, planner })
+        let planner = Planner::new(&doc, &takes).with_transcripts(&transcripts);
+        Ok(Editor { takes, transcripts, planner })
+    }
+
+    /// Take `take`'s transcript changed (heard, or a word fixed): re-plans.
+    #[wasm_bindgen(js_name = setTranscript)]
+    pub fn set_transcript(&mut self, take: i32, transcript: JsValue) -> R<()> {
+        let t = if transcript.is_null() || transcript.is_undefined() { None } else { Some(from_js(&transcript)?) };
+        let i = take.max(0) as usize;
+        if self.transcripts.len() <= i {
+            self.transcripts.resize(i + 1, None);
+        }
+        self.transcripts[i] = t;
+        self.planner = Planner::new(&self.planner.doc, &self.takes).with_transcripts(&self.transcripts);
+        Ok(())
+    }
+
+    /// Every transcribed word the edit shows, in output time and play order
+    /// ({text, start, end, span, take, index}).
+    #[wasm_bindgen(js_name = captionWords)]
+    pub fn caption_words(&self) -> R<JsValue> {
+        to_js(&monetshot_core::captions::words(&self.transcripts, &self.planner.map))
+    }
+
+    /// Plain text of everything said ("Copy transcript").
+    #[wasm_bindgen(js_name = transcriptText)]
+    pub fn transcript_text(&self) -> String {
+        monetshot_core::captions::text(&monetshot_core::captions::words(&self.transcripts, &self.planner.map))
+    }
+
+    /// The captions as SubRip text ("" when nothing was said).
+    pub fn srt(&self) -> String {
+        let c = &self.planner.canvas;
+        let o = monetshot_core::captions::overlays(&self.transcripts, &self.planner.map, c.width as f64, c.height as f64, Default::default());
+        monetshot_core::captions::srt(&o)
     }
 
     /// After any edit: re-plans (smooths every pointer again; a few ms).
     #[wasm_bindgen(js_name = setEdit)]
     pub fn set_edit(&mut self, edit: JsValue) -> R<()> {
         let doc: EditDoc = from_js(&edit)?;
-        self.planner = Planner::new(&doc, &self.takes);
+        self.planner = Planner::new(&doc, &self.takes).with_transcripts(&self.transcripts);
         Ok(())
     }
 
@@ -272,6 +310,13 @@ pub fn kept_clips(edit: JsValue, duration: f64) -> R<JsValue> {
 // MARK: formats and texts
 
 /// EditFormat.all: id, name, blurb, speed, fades, zoom depth, music mood.
+/// Word `i` of a transcript spelled `text` instead (empty removes it).
+#[wasm_bindgen(js_name = transcriptEdit)]
+pub fn transcript_edit(transcript: JsValue, i: i32, text: &str) -> R<JsValue> {
+    let t: monetshot_core::captions::Transcript = from_js(&transcript)?;
+    to_js(&t.editing(i.max(0) as usize, text))
+}
+
 #[wasm_bindgen]
 pub fn formats() -> R<JsValue> {
     to_js(&monetshot_core::formats::all())

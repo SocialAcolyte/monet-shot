@@ -50,6 +50,9 @@ pub(crate) struct Shared {
     /// The bars the user stops from (tray's bar, the pill), as fractions of the content.
     pub bars: Mutex<Vec<Bar>>,
     camera: Mutex<Option<(CameraHold, Instant)>>,
+    voice: Mutex<Option<(crate::voice::VoiceRec, Instant)>>,
+    /// The camera records your voice too (it has a microphone).
+    camera_mic: bool,
     created: Instant,
 }
 
@@ -196,6 +199,8 @@ pub(crate) fn prepare(opts: &StartOptions, kind: SourceKind, scale: f64, on_even
         scale,
         bars: Mutex::new(Vec::new()),
         camera: Mutex::new(None),
+        voice: Mutex::new(None),
+        camera_mic: opts.camera.as_ref().is_some_and(|c| c.mic.as_deref() != Some("")),
         created: Instant::now(),
     }))
 }
@@ -204,7 +209,7 @@ pub(crate) fn prepare(opts: &StartOptions, kind: SourceKind, scale: f64, on_even
 /// the screen (as the Mac does). A camera that fails is a warning, not a
 /// failed recording.
 pub(crate) fn start_camera(shared: &Arc<Shared>, opts: &StartOptions) {
-    let Some(choice) = &opts.camera else { return };
+    let Some(choice) = &opts.camera else { return start_voice(shared, opts) };
     let hold = match crate::camera::Camera::acquire(choice, None) {
         Ok(h) => h,
         Err(e) => {
@@ -222,10 +227,29 @@ pub(crate) fn start_camera(shared: &Arc<Shared>, opts: &StartOptions) {
     }
 }
 
+/// The microphone alone, when one is chosen and the camera isn't hearing
+/// you: `voice.m4a` in the take folder. A mic that fails is a warning.
+fn start_voice(shared: &Arc<Shared>, opts: &StartOptions) {
+    let Some(mic) = &opts.mic else { return };
+    match crate::voice::VoiceRec::start(Some(mic), &shared.folder.join("voice.m4a")) {
+        Ok(v) => *shared.voice.lock().unwrap() = Some(v),
+        Err(e) => {
+            log::error!("microphone: {e}");
+            shared.emit(Event::Warning(format!("The microphone didn't record: {e}")));
+        }
+    }
+}
+
+fn stop_voice(shared: &Shared) -> Option<(PathBuf, Instant)> {
+    let (rec, at) = shared.voice.lock().unwrap().take()?;
+    rec.stop().map(|f| (f, at))
+}
+
 /// Undoes `prepare` + `start_camera` when the backend couldn't start.
 pub(crate) fn discard(shared: &Shared) {
     shared.end();
     stop_camera(shared);
+    stop_voice(shared);
     remove(shared);
 }
 
@@ -275,6 +299,7 @@ impl Recording {
         self.shared.end();
         capture.abort();
         stop_camera(&self.shared);
+        stop_voice(&self.shared);
         remove(&self.shared);
         log::info!("recording aborted");
     }
@@ -306,7 +331,9 @@ fn remove(shared: &Shared) {
 fn finish(shared: Arc<Shared>, capture: Box<dyn Capture>) {
     let video = capture.finish();
     let (t0, pauses, open_pause) = shared.end();
+    let camera_heard = shared.camera_mic;
     let camera = stop_camera(&shared);
+    let voice = stop_voice(&shared);
     let fail = |msg: String| {
         log::error!("{msg}");
         remove(&shared);
@@ -335,6 +362,11 @@ fn finish(shared: Arc<Shared>, capture: Box<dyn Capture>) {
             let offset = at.saturating_duration_since(t0).as_secs_f64() - t0.saturating_duration_since(at).as_secs_f64();
             (file, offset)
         }),
+        voice: voice.map(|(file, at)| {
+            let offset = at.saturating_duration_since(t0).as_secs_f64() - t0.saturating_duration_since(at).as_secs_f64();
+            (file, offset)
+        }),
+        camera_heard,
     };
     match take::write(input) {
         Ok(e) => shared.emit(e),

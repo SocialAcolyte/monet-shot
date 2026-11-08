@@ -10,6 +10,8 @@ import { call } from "../lib/ipc";
 import { core, rate, outputDuration, type Core, type Editor, type Edit, type Clip, type Format, type TextOverlay, type ZoomSegment, type BlurRegion, type CameraClip, type NormRect, type MusicChoice } from "./core";
 import type { CursorArt, Rect, TextArt, TextPlan } from "./plan";
 import * as cameraFlow from "./camera/flow";
+import { Speech } from "./speech.svelte";
+import type { Transcript } from "./core";
 
 export interface TakeData {
   meta: { pixelWidth: number; pixelHeight: number; duration: number; source: string; camera?: string | null; [k: string]: unknown };
@@ -17,6 +19,9 @@ export interface TakeData {
   dir: string;
   video: string;
   camera: string | null;
+  /** The file with your voice (absolute) and its transcript, if any. */
+  voice?: string | null;
+  transcript?: Transcript | null;
 }
 
 export interface EditorData {
@@ -119,6 +124,17 @@ export class EditorStore {
     this.takes = data.takes;
     this.ed = new c.Editor(data.edit, data.takes);
     this.edit = this.ed.edit();
+    this.speech = new Speech(this);
+  }
+
+  /** Voice, transcripts and captions (speech.svelte.ts). */
+  speech: Speech;
+
+  /** Take `take`'s transcript changed: the captions follow. */
+  setTranscript(take: number, t: Transcript | null) {
+    if (this.takes[take]) this.takes[take].transcript = t;
+    this.ed.setTranscript(take, t);
+    this.version++;
   }
 
   static async open(folder: string): Promise<EditorStore> {
@@ -542,6 +558,7 @@ export class EditorStore {
     this.ed.free();
     this.ed = new this.c.Editor(this.edit, fresh.takes);
     this.appendTakes(added, opts.zooms, added.length === 1 ? (opts.clips ?? null) : null);
+    void this.speech.autoStart();
     return added;
   }
 
