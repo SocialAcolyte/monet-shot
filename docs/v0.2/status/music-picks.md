@@ -94,7 +94,9 @@ Connor decides; these are the evidence and the reasons.
 4. **The fit data** is read from the shipped file by MonetShotKit itself (`MusicGrid.analyze`,
    `MusicCatalog.waveform`): beat grid (bar, first downbeat, lifts), 64-bar waveform. The seven classical
    recordings carry no grid (rubato: there is no steady bar to fit), so they start at the top and end on the
-   plain 2 s fade.
+   plain 2 s fade. Each track's `start` is the first bar line where it is in full swing (within 4 dB of its
+   median bar, in the first 24 s), so a short video doesn't get only a quiet, filtered intro (Day Trips' first
+   10 s measure -24.7 LUFS against -16 for the track).
 5. **Then judged again as shipped** (the table above), and one more cut: **Venus** (HoliznaCC0) read
    "inspirational corporate background music" z +2.8 as its second-strongest genre and "sad and melancholic"
    rather than the sunny it was picked for.
